@@ -1,6 +1,7 @@
 package com.extrucol.crm.model;
 
 
+import com.extrucol.crm.enums.RolUsuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,9 +9,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "CRM_UBICACION")
+@Table(name = "CRM_USUARIO")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 public class Usuario {
@@ -29,11 +31,11 @@ public class Usuario {
     String password;
 
     @Column(nullable = false)
-    String rol;
+    RolUsuario rol;
 
     @Column(nullable = false)
-    Integer activo;
+    Boolean activo;
 
     @Column(nullable = false)
-    LocalDate fechaCreacion;
+    LocalDateTime fecha_creacion;
 }

@@ -25,7 +25,7 @@ public class Ubicacion {
     @Column(nullable = false)
     BigDecimal longitud;
 
-    @JoinColumn
+    @JoinColumn(name = "id_actividad")
     @OneToOne(fetch = FetchType.LAZY)
     Actividad actividad;
 }

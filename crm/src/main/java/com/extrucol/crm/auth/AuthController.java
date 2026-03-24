@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final JwtService jwtService;
@@ -38,7 +38,9 @@ public class AuthController {
         String token = jwtService.generateToken(usuario.getEmail());
 
         return Map.of(
-                "token", token
+                "token", token,
+                "rol" , usuario.getRol().name(),
+                "usuario", usuario.getNombre()
         );
     }
 }

@@ -1,5 +1,6 @@
 package com.extrucol.crm.service;
 
+import com.extrucol.crm.dto.request.UsuarioEstadoRequestDTO;
 import com.extrucol.crm.dto.request.UsuarioRequestDTO;
 import com.extrucol.crm.dto.response.UsuarioResponseDTO;
 
@@ -13,6 +14,8 @@ public interface UsuarioService {
     UsuarioResponseDTO buscarPorId(Long id);
 
     UsuarioResponseDTO actualizar(Long id, UsuarioRequestDTO dto);
+
+    UsuarioResponseDTO actualizarEstado(Long id, UsuarioEstadoRequestDTO dto);
 
     void eliminar(Long id);
 }

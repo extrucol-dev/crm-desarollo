@@ -1,0 +1,7 @@
+package com.extrucol.crm.repository;
+
+import com.extrucol.crm.model.Oportunidad;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OportunidadRepository extends JpaRepository<Oportunidad, Long> {
+}

@@ -23,7 +23,6 @@ public record UsuarioRequestDTO(
 
         @Schema(description = "Rol del usuario", example = "EJECUTIVO")
         @NotNull(message = "El rol no puede ser nulo")
-        @NotBlank(message = "La contraseña no puede estar vacía")
         RolUsuario rol,
 
         @Schema(description = "Estado del usuario", example = "true")

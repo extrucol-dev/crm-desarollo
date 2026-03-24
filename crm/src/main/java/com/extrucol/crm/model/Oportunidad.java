@@ -35,10 +35,10 @@ public class Oportunidad {
     @Column(nullable = false)
     BigDecimal valor_estimado;
 
-    @Column(nullable = false)
+    @Column
     LocalDate fecha_cierre;
 
-    @Column(nullable = false)
+    @Column
     String motivo_cierre;
 
     @JoinColumn(name = "id_cliente")

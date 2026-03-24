@@ -1,5 +1,6 @@
 package com.extrucol.crm.mapper;
 
+import com.extrucol.crm.dto.request.UsuarioEstadoRequestDTO;
 import com.extrucol.crm.dto.request.UsuarioRequestDTO;
 import com.extrucol.crm.dto.response.UsuarioResponseDTO;
 import com.extrucol.crm.model.Usuario;
@@ -46,5 +47,11 @@ public class UsuarioMapper {
         u.setPassword(dto.password());
         u.setActivo(dto.activo());
         u.setRol(dto.rol());
+    }
+
+    public void actualizarEstadoDesdeDTO(Usuario u, UsuarioEstadoRequestDTO dto){
+        if(dto == null) return;
+
+        u.setActivo(dto.activo());
     }
 }

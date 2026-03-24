@@ -1,5 +1,6 @@
 package com.extrucol.crm.service.impl;
 
+import com.extrucol.crm.dto.request.UsuarioEstadoRequestDTO;
 import com.extrucol.crm.dto.request.UsuarioRequestDTO;
 import com.extrucol.crm.dto.response.UsuarioResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
@@ -35,16 +36,34 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public UsuarioResponseDTO buscarPorId(Long id) {
-        return null;
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
+        return usuarioMapper.entidadADTO(usuario);
+    }
+    @Override
+    public UsuarioResponseDTO actualizar(Long id, UsuarioRequestDTO dto) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
+
+        usuarioMapper.actualizarEntidadDesdeDTO(usuario, dto);
+        usuarioRepository.save(usuario);
+
+        return usuarioMapper.entidadADTO(usuario);
     }
 
     @Override
-    public UsuarioResponseDTO actualizar(Long id, UsuarioRequestDTO dto) {
-        return null;
+    public UsuarioResponseDTO actualizarEstado(Long id, UsuarioEstadoRequestDTO dto) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
+
+        usuarioMapper.actualizarEstadoDesdeDTO(usuario, dto);
+        usuarioRepository.save(usuario);
+
+        return usuarioMapper.entidadADTO(usuario);
     }
 
     @Override
     public void eliminar(Long id) {
-
+        usuarioRepository.deleteById(id);
     }
 }

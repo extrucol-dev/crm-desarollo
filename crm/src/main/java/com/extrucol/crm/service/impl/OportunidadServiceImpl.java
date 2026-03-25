@@ -1,7 +1,8 @@
 package com.extrucol.crm.service.impl;
 
-import com.extrucol.crm.dto.request.OportunidadEstadoRequestDTO;
-import com.extrucol.crm.dto.request.OportunidadRequestDTO;
+import com.extrucol.crm.dto.request.oportunidad.OportunidadCierreRequestDTO;
+import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
+import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
 import com.extrucol.crm.dto.response.OportunidadResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.OportunidadMapper;
@@ -30,15 +31,12 @@ public class OportunidadServiceImpl implements OportunidadService {
 
     @Override
     public OportunidadResponseDTO crear(OportunidadRequestDTO dto) {
-        System.out.println(dto);
 
-        Cliente cliente = clienteRepository.findById(dto.cliente())
-                .orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
+        Cliente cliente = clienteRepository.findById(dto.cliente()).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
 
-        Usuario usuario = usuarioRepository.findById(dto.usuario())
-                .orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
+        Usuario usuario = usuarioRepository.findById(dto.usuario()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 
-        return oportunidadMapper.entidadADTO(oportunidadRepository.save(oportunidadMapper.crearDTOAEntidad(dto,cliente,usuario)));
+        return oportunidadMapper.entidadADTO(oportunidadRepository.save(oportunidadMapper.crearDTOAEntidad(dto, cliente, usuario)));
     }
 
     @Override
@@ -48,15 +46,13 @@ public class OportunidadServiceImpl implements OportunidadService {
 
     @Override
     public OportunidadResponseDTO buscarPorId(Long id) {
-               Oportunidad oportunidad = oportunidadRepository.findById(id)
-                .orElseThrow(() -> new BusinessRuleException("Oportunidad no encontrada"));
+        Oportunidad oportunidad = oportunidadRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Oportunidad no encontrada"));
         return oportunidadMapper.entidadADTO(oportunidad);
     }
 
     @Override
     public OportunidadResponseDTO actualizar(Long id, OportunidadRequestDTO dto) {
-        Oportunidad oportunidad = oportunidadRepository.findById(id)
-                .orElseThrow(() -> new BusinessRuleException("Oportunidad no encontrada"));
+        Oportunidad oportunidad = oportunidadRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Oportunidad no encontrada"));
 
         oportunidadMapper.actualizarEntidadDesdeDTO(oportunidad, dto);
         oportunidadRepository.save(oportunidad);
@@ -65,10 +61,19 @@ public class OportunidadServiceImpl implements OportunidadService {
 
     @Override
     public OportunidadResponseDTO actualizarEstado(Long id, OportunidadEstadoRequestDTO dto) {
-        Oportunidad oportunidad = oportunidadRepository.findById(id)
-                .orElseThrow(() -> new BusinessRuleException("Oportunidad no encontrada"));
+        Oportunidad oportunidad = oportunidadRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Oportunidad no encontrada"));
 
         oportunidadMapper.actualizarEstadoDesdeDTO(oportunidad, dto);
+        oportunidadRepository.save(oportunidad);
+
+        return oportunidadMapper.entidadADTO(oportunidad);
+    }
+
+    @Override
+    public OportunidadResponseDTO cerrarOportunidad(Long id, OportunidadCierreRequestDTO dto) {
+        Oportunidad oportunidad = oportunidadRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Oportunidad no encontrada"));
+
+        oportunidadMapper.cierreDesdeDTO(oportunidad, dto);
         oportunidadRepository.save(oportunidad);
 
         return oportunidadMapper.entidadADTO(oportunidad);

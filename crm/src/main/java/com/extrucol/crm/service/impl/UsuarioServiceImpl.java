@@ -1,7 +1,7 @@
 package com.extrucol.crm.service.impl;
 
-import com.extrucol.crm.dto.request.UsuarioEstadoRequestDTO;
-import com.extrucol.crm.dto.request.UsuarioRequestDTO;
+import com.extrucol.crm.dto.request.usuario.UsuarioEstadoRequestDTO;
+import com.extrucol.crm.dto.request.usuario.UsuarioRequestDTO;
 import com.extrucol.crm.dto.response.UsuarioResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.UsuarioMapper;
@@ -19,7 +19,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
-
 
     @Override
     public UsuarioResponseDTO crear(UsuarioRequestDTO dto) {
@@ -47,7 +46,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         usuarioMapper.actualizarEntidadDesdeDTO(usuario, dto);
         usuarioRepository.save(usuario);
-
         return usuarioMapper.entidadADTO(usuario);
     }
 
@@ -58,7 +56,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         usuarioMapper.actualizarEstadoDesdeDTO(usuario, dto);
         usuarioRepository.save(usuario);
-
         return usuarioMapper.entidadADTO(usuario);
     }
 

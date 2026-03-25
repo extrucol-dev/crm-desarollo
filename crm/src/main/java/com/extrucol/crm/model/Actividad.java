@@ -28,7 +28,7 @@ public class Actividad {
     String resultado;
 
     @Column(nullable = false)
-    Integer virtual;
+    Boolean virtual;
 
     @Column(nullable = false)
     LocalDateTime fecha_actividad;

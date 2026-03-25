@@ -1,7 +1,7 @@
 package com.extrucol.crm.mapper;
 
-import com.extrucol.crm.dto.request.UsuarioEstadoRequestDTO;
-import com.extrucol.crm.dto.request.UsuarioRequestDTO;
+import com.extrucol.crm.dto.request.usuario.UsuarioEstadoRequestDTO;
+import com.extrucol.crm.dto.request.usuario.UsuarioRequestDTO;
 import com.extrucol.crm.dto.response.UsuarioResponseDTO;
 import com.extrucol.crm.model.Usuario;
 import org.springframework.stereotype.Component;

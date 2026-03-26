@@ -1,7 +1,8 @@
 package com.extrucol.crm.controller;
 
 import com.extrucol.crm.dto.request.ClienteRequestDTO;
-import com.extrucol.crm.dto.response.ClienteResponseDTO;
+import com.extrucol.crm.dto.response.cliente.ClienteOportunidadesResponseDTO;
+import com.extrucol.crm.dto.response.cliente.ClienteResponseDTO;
 import com.extrucol.crm.service.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,8 +38,13 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.listar());
     }
 
+    @GetMapping("/listar")
+    public ResponseEntity<List<ClienteResponseDTO>> listarPorEjecutivo(){
+        return ResponseEntity.ok(clienteService.listarPorEjecutivo());
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> buscarPorId(@PathVariable Long id){
+    public ResponseEntity<ClienteOportunidadesResponseDTO> buscarPorId(@PathVariable Long id){
         return ResponseEntity.ok(clienteService.buscarPorId(id));
     }
 

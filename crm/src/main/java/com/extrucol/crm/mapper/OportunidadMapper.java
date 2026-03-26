@@ -3,7 +3,8 @@ package com.extrucol.crm.mapper;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadCierreRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
-import com.extrucol.crm.dto.response.OportunidadResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
 import com.extrucol.crm.model.Cliente;
 import com.extrucol.crm.model.Oportunidad;
 import com.extrucol.crm.model.Usuario;
@@ -32,6 +33,23 @@ public class OportunidadMapper {
                 oportunidad.getMotivo_cierre(),
                 clienteMapper.entidadADTO(oportunidad.getCliente()),
                 usuarioMapper.entidadADTO(oportunidad.getUsuario())
+
+        );
+    }
+
+    public OportunidadSimpleResponseDTO entidadADTOSimple(Oportunidad oportunidad){
+        if(oportunidad == null) return null;
+
+        return new OportunidadSimpleResponseDTO(
+                oportunidad.getId(),
+                oportunidad.getNombre(),
+                oportunidad.getDescripcion(),
+                oportunidad.getTipo(),
+                oportunidad.getEstado(),
+                oportunidad.getValor_estimado(),
+                oportunidad.getFecha_cierre(),
+                oportunidad.getMotivo_cierre()
+
 
         );
     }

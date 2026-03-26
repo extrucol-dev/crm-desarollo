@@ -3,7 +3,7 @@ package com.extrucol.crm.service.impl;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadCierreRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
-import com.extrucol.crm.dto.response.OportunidadResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.OportunidadMapper;
 import com.extrucol.crm.model.Cliente;
@@ -15,6 +15,7 @@ import com.extrucol.crm.repository.OportunidadRepository;
 import com.extrucol.crm.repository.UsuarioRepository;
 import com.extrucol.crm.service.OportunidadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +34,8 @@ public class OportunidadServiceImpl implements OportunidadService {
     public OportunidadResponseDTO crear(OportunidadRequestDTO dto) {
 
         Cliente cliente = clienteRepository.findById(dto.cliente()).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
+
+        System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
 
         Usuario usuario = usuarioRepository.findById(dto.usuario()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 

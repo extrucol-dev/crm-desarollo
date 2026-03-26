@@ -2,7 +2,8 @@ package com.extrucol.crm.service;
 
 import com.extrucol.crm.dto.request.ClienteRequestDTO;
 
-import com.extrucol.crm.dto.response.ClienteResponseDTO;
+import com.extrucol.crm.dto.response.cliente.ClienteOportunidadesResponseDTO;
+import com.extrucol.crm.dto.response.cliente.ClienteResponseDTO;
 
 
 import java.util.List;
@@ -12,7 +13,11 @@ public interface ClienteService {
 
     List<ClienteResponseDTO> listar();
 
-    ClienteResponseDTO buscarPorId(Long id);
+    List<ClienteResponseDTO> listarPorEjecutivo();
+
+
+
+    ClienteOportunidadesResponseDTO buscarPorId(Long id);
 
     ClienteResponseDTO actualizar(Long id, ClienteRequestDTO dto);
 

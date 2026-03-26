@@ -6,7 +6,6 @@ public record UsuarioResponseDTO(
         Long id,
         String nombre,
         String email,
-        String password,
         RolUsuario rol,
         Boolean activo
 

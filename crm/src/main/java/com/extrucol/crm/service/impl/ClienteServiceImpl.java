@@ -1,17 +1,24 @@
 package com.extrucol.crm.service.impl;
 
 import com.extrucol.crm.dto.request.ClienteRequestDTO;
-import com.extrucol.crm.dto.response.ClienteResponseDTO;
+import com.extrucol.crm.dto.response.cliente.ClienteOportunidadesResponseDTO;
+import com.extrucol.crm.dto.response.cliente.ClienteResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.ClienteMapper;
+import com.extrucol.crm.mapper.OportunidadMapper;
 import com.extrucol.crm.model.Cliente;
 import com.extrucol.crm.model.Usuario;
 import com.extrucol.crm.repository.ClienteRepository;
+import com.extrucol.crm.repository.OportunidadRepository;
 import com.extrucol.crm.repository.UsuarioRepository;
 import com.extrucol.crm.service.ClienteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -19,21 +26,22 @@ import java.util.List;
 public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final OportunidadRepository oportunidadRepository;
     private final UsuarioRepository usuarioRepository;
 
     private final ClienteMapper clienteMapper;
+    private final OportunidadMapper oportunidadMapper;
 
     @Override
     public ClienteResponseDTO crear(ClienteRequestDTO dto) {
 
-        if(clienteRepository.existsByEmail(dto.email())){
+        if (clienteRepository.existsByEmail(dto.email())) {
             throw new BusinessRuleException("El correo ya está registrado");
         }
 
-        Usuario usuario = usuarioRepository.findById(dto.usuario())
-                .orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
+        Usuario usuario = usuarioRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 
-        return clienteMapper.entidadADTO(clienteRepository.save(clienteMapper.DTOAEntidad(dto,usuario)));
+        return clienteMapper.entidadADTO(clienteRepository.save(clienteMapper.DTOAEntidad(dto, usuario)));
     }
 
     @Override
@@ -42,16 +50,23 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public ClienteResponseDTO buscarPorId(Long id) {
-        Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
-        return clienteMapper.entidadADTO(cliente);
+    public List<ClienteResponseDTO> listarPorEjecutivo() {
+        return  clienteRepository.findByUsuarioEmail(SecurityContextHolder.getContext().getAuthentication().getName()).stream().map(clienteMapper::entidadADTO).toList();
+    }
+
+    @Override
+    public ClienteOportunidadesResponseDTO buscarPorId(Long id) {
+        List<OportunidadSimpleResponseDTO> oportunidades;
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
+
+         oportunidades = oportunidadRepository.findByClienteId(cliente.getId()).stream().map(oportunidadMapper::entidadADTOSimple).toList();
+
+        return clienteMapper.entidadADTOOportunidades(cliente,oportunidades);
     }
 
     @Override
     public ClienteResponseDTO actualizar(Long id, ClienteRequestDTO dto) {
-        Cliente cliente = clienteRepository.findById(id)
-                .orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
 
         clienteMapper.actualizarEntidadDesdeDTO(cliente, dto);
         clienteRepository.save(cliente);

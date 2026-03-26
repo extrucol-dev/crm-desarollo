@@ -25,10 +25,8 @@ public record ClienteRequestDTO(
 
         @NotBlank(message = "El email es obligatorio")
         @Email(message = "El email no es válido")
-        String email,
+        String email
 
-        @NotNull(message = "El usuario es obligatorio")
-        Long usuario
 
 ) {
 }

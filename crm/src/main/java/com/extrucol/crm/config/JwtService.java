@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 
 @Service
 public class JwtService {
@@ -20,10 +21,11 @@ public class JwtService {
     }
 
     // Generar token
-    public String generateToken(String username) {
+    public String generateToken(String username, Map<String, Object> extraClaims) {
 
         return Jwts.builder()
                 .setSubject(username)
+                .addClaims(extraClaims) // 🔥 aquí va el map
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(getKey(), SignatureAlgorithm.HS256)

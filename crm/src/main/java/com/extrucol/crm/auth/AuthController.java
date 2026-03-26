@@ -2,6 +2,7 @@ package com.extrucol.crm.auth;
 
 import com.extrucol.crm.config.JwtService;
 import com.extrucol.crm.exception.BusinessRuleException;
+import com.extrucol.crm.exception.UnauthorizedException;
 import com.extrucol.crm.model.Usuario;
 import com.extrucol.crm.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,22 +26,27 @@ public class AuthController {
         System.out.println(usuarioRepository.existsByEmail(request.email()));
         Usuario usuario = usuarioRepository
                 .findByEmail(request.email())
-                .orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
+                .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
 
         if (!usuario.getPassword().equals(request.password())) {
-            throw new BusinessRuleException("Credenciales inválidas");
+            throw new UnauthorizedException("Credenciales inválidas");
         }
 
         if (!usuario.getActivo()) {
-            throw new BusinessRuleException("Usuario inactivo");
+            throw new UnauthorizedException("Usuario inactivo");
         }
 
-        String token = jwtService.generateToken(usuario.getEmail());
+        String token = jwtService.generateToken(
+                usuario.getEmail(),
+                Map.of(
+                        "rol", usuario.getRol().name(),
+                        "nombre", usuario.getNombre()
+                )
+        );
 
         return Map.of(
-                "token", token,
-                "rol" , usuario.getRol().name(),
-                "usuario", usuario.getNombre()
+                "token", token
+
         );
     }
 }

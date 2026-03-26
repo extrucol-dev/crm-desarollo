@@ -1,5 +1,7 @@
 package com.extrucol.crm.dto.response;
 
+import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
+
 import java.time.LocalDateTime;
 
 public record ProyectoResponseDTO(

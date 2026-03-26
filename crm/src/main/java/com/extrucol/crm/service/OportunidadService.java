@@ -3,7 +3,7 @@ package com.extrucol.crm.service;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadCierreRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
-import com.extrucol.crm.dto.response.OportunidadResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 
 import java.util.List;
 

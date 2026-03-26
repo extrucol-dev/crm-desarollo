@@ -16,6 +16,7 @@ import com.extrucol.crm.repository.UbicacionRepository;
 import com.extrucol.crm.repository.UsuarioRepository;
 import com.extrucol.crm.service.ActividadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,8 @@ public class ActividadServiceImpl implements ActividadService {
     public ActividadResponseDTO crear(ActividadRequestDTO dto) {
 
         Oportunidad oportunidad = oportunidadRepository.findById(dto.oportunidad()).orElseThrow(() -> new BusinessRuleException("Oportunidad no encontrado"));
+
+
 
         Usuario usuario = usuarioRepository.findById(dto.usuario()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 

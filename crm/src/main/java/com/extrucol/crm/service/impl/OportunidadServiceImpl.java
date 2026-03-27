@@ -35,17 +35,16 @@ public class OportunidadServiceImpl implements OportunidadService {
 
         Cliente cliente = clienteRepository.findById(dto.cliente()).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
 
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
+        System.out.println();
 
-        Usuario usuario = usuarioRepository.findById(dto.usuario()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
+        Usuario usuario = usuarioRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 
         return oportunidadMapper.entidadADTO(oportunidadRepository.save(oportunidadMapper.crearDTOAEntidad(dto, cliente, usuario)));
     }
 
     @Override
     public List<OportunidadResponseDTO> listar() {
-        return oportunidadRepository.findAll().stream().map(oportunidadMapper::entidadADTO).toList();
-    }
+        return  oportunidadRepository.findByUsuarioEmail(SecurityContextHolder.getContext().getAuthentication().getName()).stream().map(oportunidadMapper::entidadADTO).toList();    }
 
     @Override
     public OportunidadResponseDTO buscarPorId(Long id) {

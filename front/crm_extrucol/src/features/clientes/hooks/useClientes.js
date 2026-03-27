@@ -7,10 +7,10 @@ export function useClientes() {
   const [error, setError]       = useState('')
   const [busqueda, setBusqueda] = useState('')
   const [sector, setSector]     = useState('')
+  const [ciudad, setCiudad]     = useState('')
 
   const cargar = useCallback(() => {
-    setLoading(true)
-    setError('')
+    setLoading(true); setError('')
     clientesAPI.listar()
       .then(setClientes)
       .catch(() => setError('No se pudieron cargar los clientes.'))
@@ -19,15 +19,17 @@ export function useClientes() {
 
   useEffect(() => { cargar() }, [cargar])
 
-  const sectores = [...new Set(clientes.map((c) => c.sector).filter(Boolean))]
+  const sectores = [...new Set(clientes.map(c => c.sector).filter(Boolean))]
+  const ciudades = [...new Set(clientes.map(c => c.ciudad).filter(Boolean))]
 
-  const filtrados = clientes.filter((c) => {
+  const filtrados = clientes.filter(c => {
     const q = busqueda.toLowerCase()
     return (
       (!busqueda || c.nombre?.toLowerCase().includes(q) || c.empresa?.toLowerCase().includes(q)) &&
-      (!sector || c.sector === sector)
+      (!sector || c.sector === sector) &&
+      (!ciudad || c.ciudad === ciudad)
     )
   })
 
-  return { filtrados, loading, error, sectores, busqueda, setBusqueda, sector, setSector, cargar }
+  return { filtrados, loading, error, sectores, ciudades, busqueda, setBusqueda, sector, setSector, ciudad, setCiudad, cargar }
 }

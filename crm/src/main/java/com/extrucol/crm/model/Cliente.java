@@ -27,8 +27,9 @@ public class Cliente {
     @Column(nullable = false)
     String sector;
 
-    @Column(nullable = false)
-    String ciudad;
+    @JoinColumn(name = "id_ciudad")
+    @ManyToOne(fetch = FetchType.LAZY)
+    Ciudad ciudad;
 
     @Column(nullable = false)
     String telefono;

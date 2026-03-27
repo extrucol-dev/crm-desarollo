@@ -3,13 +3,14 @@ package com.extrucol.crm.service.impl;
 import com.extrucol.crm.dto.request.ClienteRequestDTO;
 import com.extrucol.crm.dto.response.cliente.ClienteOportunidadesResponseDTO;
 import com.extrucol.crm.dto.response.cliente.ClienteResponseDTO;
-import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.ClienteMapper;
 import com.extrucol.crm.mapper.OportunidadMapper;
+import com.extrucol.crm.model.Ciudad;
 import com.extrucol.crm.model.Cliente;
 import com.extrucol.crm.model.Usuario;
+import com.extrucol.crm.repository.CiudadRepository;
 import com.extrucol.crm.repository.ClienteRepository;
 import com.extrucol.crm.repository.OportunidadRepository;
 import com.extrucol.crm.repository.UsuarioRepository;
@@ -18,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -28,6 +28,7 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteRepository clienteRepository;
     private final OportunidadRepository oportunidadRepository;
     private final UsuarioRepository usuarioRepository;
+    private final CiudadRepository ciudadRepository;
 
     private final ClienteMapper clienteMapper;
     private final OportunidadMapper oportunidadMapper;
@@ -41,7 +42,9 @@ public class ClienteServiceImpl implements ClienteService {
 
         Usuario usuario = usuarioRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 
-        return clienteMapper.entidadADTO(clienteRepository.save(clienteMapper.DTOAEntidad(dto, usuario)));
+        Ciudad ciudad = ciudadRepository.findById(dto.ciudad()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
+
+        return clienteMapper.entidadADTO(clienteRepository.save(clienteMapper.DTOAEntidad(dto, usuario,ciudad)));
     }
 
     @Override
@@ -67,8 +70,9 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     public ClienteResponseDTO actualizar(Long id, ClienteRequestDTO dto) {
         Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
+        Ciudad ciudad = ciudadRepository.findById(dto.ciudad()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 
-        clienteMapper.actualizarEntidadDesdeDTO(cliente, dto);
+        clienteMapper.actualizarEntidadDesdeDTO(cliente, dto,ciudad);
         clienteRepository.save(cliente);
 
         return clienteMapper.entidadADTO(cliente);

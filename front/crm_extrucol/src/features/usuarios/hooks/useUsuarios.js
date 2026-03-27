@@ -2,32 +2,42 @@ import { useState, useEffect, useCallback } from 'react'
 import { usuariosAPI } from '../services/usuariosAPI'
 
 export function useUsuarios() {
-  const [usuarios, setusuarios] = useState([])
+  const [usuarios, setUsuarios] = useState([])
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState('')
   const [busqueda, setBusqueda] = useState('')
-  const [sector, setSector]     = useState('')
+  const [filtroRol, setFiltroRol] = useState('')
+  const [toggling, setToggling]   = useState(null) // id del usuario siendo actualizado
 
   const cargar = useCallback(() => {
-    setLoading(true)
-    setError('')
+    setLoading(true); setError('')
     usuariosAPI.listar()
-      .then(setusuarios)
-      .catch(() => setError('No se pudieron cargar los usuarios.'))
+      .then(setUsuarios)
+      .catch((e) => setError(e.response?.data?.message || 'No se pudieron cargar los usuarios.'))
       .finally(() => setLoading(false))
   }, [])
 
   useEffect(() => { cargar() }, [cargar])
 
-  const sectores = [...new Set(usuarios.map((c) => c.sector).filter(Boolean))]
-
-  const filtrados = usuarios.filter((c) => {
+  const filtrados = usuarios.filter(u => {
     const q = busqueda.toLowerCase()
     return (
-      (!busqueda || c.nombre?.toLowerCase().includes(q) || c.empresa?.toLowerCase().includes(q)) &&
-      (!sector || c.sector === sector)
+      (!busqueda || u.nombre?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)) &&
+      (!filtroRol || u.rol === filtroRol)
     )
   })
 
-  return { filtrados, loading, error, sectores, busqueda, setBusqueda, sector, setSector, cargar }
+  const toggleEstado = async (id, activo) => {
+    setToggling(id)
+    try {
+      const updated = await usuariosAPI.actualizarEstado(id, activo)
+      setUsuarios(prev => prev.map(u => u.id === id ? { ...u, activo: updated.activo } : u))
+    } catch (err) {
+      setError( err.response?.data?.message || 'No se pudo actualizar el estado del usuario.')
+    } finally {
+      setToggling(null)
+    }
+  }
+
+  return { filtrados, loading, error, busqueda, setBusqueda, filtroRol, setFiltroRol, toggling, toggleEstado, cargar }
 }

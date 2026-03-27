@@ -4,36 +4,39 @@ import com.extrucol.crm.dto.request.ClienteRequestDTO;
 import com.extrucol.crm.dto.response.cliente.ClienteOportunidadesResponseDTO;
 import com.extrucol.crm.dto.response.cliente.ClienteResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
+import com.extrucol.crm.model.Ciudad;
 import com.extrucol.crm.model.Cliente;
 import com.extrucol.crm.model.Usuario;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class ClienteMapper {
-
+private final CiudadMapper ciudadMapper;
     public ClienteResponseDTO entidadADTO(Cliente cliente) {
         if (cliente == null) return null;
 
-        return new ClienteResponseDTO(cliente.getId(), cliente.getNombre(), cliente.getEmpresa(), cliente.getSector(), cliente.getCiudad(), cliente.getTelefono(), cliente.getEmail(), cliente.getFecha_creacion());
+        return new ClienteResponseDTO(cliente.getId(), cliente.getNombre(), cliente.getEmpresa(), cliente.getSector(), ciudadMapper.entidadADTO(cliente.getCiudad()) , cliente.getTelefono(), cliente.getEmail(), cliente.getFecha_creacion());
     }
 
     public ClienteOportunidadesResponseDTO entidadADTOOportunidades(Cliente cliente, List<OportunidadSimpleResponseDTO> oportunidades) {
         if (cliente == null) return null;
 
-        return new ClienteOportunidadesResponseDTO(cliente.getId(), cliente.getNombre(), cliente.getEmpresa(), cliente.getSector(), cliente.getCiudad(), cliente.getTelefono(), cliente.getEmail(), oportunidades);
+        return new ClienteOportunidadesResponseDTO(cliente.getId(), cliente.getNombre(), cliente.getEmpresa(), cliente.getSector(), ciudadMapper.entidadADTO(cliente.getCiudad()) , cliente.getTelefono(), cliente.getEmail(),cliente.getFecha_creacion(), oportunidades);
     }
 
-    public Cliente DTOAEntidad(ClienteRequestDTO dto, Usuario usuario) {
+    public Cliente DTOAEntidad(ClienteRequestDTO dto, Usuario usuario, Ciudad ciudad) {
         if (dto == null) return null;
 
         Cliente cliente = new Cliente();
         cliente.setNombre(dto.nombre());
         cliente.setEmpresa(dto.empresa());
         cliente.setSector(dto.sector());
-        cliente.setCiudad(dto.ciudad());
+        cliente.setCiudad(ciudad);
         cliente.setTelefono(dto.telefono());
         cliente.setEmail(dto.email());
         cliente.setUsuario(usuario);
@@ -42,13 +45,13 @@ public class ClienteMapper {
         return cliente;
     }
 
-    public void actualizarEntidadDesdeDTO(Cliente cliente, ClienteRequestDTO dto) {
+    public void actualizarEntidadDesdeDTO(Cliente cliente, ClienteRequestDTO dto, Ciudad ciudad) {
         if (dto == null) return;
 
         cliente.setNombre(dto.nombre());
         cliente.setEmpresa(dto.empresa());
         cliente.setSector(dto.sector());
-        cliente.setCiudad(dto.ciudad());
+        cliente.setCiudad(ciudad);
         cliente.setTelefono(dto.telefono());
         cliente.setEmail(dto.email());
     }

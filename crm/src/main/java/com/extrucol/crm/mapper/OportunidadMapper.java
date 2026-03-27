@@ -62,7 +62,7 @@ public class OportunidadMapper {
         oportunidad.setNombre(dto.nombre());
         oportunidad.setDescripcion(dto.descripcion());
         oportunidad.setTipo(dto.tipo());
-        oportunidad.setEstado(dto.estado());
+        oportunidad.setEstado("PROSPECTO");
         oportunidad.setValor_estimado(dto.valor_estimado());
         oportunidad.setFecha_cierre(dto.fecha_cierre());
         oportunidad.setMotivo_cierre(dto.motivo_cierre());

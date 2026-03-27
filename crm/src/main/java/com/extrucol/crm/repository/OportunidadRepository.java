@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface OportunidadRepository extends JpaRepository<Oportunidad, Long> {
     List<Oportunidad> findByClienteId(Long id);
+    List<Oportunidad> findByUsuarioEmail(String email);
 }

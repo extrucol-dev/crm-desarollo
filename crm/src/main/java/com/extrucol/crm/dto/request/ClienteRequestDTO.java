@@ -16,8 +16,7 @@ public record ClienteRequestDTO(
         String sector,
 
         @NotBlank(message = "La ciudad es obligatoria")
-        @Size(max = 100)
-        String ciudad,
+        Long ciudad,
 
         @NotBlank(message = "El teléfono es obligatorio")
         @Pattern(regexp = "^[0-9]{7,15}$", message = "El teléfono debe contener solo números (7-15 dígitos)")

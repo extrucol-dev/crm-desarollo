@@ -5,14 +5,12 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Adjunta el JWT en cada petición
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
 
-// Token expirado → vuelve al login
 api.interceptors.response.use(
   (res) => res,
   (err) => {

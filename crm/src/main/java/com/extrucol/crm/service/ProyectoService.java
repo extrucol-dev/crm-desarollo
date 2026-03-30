@@ -9,8 +9,8 @@ import java.util.List;
 public interface ProyectoService {
 
     ProyectoResponseDTO crear(ProyectoRequestDTO dto);
-
-    List<ProyectoResponseDTO> listar();
+    List<ProyectoResponseDTO> listarPorUsuarioActual();
+    List<ProyectoResponseDTO> listarTodos();
 
     ProyectoResponseDTO buscarPorId(Long id);
 

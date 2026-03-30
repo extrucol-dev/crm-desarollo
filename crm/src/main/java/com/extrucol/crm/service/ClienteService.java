@@ -15,12 +15,9 @@ public interface ClienteService {
 
     List<ClienteResponseDTO> listarPorEjecutivo();
 
-
-
     ClienteOportunidadesResponseDTO buscarPorId(Long id);
 
     ClienteResponseDTO actualizar(Long id, ClienteRequestDTO dto);
-
 
     void eliminar(Long id);
 }

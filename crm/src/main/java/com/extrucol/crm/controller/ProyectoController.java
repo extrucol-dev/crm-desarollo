@@ -38,7 +38,12 @@ public class ProyectoController {
 
     @GetMapping
     public ResponseEntity<List<ProyectoResponseDTO>> listar() {
-        return ResponseEntity.ok(proyectoService.listar());
+        return ResponseEntity.ok(proyectoService.listarPorUsuarioActual());
+    }
+
+    @GetMapping("/todos")
+    public ResponseEntity<List<ProyectoResponseDTO>> listarTodos() {
+        return ResponseEntity.ok(proyectoService.listarTodos());
     }
 
     @GetMapping("/{id}")

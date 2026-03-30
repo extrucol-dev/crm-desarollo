@@ -43,7 +43,7 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.listarPorEjecutivo());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/oportunidades")
     public ResponseEntity<ClienteOportunidadesResponseDTO> buscarPorId(@PathVariable Long id){
         return ResponseEntity.ok(clienteService.buscarPorId(id));
     }

@@ -13,6 +13,7 @@ import com.extrucol.crm.repository.ProyectoRepository;
 import com.extrucol.crm.repository.UsuarioRepository;
 import com.extrucol.crm.service.ProyectoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,15 +32,21 @@ public class ProyectoServiceImpl implements ProyectoService {
 
         Oportunidad oportunidad = oportunidadRepository.findById(dto.oportunidad()).orElseThrow(() -> new BusinessRuleException("Oportunidad no encontrado"));
 
-        Usuario usuario = usuarioRepository.findById(dto.usuario()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
+        Usuario usuario = usuarioRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 
         return proyectoMapper.entidadADTO(proyectoRepository.save(proyectoMapper.crearDTOAEntidad(dto, oportunidad, usuario)));
     }
 
     @Override
-    public List<ProyectoResponseDTO> listar() {
+    public List<ProyectoResponseDTO> listarPorUsuarioActual() {
+        return proyectoRepository.findByUsuarioEmail(SecurityContextHolder.getContext().getAuthentication().getName()).stream().map(proyectoMapper::entidadADTO).toList();
+    }
+
+    @Override
+    public List<ProyectoResponseDTO> listarTodos() {
         return proyectoRepository.findAll().stream().map(proyectoMapper::entidadADTO).toList();
     }
+
 
     @Override
     public ProyectoResponseDTO buscarPorId(Long id) {

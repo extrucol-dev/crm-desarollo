@@ -3,23 +3,26 @@ package com.extrucol.crm.service;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadCierreRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadActividadesResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 
 import java.util.List;
 
 public interface OportunidadService {
-        OportunidadResponseDTO crear(OportunidadRequestDTO dto);
+    OportunidadResponseDTO crear(OportunidadRequestDTO dto);
 
-        List<OportunidadResponseDTO> listar();
+    List<OportunidadResponseDTO> listarTodas();
 
-        OportunidadResponseDTO buscarPorId(Long id);
+    List<OportunidadResponseDTO> listarPorUsuarioActual();
 
-        OportunidadResponseDTO actualizar(Long id, OportunidadRequestDTO dto);
+    OportunidadActividadesResponseDTO buscarPorId(Long id);
 
-        OportunidadResponseDTO actualizarEstado(Long id, OportunidadEstadoRequestDTO dto);
+    OportunidadResponseDTO actualizar(Long id, OportunidadRequestDTO dto);
 
-        OportunidadResponseDTO cerrarOportunidad(Long id, OportunidadCierreRequestDTO dto);
+    OportunidadResponseDTO actualizarEstado(Long id, OportunidadEstadoRequestDTO dto);
 
-        void eliminar(Long id);
+    OportunidadResponseDTO cerrarOportunidad(Long id, OportunidadCierreRequestDTO dto);
+
+    void eliminar(Long id);
 
 }

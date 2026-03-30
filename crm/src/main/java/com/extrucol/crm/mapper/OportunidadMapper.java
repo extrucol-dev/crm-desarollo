@@ -3,8 +3,11 @@ package com.extrucol.crm.mapper;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadCierreRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
+import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadActividadesResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
+import com.extrucol.crm.model.Actividad;
 import com.extrucol.crm.model.Cliente;
 import com.extrucol.crm.model.Oportunidad;
 import com.extrucol.crm.model.Usuario;
@@ -12,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -54,6 +58,25 @@ public class OportunidadMapper {
         );
     }
 
+    public OportunidadActividadesResponseDTO entidadADTOActividades(Oportunidad oportunidad, List<ActividadResponseDTO> actividades){
+        if(oportunidad == null) return null;
+
+        return new OportunidadActividadesResponseDTO(
+                oportunidad.getId(),
+                oportunidad.getNombre(),
+                oportunidad.getDescripcion(),
+                oportunidad.getTipo(),
+                oportunidad.getEstado(),
+                oportunidad.getValor_estimado(),
+                oportunidad.getFecha_cierre(),
+                oportunidad.getMotivo_cierre(),
+                actividades
+
+
+        );
+    }
+
+
 
     public Oportunidad crearDTOAEntidad(OportunidadRequestDTO dto, Cliente cliente, Usuario usuario) {
         if(dto == null) return null;
@@ -65,7 +88,6 @@ public class OportunidadMapper {
         oportunidad.setEstado("PROSPECTO");
         oportunidad.setValor_estimado(dto.valor_estimado());
         oportunidad.setFecha_cierre(dto.fecha_cierre());
-        oportunidad.setMotivo_cierre(dto.motivo_cierre());
         oportunidad.setCliente(cliente);
         oportunidad.setUsuario(usuario);
         oportunidad.setFecha_actualizacion(LocalDateTime.now());
@@ -83,7 +105,6 @@ public class OportunidadMapper {
         oportunidad.setEstado(dto.estado());
         oportunidad.setValor_estimado(dto.valor_estimado());
         oportunidad.setFecha_cierre(dto.fecha_cierre());
-        oportunidad.setMotivo_cierre(dto.motivo_cierre());
     }
 
     public void actualizarEstadoDesdeDTO(Oportunidad oportunidad, OportunidadEstadoRequestDTO dto){

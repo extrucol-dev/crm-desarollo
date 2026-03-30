@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -39,8 +40,19 @@ public class ActividadController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ActividadResponseDTO>> listar() {
-        return ResponseEntity.ok(actividadService.listar());
+    public ResponseEntity<List<ActividadResponseDTO>> listar(
+            @RequestParam(required = false) LocalDate inicio,
+            @RequestParam(required = false) LocalDate fin) {
+
+        return ResponseEntity.ok(actividadService.listar(inicio, fin));
+    }
+
+    @GetMapping("/todas")
+    public ResponseEntity<List<ActividadResponseDTO>> listarTodas(
+            @RequestParam(required = false) LocalDate inicio,
+            @RequestParam(required = false) LocalDate fin) {
+
+        return ResponseEntity.ok(actividadService.listarTodas(inicio, fin));
     }
 
     @GetMapping("/{id}")

@@ -5,12 +5,15 @@ import com.extrucol.crm.dto.request.actividad.ActividadRequestDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadUbicacionResponseDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ActividadService {
     ActividadResponseDTO crear(ActividadRequestDTO dto);
 
-    List<ActividadResponseDTO> listar();
+    List<ActividadResponseDTO> listar(LocalDate inicio, LocalDate fin);
+
+    List<ActividadResponseDTO> listarTodas(LocalDate inicio, LocalDate fin);
 
     ActividadResponseDTO buscarPorId(Long id);
 

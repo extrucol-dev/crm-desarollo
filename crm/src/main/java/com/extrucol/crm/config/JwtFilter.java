@@ -1,14 +1,21 @@
 package com.extrucol.crm.config;
 
+import com.extrucol.crm.model.Usuario;
+import com.extrucol.crm.repository.UbicacionRepository;
+import com.extrucol.crm.repository.UsuarioRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Component// Le digo a Spring que este filtro es un componente manejado por el contenedor
 @RequiredArgsConstructor
@@ -18,6 +25,7 @@ public class JwtFilter extends GenericFilter {
      * Este servicio es el que sabe validar el token.
      */
     private final JwtService jwtService;
+    private final UsuarioRepository usuarioRepository;
 
     /*
      * Este método se ejecuta en CADA petición que llega al servidor.
@@ -38,15 +46,22 @@ public class JwtFilter extends GenericFilter {
             String token = header.substring(7);
 
             String username = jwtService.validateToken(token);
-            System.out.println("USERNAME DEL TOKEN: " + username);
+            System.out.println("USERNAME DEL TOKEN: " + SecurityContextHolder.getContext().getAuthentication());
 
             if (username != null) {
+                Usuario usuario = usuarioRepository.findByEmail(username)
+                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+                String rol = usuario.getRol().name();
+
+                List<GrantedAuthority> authorities = List.of(
+                        new SimpleGrantedAuthority("ROLE_" + rol)
+                );
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 username,
                                 null,
-                                Collections.emptyList()
+                                authorities
                         );
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }

@@ -16,11 +16,13 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ActividadMapper {
     private final UbicacionMapper ubicacionMapper;
+    private final OportunidadMapper oportunidadMapper;
+    private final UsuarioMapper usuarioMapper;
 
     public ActividadResponseDTO entidadADTO(Actividad actividad) {
         if (actividad == null) return null;
 
-        return new ActividadResponseDTO(actividad.getId(), actividad.getTipo(), actividad.getDescripcion(), actividad.getResultado(), actividad.getVirtual(), actividad.getFecha_actividad());
+        return new ActividadResponseDTO(actividad.getId(), actividad.getTipo(), actividad.getDescripcion(), actividad.getResultado(), actividad.getVirtual(), actividad.getFecha_actividad(), usuarioMapper.entidadADTO(actividad.getUsuario()), oportunidadMapper.entidadADTOSimple(actividad.getOportunidad()));
     }
 
     public ActividadUbicacionResponseDTO entidadADTOUbicacion(Actividad actividad, Ubicacion ubicacion) {

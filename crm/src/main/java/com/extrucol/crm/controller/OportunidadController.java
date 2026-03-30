@@ -3,6 +3,7 @@ package com.extrucol.crm.controller;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadCierreRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadActividadesResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.service.OportunidadService;
 import lombok.RequiredArgsConstructor;
@@ -45,11 +46,16 @@ public class OportunidadController {
 
     @GetMapping
     public ResponseEntity<List<OportunidadResponseDTO>> listar() {
-        return ResponseEntity.ok(oportunidadService.listar());
+        return ResponseEntity.ok(oportunidadService.listarPorUsuarioActual()); // solo del usuario
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<OportunidadResponseDTO> buscarPorId(@PathVariable Long id) {
+    @GetMapping("/todas")
+    public ResponseEntity<List<OportunidadResponseDTO>> listarTodas() {
+        return ResponseEntity.ok(oportunidadService.listarTodas()); // todas sin filtro
+    }
+
+    @GetMapping("/{id}/actividades")
+    public ResponseEntity<OportunidadActividadesResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(oportunidadService.buscarPorId(id));
     }
 

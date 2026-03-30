@@ -21,10 +21,6 @@ public record ActividadRequestDTO(
 
         @NotNull(message = "La oportunidad es obligatoria")
         @Positive(message = "El id de la oportunidad debe ser positivo")
-        Long oportunidad,
-
-        @NotNull(message = "El usuario es obligatorio")
-        @Positive(message = "El id del usuario debe ser positivo")
-        Long usuario
+        Long oportunidad
 ) {
 }

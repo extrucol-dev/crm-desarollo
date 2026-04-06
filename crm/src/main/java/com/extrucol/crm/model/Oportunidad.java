@@ -42,11 +42,11 @@ public class Oportunidad {
     String motivo_cierre;
 
     @JoinColumn(name = "id_cliente")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     Cliente cliente;
 
     @JoinColumn(name = "id_usuario")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     Usuario usuario;
 
     @Column(nullable = false)

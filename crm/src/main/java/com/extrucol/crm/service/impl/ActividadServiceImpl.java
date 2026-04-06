@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -56,8 +57,19 @@ public class ActividadServiceImpl implements ActividadService {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
+        LocalDateTime inicioDateTime = null;
+        LocalDateTime finDateTime = null;
+
+        if (inicio != null) {
+            inicioDateTime = inicio.atStartOfDay();
+        }
+
+        if (fin != null) {
+            finDateTime = fin.atTime(23, 59, 59);
+        }
+
         return actividadRepository
-                .filtrarPorFechaYUsuario(inicio, fin, email)
+                .filtrarPorFechaYUsuario(inicioDateTime, finDateTime, email)
                 .stream()
                 .map(actividadMapper::entidadADTO)
                 .toList();
@@ -69,9 +81,18 @@ public class ActividadServiceImpl implements ActividadService {
         if (inicio != null && fin != null && inicio.isAfter(fin)) {
             throw new BusinessRuleException("La fecha de inicio no puede ser mayor que la fecha fin");
         }
+        LocalDateTime inicioDateTime = null;
+        LocalDateTime finDateTime = null;
 
+        if (inicio != null) {
+            inicioDateTime = inicio.atStartOfDay();
+        }
+
+        if (fin != null) {
+            finDateTime = fin.atTime(23, 59, 59);
+        }
         return actividadRepository
-                .filtrarPorFecha(inicio, fin)
+                .filtrarPorFecha(inicioDateTime, finDateTime)
                 .stream()
                 .map(actividadMapper::entidadADTO)
                 .toList();

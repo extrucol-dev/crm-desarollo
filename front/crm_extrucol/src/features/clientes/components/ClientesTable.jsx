@@ -72,7 +72,7 @@ export default function ClientesTable({ clientes }) {
           <div className="flex flex-col gap-1.5 text-[12.5px] text-[#4A4A4A]">
             <div className="flex items-center gap-2">
               <IconLocation />
-              <span className="truncate">{c.ciudad || '—'}</span>
+              <span className="truncate">{c.ciudad?.nombre || '—'}</span>
             </div>
             <div className="flex items-center gap-2">
               <IconPhone />

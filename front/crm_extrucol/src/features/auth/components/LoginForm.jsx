@@ -55,7 +55,7 @@ export default function LoginForm() {
         </button>
       </form>
       <p className="text-center text-[12px] text-[#ABABAB] mt-6">
-        Sistema CRM · Extrucol · v1.0
+        Sistema CRM · Extrucol S.A.S · v1.0
       </p>
     </div>
   )

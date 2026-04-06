@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ActividadRepository extends JpaRepository<Actividad, Long> {
@@ -19,7 +20,7 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long> {
                 WHERE (:inicio IS NULL OR a.fecha_actividad >= :inicio)
                 AND (:fin IS NULL OR a.fecha_actividad <= :fin)
             """)
-    List<Actividad> filtrarPorFecha(LocalDate inicio, LocalDate fin);
+    List<Actividad> filtrarPorFecha(LocalDateTime inicio, LocalDateTime fin);
 
     @Query("""
                 SELECT a FROM Actividad a
@@ -27,5 +28,5 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long> {
                 AND (:fin IS NULL OR a.fecha_actividad <= :fin)
                 AND a.usuario.email = :email
             """)
-    List<Actividad> filtrarPorFechaYUsuario(LocalDate inicio, LocalDate fin, String email);
+    List<Actividad> filtrarPorFechaYUsuario(LocalDateTime inicio, LocalDateTime fin, String email);
 }

@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { Badge } from '../../../shared/components/FormField'
- 
+
 const COLORS = ['#24388C', '#7C3AED', '#1A8754', '#C2410C', '#0369A1']
 const avatarColor = (n = '') => COLORS[n.charCodeAt(0) % COLORS.length]
 const initials    = (n = '') => n.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
- 
+
 const ROL_VARIANT = { EJECUTIVO: 'blue', DIRECTOR: 'purple', ADMIN: 'orange' }
 const ROL_LABEL   = { EJECUTIVO: 'Ejecutivo', DIRECTOR: 'Director', ADMIN: 'Admin' }
- 
+
 function IconEdit() {
   return (
     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -22,10 +22,10 @@ function IconEmail() {
     </svg>
   )
 }
- 
+
 export default function UsuariosTable({ usuarios, toggling, toggleEstado, myId }) {
   const navigate = useNavigate()
- 
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 p-4">
       {usuarios.map(u => {
@@ -64,13 +64,13 @@ export default function UsuariosTable({ usuarios, toggling, toggleEstado, myId }
                 </div>
               </div>
             </div>
- 
+
             {/* Email */}
             <div className="flex items-center gap-2 text-[12.5px] text-[#4A4A4A] mb-4">
               <IconEmail />
               <span className="truncate">{u.email}</span>
             </div>
- 
+
             {/* Acciones */}
             <div className="flex items-center gap-2 pt-3 border-t border-[#F0F0F0]">
               <button
@@ -80,7 +80,7 @@ export default function UsuariosTable({ usuarios, toggling, toggleEstado, myId }
                 <IconEdit />
                 Editar
               </button>
- 
+
               {/* CE-21: toggle estado — no aplica al propio admin */}
               {!isMe && (
                 <button

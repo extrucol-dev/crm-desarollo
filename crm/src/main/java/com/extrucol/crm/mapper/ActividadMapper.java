@@ -1,9 +1,8 @@
 package com.extrucol.crm.mapper;
 
-import com.extrucol.crm.dto.request.ClienteRequestDTO;
+
 import com.extrucol.crm.dto.request.actividad.ActividadCierreRequestDTO;
 import com.extrucol.crm.dto.request.actividad.ActividadRequestDTO;
-import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadUbicacionResponseDTO;
 import com.extrucol.crm.model.*;

@@ -48,6 +48,10 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.buscarPorId(id));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ClienteOportunidadesResponseDTO> buscarPorIdx(@PathVariable Long id){
+        return ResponseEntity.ok(clienteService.buscarPorId(id));
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id){
         clienteService.eliminar(id);

@@ -11,41 +11,38 @@ const INITIAL = {
   valor_estimado: '',
   fecha_cierre:   '',
   motivo_cierre:  '',
+  estado:         'PROSPECTO',
 }
 
 const validate = (form) => {
   const e = {}
-  if (!form.nombre.trim())   e.nombre      = 'El nombre es obligatorio'
-  if (!form.cliente)         e.cliente     = 'Selecciona un cliente'
-  if (!form.tipo)            e.tipo        = 'Selecciona un tipo'
-  if (!form.descripcion.trim()) e.descripcion = 'La descripción es obligatoria'
+  if (!form.nombre.trim())      e.nombre         = 'El nombre es obligatorio'
+  if (!form.cliente)            e.cliente        = 'Selecciona un cliente'
+  if (!form.tipo)               e.tipo           = 'Selecciona un tipo'
+  if (!form.descripcion.trim()) e.descripcion    = 'La descripción es obligatoria'
   if (!form.valor_estimado || isNaN(form.valor_estimado) || Number(form.valor_estimado) <= 0)
-                             e.valor_estimado = 'Ingresa un valor estimado válido'
+                                e.valor_estimado = 'Ingresa un valor estimado válido'
   return e
 }
 
 export function useOportunidadForm({ id, clienteIdInicial, onSuccess }) {
-  const [form, setForm]           = useState({ ...INITIAL, cliente: clienteIdInicial ?? '' })
-  const [errors, setErrors]       = useState({})
-  const [loading, setLoading]     = useState(false)
-  const [fetching, setFetching]   = useState(false)
-  const [apiError, setApiError]   = useState('')
-  const [clientes, setClientes]   = useState([])
-  const [estadoActual, setEstadoActual] = useState('PROSPECTO')
-  const [cerrada, setCerrada]     = useState(false)
+  const [form, setForm]         = useState({ ...INITIAL, cliente: clienteIdInicial ?? '' })
+  const [errors, setErrors]     = useState({})
+  const [loading, setLoading]   = useState(false)
+  const [fetching, setFetching] = useState(false)
+  const [apiError, setApiError] = useState('')
+  const [clientes, setClientes] = useState([])
+  const [cerrada, setCerrada]   = useState(false)
 
-  // Cargar lista de clientes para el select
   useEffect(() => {
     clientesAPI.listar().then(setClientes).catch(() => {})
   }, [])
 
-  // Si hay id, cargar datos existentes para edición
   useEffect(() => {
     if (!id) return
     setFetching(true)
     oportunidadesAPI.buscar(id)
       .then(op => {
-        setEstadoActual(op.estado)
         setCerrada(ESTADOS_CERRADOS.includes(op.estado))
         setForm({
           nombre:         op.nombre         ?? '',
@@ -55,6 +52,7 @@ export function useOportunidadForm({ id, clienteIdInicial, onSuccess }) {
           valor_estimado: op.valor_estimado ?? '',
           fecha_cierre:   op.fecha_cierre   ?? '',
           motivo_cierre:  op.motivo_cierre  ?? '',
+          estado:         op.estado         ?? 'PROSPECTO',
         })
       })
       .catch(() => setApiError('No se pudo cargar la oportunidad.'))
@@ -76,12 +74,13 @@ export function useOportunidadForm({ id, clienteIdInicial, onSuccess }) {
         nombre:         form.nombre,
         descripcion:    form.descripcion,
         tipo:           form.tipo,
+        estado:         form.estado,
         cliente:        Number(form.cliente),
         valor_estimado: Number(form.valor_estimado),
         fecha_cierre:   form.fecha_cierre || undefined,
         motivo_cierre:  form.motivo_cierre || undefined,
       }
-      if (id) await oportunidadesAPI.actualizar(id, payload, estadoActual)
+      if (id) await oportunidadesAPI.actualizar(id, payload)
       else    await oportunidadesAPI.crear(payload)
       onSuccess?.()
     } catch (err) {

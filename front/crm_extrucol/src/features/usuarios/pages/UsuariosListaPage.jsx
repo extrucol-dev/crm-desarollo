@@ -28,7 +28,7 @@ export default function UsuariosListaPage() {
       <Topbar title="Gestión de Usuarios">
         <button onClick={() => navigate('/usuarios/nuevo')}
           className="px-3 sm:px-4 py-[7px] rounded-md text-[13px] font-semibold text-white bg-[#24388C] hover:bg-[#1B2C6B] transition-all whitespace-nowrap">
-          Crear usuario
+          + Crear usuario
         </button>
       </Topbar>
 
@@ -81,7 +81,7 @@ export default function UsuariosListaPage() {
               action={!busqueda && !filtroRol && (
                 <button onClick={() => navigate('/usuarios/nuevo')}
                   className="px-5 py-2.5 rounded-md text-[13px] font-semibold text-white bg-[#24388C] hover:bg-[#1B2C6B] transition-all">
-                  Crear usuario
+                  + Crear usuario
                 </button>
               )}
             />

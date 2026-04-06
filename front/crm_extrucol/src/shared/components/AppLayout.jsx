@@ -11,9 +11,9 @@ const NAV_BY_ROL = {
     { to: '/proyectos',     icon: 'folder',  label: 'Proyectos' },
   ],
   DIRECTOR: [
-    { to: '/dashboard',     icon: 'chart',   label: 'Dashboard Equipo' },
-    { to: '/pipeline',      icon: 'briefcase', label: 'Pipeline' },
-    { to: '/actividades',   icon: 'clipboard', label: 'Actividades' },
+    { to: '/dashboard',          icon: 'chart',     label: 'Dashboard' },
+    { to: '/director/pipeline',  icon: 'briefcase', label: 'Pipeline' },
+    { to: '/director/actividades', icon: 'clipboard', label: 'Actividades' },
   ],
   ADMIN: [
     { to: '/dashboard',     icon: 'home',    label: 'Dashboard' },
@@ -133,7 +133,7 @@ export default function AppLayout({ children }) {
 
       {/* Overlay móvil */}
       {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
           <aside className="absolute left-0 top-0 h-full w-64 z-50 flex flex-col">
             <SidebarContent />

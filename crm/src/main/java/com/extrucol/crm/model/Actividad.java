@@ -14,9 +14,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor @AllArgsConstructor
 public class Actividad {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "actividad_seq")
+    @SequenceGenerator(
+            name = "actividad_seq",
+            sequenceName = "CRM_ACTIVIDAD_SEQ",
+            allocationSize = 1
+    )
     @Column(name = "id_actividad")
     Long id;
+
 
     @Column(nullable = false)
     String tipo;
@@ -24,7 +30,7 @@ public class Actividad {
     @Column(nullable = false)
     String descripcion;
 
-    @Column(nullable = false)
+    @Column
     String resultado;
 
     @Column(nullable = false)
@@ -33,12 +39,12 @@ public class Actividad {
     @Column(nullable = false)
     LocalDateTime fecha_actividad;
 
-    @JoinColumn
-    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_oportunidad")
+    @ManyToOne(fetch = FetchType.LAZY)
     Oportunidad oportunidad;
 
     @JoinColumn(name = "id_usuario")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     Usuario usuario;
 
     @Column(nullable = false)

@@ -32,7 +32,7 @@ public class Proyecto {
     Oportunidad oportunidad;
 
     @JoinColumn(name = "id_usuario")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     Usuario usuario;
 
     @Column(nullable = false)

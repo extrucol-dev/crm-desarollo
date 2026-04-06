@@ -70,6 +70,7 @@ public class OportunidadMapper {
                 oportunidad.getValor_estimado(),
                 oportunidad.getFecha_cierre(),
                 oportunidad.getMotivo_cierre(),
+                clienteMapper.entidadADTO(oportunidad.getCliente()),
                 actividades
 
 

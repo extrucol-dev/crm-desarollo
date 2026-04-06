@@ -4,12 +4,12 @@ import AppLayout from '../../../shared/components/AppLayout'
 import Topbar from '../../../shared/components/Topbar'
 import { LoadingSpinner, Badge } from '../../../shared/components/FormField'
 import { clientesAPI } from '../services/clientesAPI'
- 
+
 // ── Helpers ──────────────────────────────────────────────────
 const COLORS = ['#24388C', '#7C3AED', '#1A8754', '#C2410C', '#0369A1', '#B45309']
 const avatarColor = (n = '') => COLORS[n.charCodeAt(0) % COLORS.length]
 const initials    = (n = '') => n.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
- 
+
 const formatDate = (iso) => {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' })
@@ -22,7 +22,7 @@ const formatCOP = (n) => {
   if (!n) return '$0'
   return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n)
 }
- 
+
 const ESTADO_VARIANT = {
   PROSPECTO:    'blue',
   CALIFICACION: 'orange',
@@ -31,7 +31,7 @@ const ESTADO_VARIANT = {
   GANADA:       'green',
   PERDIDA:      'red',
 }
- 
+
 // ── Íconos SVG ────────────────────────────────────────────────
 const IconUser = () => (
   <svg className="w-4 h-4 text-[#ABABAB] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -68,7 +68,7 @@ const IconCalendar = () => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75" />
   </svg>
 )
- 
+
 // ── Tarjeta de oportunidad (tab) ──────────────────────────────
 function OportunidadCard({ op, onClick }) {
   return (
@@ -105,7 +105,7 @@ function OportunidadCard({ op, onClick }) {
     </div>
   )
 }
- 
+
 // ── Página principal ──────────────────────────────────────────
 export default function ClienteDetallePage() {
   const { id } = useParams()
@@ -114,21 +114,21 @@ export default function ClienteDetallePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState('')
   const [tab, setTab]         = useState('oportunidades')
- 
+
   useEffect(() => {
     clientesAPI.buscar(id)
       .then(setCliente)
       .catch(() => setError('No se pudo cargar el cliente.'))
       .finally(() => setLoading(false))
   }, [id])
- 
+
   // Métricas calculadas
   const totalOportunidades = cliente?.oportunidades?.length ?? 0
   const valorTotal = cliente?.oportunidades?.reduce((sum, op) => sum + (op.valor_estimado ?? 0), 0) ?? 0
   const valorActivo = cliente?.oportunidades
     ?.filter(op => !['GANADA', 'PERDIDA'].includes(op.estado))
     ?.reduce((sum, op) => sum + (op.valor_estimado ?? 0), 0) ?? 0
- 
+
   return (
     <AppLayout>
       <Topbar breadcrumb={
@@ -150,16 +150,16 @@ export default function ClienteDetallePage() {
           </button>
         )}
       </Topbar>
- 
+
       <div className="p-4 sm:p-6">
         {loading && <LoadingSpinner label="Cargando cliente..." />}
- 
+
         {error && (
           <div className="text-sm text-[#C0392B] bg-[#FDECEA] border border-[#f5c6c6] rounded-md px-4 py-3">
             {error}
           </div>
         )}
- 
+
         {!loading && cliente && (
           <>
             {/* Header — nombre + sector + fecha */}
@@ -186,13 +186,13 @@ export default function ClienteDetallePage() {
                 </div>
               </div>
             </div>
- 
+
             {/* Grid: izquierda (sidebar) + derecha (contenido) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
- 
+
               {/* ── Columna izquierda ── */}
               <div className="flex flex-col gap-4">
- 
+
                 {/* Información de contacto */}
                 <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm p-5">
                   <h2 className="text-[14px] font-bold text-[#1A1A1A] mb-4">Información de Contacto</h2>
@@ -226,7 +226,7 @@ export default function ClienteDetallePage() {
                     )}
                   </div>
                 </div>
- 
+
                 {/* Resumen estadístico */}
                 <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm p-5">
                   <h2 className="text-[14px] font-bold text-[#1A1A1A] mb-4">Resumen</h2>
@@ -246,7 +246,7 @@ export default function ClienteDetallePage() {
                   </div>
                 </div>
               </div>
- 
+
               {/* ── Columna derecha ── */}
               <div className="lg:col-span-2">
                 {/* Tabs */}
@@ -284,7 +284,7 @@ export default function ClienteDetallePage() {
                     </span>
                   </button>
                 </div>
- 
+
                 {/* Tab: Oportunidades */}
                 {tab === 'oportunidades' && (
                   <div className="flex flex-col gap-3">
@@ -323,7 +323,7 @@ export default function ClienteDetallePage() {
                     )}
                   </div>
                 )}
- 
+
                 {/* Tab: Actividades — placeholder hasta que backend implemente filtro por cliente */}
                 {tab === 'actividades' && (
                   <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm text-center py-12 px-4">
@@ -344,4 +344,3 @@ export default function ClienteDetallePage() {
     </AppLayout>
   )
 }
- 

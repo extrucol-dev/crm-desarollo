@@ -36,7 +36,7 @@ export function useUsuarioForm({ id, onSuccess }) {
     setFetching(true)
     usuariosAPI.buscar(id)
       .then(data => setForm({ nombre: data.nombre, email: data.email, password: '', rol: data.rol, activo: data.activo }))
-      .catch((err) => setApiError(err.response?.data?.message || 'No se pudo cargar el usuario.'))
+      .catch(() => setApiError('No se pudo cargar el usuario.'))
       .finally(() => setFetching(false))
   }, [id])
 

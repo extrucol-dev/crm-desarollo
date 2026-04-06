@@ -6,12 +6,14 @@ import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadUbicacionResponseDTO;
 import com.extrucol.crm.service.ActividadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -41,16 +43,26 @@ public class ActividadController {
 
     @GetMapping
     public ResponseEntity<List<ActividadResponseDTO>> listar(
-            @RequestParam(required = false) LocalDate inicio,
-            @RequestParam(required = false) LocalDate fin) {
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate inicio,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate fin) {
 
         return ResponseEntity.ok(actividadService.listar(inicio, fin));
     }
 
     @GetMapping("/todas")
     public ResponseEntity<List<ActividadResponseDTO>> listarTodas(
-            @RequestParam(required = false) LocalDate inicio,
-            @RequestParam(required = false) LocalDate fin) {
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate inicio,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate fin) {
 
         return ResponseEntity.ok(actividadService.listarTodas(inicio, fin));
     }

@@ -1,8 +1,8 @@
-import { FormField, Input, Select, FormActions, ApiErrorAlert } from '../../../shared/components/FormField'
+import { FormField, Input, Select, Textarea, FormActions, ApiErrorAlert } from '../../../shared/components/FormField'
 
 const SECTORES = ['Construcción', 'Industrial', 'Metal-mecánico', 'Logística', 'Textil', 'Agropecuario', 'Servicios', 'Otro']
 
-export default function ClienteForm({ form, errors, loading, apiError, setField, onSubmit, onCancel }) {
+export default function ClienteForm({ form, errors, loading, apiError, ciudades, setField, onSubmit, onCancel }) {
   return (
     <form onSubmit={onSubmit} noValidate>
       <ApiErrorAlert message={apiError} />
@@ -23,8 +23,15 @@ export default function ClienteForm({ form, errors, loading, apiError, setField,
             {SECTORES.map(s => <option key={s}>{s}</option>)}
           </Select>
         </FormField>
+
+        {/* CE-26: ciudad ahora es select desde GET /api/ciudades */}
         <FormField label="Ciudad" required error={errors.ciudad}>
-          <Input placeholder="Ej: Bogotá" value={form.ciudad} onChange={setField('ciudad')} error={errors.ciudad} />
+          <Select value={form.ciudad} onChange={setField('ciudad')} error={errors.ciudad}>
+            <option value="">Seleccionar ciudad</option>
+            {ciudades.map(c => (
+              <option key={c.id} value={c.id}>{c.nombre}</option>
+            ))}
+          </Select>
         </FormField>
       </div>
 

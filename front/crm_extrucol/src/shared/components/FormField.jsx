@@ -1,5 +1,6 @@
 /**
  * Campo de formulario reutilizable — mantiene estilos consistentes en todos los módulos.
+ * Sin emojis. Espacios para íconos reservados con clases SVG.
  */
 export function FormField({ label, required, error, hint, children }) {
   return (
@@ -38,7 +39,7 @@ export function Input({ error, className = '', ...props }) {
 export function Select({ error, children, className = '', ...props }) {
   return (
     <select
-      className={`${inputBase} ${error ? inputError : inputNormal} ${className} appearance-none pr-8`}
+      className={`${inputBase} ${error ? inputError : inputNormal} ${className}`}
       {...props}
     >
       {children}
@@ -158,7 +159,7 @@ export function Badge({ variant = 'gray', children }) {
     purple: 'bg-[#F3E8FF] text-[#7C3AED]',
   }
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11.5px] font-semibold ${variants[variant]}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold ${variants[variant]}`}>
       {children}
     </span>
   )

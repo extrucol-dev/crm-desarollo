@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { clientesAPI } from '../services/clientesAPI'
 
 export function useClientes() {
@@ -19,17 +19,28 @@ export function useClientes() {
 
   useEffect(() => { cargar() }, [cargar])
 
-  const sectores = [...new Set(clientes.map(c => c.sector).filter(Boolean))]
-  const ciudades = [...new Set(clientes.map(c => c.ciudad).filter(Boolean))]
+  // Extraer valores únicos — ciudad viene como { id, nombre }
+  const sectores = useMemo(() =>
+    [...new Set(clientes.map(c => c.sector).filter(Boolean))].sort(), [clientes])
 
-  const filtrados = clientes.filter(c => {
+  const ciudades = useMemo(() =>
+    [...new Map(clientes
+      .filter(c => c.ciudad?.id)
+      .map(c => [c.ciudad.id, c.ciudad.nombre])
+    ).entries()].map(([id, nombre]) => ({ id, nombre }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre)), [clientes])
+
+  // CE-27: filtro por búsqueda, sector y ciudad (client-side)
+  const filtrados = useMemo(() => clientes.filter(c => {
     const q = busqueda.toLowerCase()
-    return (
-      (!busqueda || c.nombre?.toLowerCase().includes(q) || c.empresa?.toLowerCase().includes(q)) &&
-      (!sector || c.sector === sector) &&
-      (!ciudad || c.ciudad === ciudad)
-    )
-  })
+    const matchBusqueda = !q ||
+      c.nombre?.toLowerCase().includes(q) ||
+      c.empresa?.toLowerCase().includes(q)
+    const matchSector = !sector || c.sector === sector
+    const matchCiudad = !ciudad || String(c.ciudad?.id) === String(ciudad)
+    return matchBusqueda && matchSector && matchCiudad
+  }), [clientes, busqueda, sector, ciudad])
 
-  return { filtrados, loading, error, sectores, ciudades, busqueda, setBusqueda, sector, setSector, ciudad, setCiudad, cargar }
+  return { clientes, filtrados, loading, error, sectores, ciudades,
+    busqueda, setBusqueda, sector, setSector, ciudad, setCiudad, cargar }
 }

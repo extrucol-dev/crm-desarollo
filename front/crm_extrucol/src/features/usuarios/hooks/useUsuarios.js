@@ -13,7 +13,7 @@ export function useUsuarios() {
     setLoading(true); setError('')
     usuariosAPI.listar()
       .then(setUsuarios)
-      .catch((e) => setError(e.response?.data?.message || 'No se pudieron cargar los usuarios.'))
+      .catch(() => setError('No se pudieron cargar los usuarios.'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -32,12 +32,12 @@ export function useUsuarios() {
     try {
       const updated = await usuariosAPI.actualizarEstado(id, activo)
       setUsuarios(prev => prev.map(u => u.id === id ? { ...u, activo: updated.activo } : u))
-    } catch (err) {
-      setError( err.response?.data?.message || 'No se pudo actualizar el estado del usuario.')
+    } catch {
+      setError('No se pudo actualizar el estado del usuario.')
     } finally {
       setToggling(null)
     }
   }
 
-  return { filtrados, loading, error, busqueda, setBusqueda, filtroRol, setFiltroRol, toggling, toggleEstado, cargar }
+  return { filtrados, loading, error, busqueda, setBusqueda, filtroRol, setFiltroRol, toggling, toggleEstado, cargar, usuarios }
 }

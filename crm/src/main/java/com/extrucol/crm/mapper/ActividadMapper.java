@@ -21,13 +21,26 @@ public class ActividadMapper {
     public ActividadResponseDTO entidadADTO(Actividad actividad) {
         if (actividad == null) return null;
 
-        return new ActividadResponseDTO(actividad.getId(), actividad.getTipo(), actividad.getDescripcion(), actividad.getResultado(), actividad.getVirtual(), actividad.getFecha_actividad(), usuarioMapper.entidadADTO(actividad.getUsuario()), oportunidadMapper.entidadADTOSimple(actividad.getOportunidad()));
+        return new ActividadResponseDTO(actividad.getId(),
+                actividad.getTipo(),
+                actividad.getDescripcion(),
+                actividad.getResultado(),
+                actividad.getVirtual(),
+                actividad.getFecha_actividad(),
+                usuarioMapper.entidadADTO(actividad.getUsuario()),
+                oportunidadMapper.entidadADTOSimple(actividad.getOportunidad()));
     }
 
     public ActividadUbicacionResponseDTO entidadADTOUbicacion(Actividad actividad, Ubicacion ubicacion) {
         if (actividad == null) return null;
 
-        return new ActividadUbicacionResponseDTO(actividad.getId(), actividad.getTipo(), actividad.getDescripcion(), actividad.getResultado(), actividad.getVirtual(), actividad.getFecha_actividad(), ubicacionMapper.entidadADTO(ubicacion)
+        return new ActividadUbicacionResponseDTO(actividad.getId(),
+                actividad.getTipo(),
+                actividad.getDescripcion(),
+                actividad.getResultado(),
+                actividad.getVirtual(),
+                actividad.getFecha_actividad(),
+                ubicacionMapper.entidadADTO(ubicacion)
 
         );
     }

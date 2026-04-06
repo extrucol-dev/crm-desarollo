@@ -1,6 +1,7 @@
 package com.extrucol.crm.dto.response.oportunidad;
 
-import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
+
+import com.extrucol.crm.dto.response.actividad.ActividadUbicacionResponseDTO;
 import com.extrucol.crm.dto.response.cliente.ClienteResponseDTO;
 
 import java.math.BigDecimal;
@@ -17,6 +18,6 @@ public record OportunidadActividadesResponseDTO(
         LocalDate fecha_cierre,
         String motivo_cierre,
         ClienteResponseDTO cliente,
-        List<ActividadResponseDTO> actividades
+        List<ActividadUbicacionResponseDTO> actividades
 ) {
 }

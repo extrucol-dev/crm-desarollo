@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import AppLayout from '../../../shared/components/AppLayout'
 import Topbar from '../../../shared/components/Topbar'
@@ -109,12 +109,24 @@ function ActividadItem({ actividad, oportunidadId, onCerrar }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
               </svg>
             </button>
-            {/* Cerrar actividad presencial pendiente con GPS */}
+            {/* Cerrar presencial → GPS obligatorio */}
             {!completada && !actividad.virtual && (
               <button
-                onClick={() => onCerrar(actividad.id)}
+                onClick={() => onCerrar(actividad.id, 'presencial')}
                 className="p-1 rounded hover:bg-[#F0F0F0] text-[#ABABAB] hover:text-[#22C55E] transition-colors"
                 title="Registrar resultado con GPS"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            )}
+            {/* Cerrar virtual → solo resultado */}
+            {!completada && actividad.virtual && (
+              <button
+                onClick={() => onCerrar(actividad.id, 'virtual')}
+                className="p-1 rounded hover:bg-[#F0F0F0] text-[#ABABAB] hover:text-[#22C55E] transition-colors"
+                title="Registrar resultado"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -229,15 +241,106 @@ function GpsCierreModal({ onConfirm, onCancel, loading }) {
   )
 }
 
-// ── Página principal ──────────────────────────────────────────
+// ── Menú de acciones móvil ────────────────────────────────────
+function AccionesMenu({ onEditar, onAvanzar, estadoSiguiente, onCerrar, onProyecto }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+  const item = (label, onClick, color = '#1A1A1A') => (
+    <button onClick={() => { onClick(); setOpen(false) }}
+      className="w-full text-left px-4 py-2.5 text-[13px] font-medium hover:bg-[#F7F7F7] transition-colors"
+      style={{ color }}>
+      {label}
+    </button>
+  )
+  return (
+    <div className="relative" ref={ref}>
+      <button onClick={() => setOpen(v => !v)}
+        className="p-[7px] rounded-md border border-[#D5D5D5] text-[#4A4A4A] hover:bg-[#F7F7F7] transition-all">
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 w-52 bg-white rounded-xl border border-[#E5E5E5] shadow-lg z-50 overflow-hidden">
+          {item('Editar', onEditar)}
+          {onAvanzar && item(`Avanzar → ${estadoSiguiente}`, onAvanzar, '#24388C')}
+          {onProyecto && item('Convertir a proyecto', onProyecto, '#1A8754')}
+          {item('Cerrar oportunidad', onCerrar, '#C0392B')}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Modal cierre actividad VIRTUAL — solo resultado, sin GPS ──
+function VirtualCierreModal({ onConfirm, onCancel, loading }) {
+  const [resultado, setResultado] = useState('')
+  const [error, setError]         = useState('')
+
+  const handleConfirm = () => {
+    if (!resultado.trim() || resultado.length < 5) {
+      setError('El resultado debe tener al menos 5 caracteres.')
+      return
+    }
+    onConfirm({ resultado })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div className="px-6 py-5 border-b border-[#F0F0F0]">
+          <h2 className="text-[16px] font-bold text-[#1A1A1A]">Registrar resultado</h2>
+          <p className="text-[13px] text-[#6B6B6B] mt-0.5">Actividad virtual — no se requiere ubicación GPS.</p>
+        </div>
+        <div className="px-6 py-5">
+          <label className="block text-[13px] font-semibold text-[#4A4A4A] mb-1.5">
+            Resultado de la actividad <span className="text-[#C0392B]">*</span>
+          </label>
+          <textarea
+            rows={4}
+            placeholder="Describe el resultado de la llamada, reunión virtual o cotización... (mínimo 5 caracteres)"
+            value={resultado}
+            onChange={e => { setResultado(e.target.value); setError('') }}
+            className="w-full px-3 py-2.5 text-[13.5px] text-[#1A1A1A] bg-white border border-[#D5D5D5] rounded-md outline-none placeholder:text-[#ABABAB] resize-none focus:border-[#24388C] focus:ring-2 focus:ring-[#24388C]/15"
+          />
+          {error && (
+            <div className="text-[12.5px] text-[#C0392B] bg-[#FDECEA] border border-[#f5c6c6] rounded-md px-3 py-2 mt-2">
+              {error}
+            </div>
+          )}
+          <div className="flex gap-2.5 mt-5">
+            <button onClick={onCancel}
+              className="flex-1 py-2.5 rounded-md text-[13px] font-semibold text-[#4A4A4A] border border-[#D5D5D5] hover:bg-[#F7F7F7] transition-all">
+              Cancelar
+            </button>
+            <button onClick={handleConfirm} disabled={loading}
+              className="flex-1 py-2.5 rounded-md text-[13px] font-semibold text-white bg-[#24388C] hover:bg-[#1B2C6B] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+              {loading ? (
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                </svg>
+              ) : 'Confirmar resultado'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 export default function OportunidadDetallePage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [showCierreModal, setShowCierreModal]   = useState(false)
-  const [actividadCierreId, setActividadCierreId] = useState(null)
-  const [actividades, setActividades]           = useState([])
-  const [loadingActs, setLoadingActs]           = useState(false)
-  const [gpsCerrando, setGpsCerrando]           = useState(false)
+  const [showCierreModal, setShowCierreModal]       = useState(false)
+  const [actividadCierre, setActividadCierre]       = useState(null) // { id, tipo: 'virtual'|'presencial' }
+  const [actividades, setActividades]               = useState([])
+  const [loadingActs, setLoadingActs]               = useState(false)
+  const [gpsCerrando, setGpsCerrando]               = useState(false)
 
   const {
     oportunidad, loading, error,
@@ -263,15 +366,28 @@ export default function OportunidadDetallePage() {
     if (ok) setShowCierreModal(false)
   }
 
-  // CE-19: cerrar actividad presencial con GPS
+  // Cerrar actividad presencial con GPS
   const handleGpsCierre = async ({ resultado, latitud, longitud }) => {
     setGpsCerrando(true)
     try {
-      await actividadesAPI.cerrar(actividadCierreId, { resultado, latitud, longitud })
-      setActividadCierreId(null)
+      await actividadesAPI.cerrarPresencial(actividadCierre.id, { resultado, latitud, longitud })
+      setActividadCierre(null)
       cargarActividades()
     } catch {
-      // el modal muestra el error internamente si falla geolocation
+      // el modal maneja su propio error de GPS
+    } finally {
+      setGpsCerrando(false)
+    }
+  }
+
+  // Cerrar actividad virtual sin GPS
+  const handleVirtualCierre = async ({ resultado }) => {
+    setGpsCerrando(true)
+    try {
+      await actividadesAPI.cerrarVirtual(actividadCierre.id, { resultado })
+      setActividadCierre(null)
+      cargarActividades()
+    } catch {
     } finally {
       setGpsCerrando(false)
     }
@@ -290,30 +406,43 @@ export default function OportunidadDetallePage() {
         </>
       }>
         {op && !esCerrada && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <button onClick={() => navigate(`/oportunidades/${id}/editar`)}
-              className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-[#4A4A4A] border border-[#D5D5D5] hover:bg-[#F7F7F7] transition-all whitespace-nowrap">
-              Editar
-            </button>
-            {siguienteEstado && (
-              <button onClick={avanzar} disabled={avanzando}
-                className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-[#24388C] border border-[#24388C] hover:bg-[#EEF1FA] transition-all disabled:opacity-50 whitespace-nowrap">
-                {avanzando ? '...' : `Avanzar a ${ESTADO_SIGUIENTE_LABEL[op.estado]}`}
+          <>
+            {/* Desktop: botones inline */}
+            <div className="hidden sm:flex items-center gap-2">
+              <button onClick={() => navigate(`/oportunidades/${id}/editar`)}
+                className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-[#4A4A4A] border border-[#D5D5D5] hover:bg-[#F7F7F7] transition-all">
+                Editar
               </button>
-            )}
-            <button onClick={() => setShowCierreModal(true)}
-              className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-white bg-[#1A1A1A] hover:bg-[#333] transition-all whitespace-nowrap">
-              Cerrar
-            </button>
-            <button onClick={() => navigate('/actividades/nueva', { state: { oportunidadId: id } })}
-              className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-white bg-[#F39610] hover:bg-[#C7770D] transition-all whitespace-nowrap">
-              + Actividad
-            </button>
-            <button onClick={() => navigate('/proyectos/nuevo', { state: { oportunidadId: id } })}
-              className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-[#1A8754] border border-[#1A8754] hover:bg-[#E8F5EE] transition-all whitespace-nowrap">
-              Convertir a proyecto
-            </button>
-          </div>
+              {siguienteEstado && (
+                <button onClick={avanzar} disabled={avanzando}
+                  className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-[#24388C] border border-[#24388C] hover:bg-[#EEF1FA] transition-all disabled:opacity-50">
+                  {avanzando ? '...' : `→ ${ESTADO_SIGUIENTE_LABEL[op.estado]}`}
+                </button>
+              )}
+              <button onClick={() => navigate('/actividades/nueva', { state: { oportunidadId: id } })}
+                className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-white bg-[#F39610] hover:bg-[#C7770D] transition-all">
+                + Actividad
+              </button>
+              <button onClick={() => setShowCierreModal(true)}
+                className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-white bg-[#1A1A1A] hover:bg-[#333] transition-all">
+                Cerrar
+              </button>
+            </div>
+            {/* Móvil: un botón primario + menú */}
+            <div className="flex sm:hidden items-center gap-2">
+              <button onClick={() => navigate('/actividades/nueva', { state: { oportunidadId: id } })}
+                className="px-3 py-[7px] rounded-md text-[12px] font-semibold text-white bg-[#F39610] hover:bg-[#C7770D] transition-all">
+                + Actividad
+              </button>
+              <AccionesMenu
+                onEditar={() => navigate(`/oportunidades/${id}/editar`)}
+                onAvanzar={siguienteEstado ? avanzar : null}
+                estadoSiguiente={siguienteEstado ? ESTADO_SIGUIENTE_LABEL[op.estado] : null}
+                onCerrar={() => setShowCierreModal(true)}
+                onProyecto={() => navigate('/proyectos/nuevo', { state: { oportunidadId: id } })}
+              />
+            </div>
+          </>
         )}
       </Topbar>
 
@@ -430,7 +559,7 @@ export default function OportunidadDetallePage() {
                         key={a.id}
                         actividad={a}
                         oportunidadId={id}
-                        onCerrar={(actId) => setActividadCierreId(actId)}
+                        onCerrar={(actId, tipo) => setActividadCierre({ id: actId, tipo })}
                       />
                     ))}
                   </div>
@@ -515,12 +644,21 @@ export default function OportunidadDetallePage() {
         <CierreModal loading={cerrando} onConfirm={handleCerrarOportunidad} onCancel={() => setShowCierreModal(false)} />
       )}
 
-      {/* Modal GPS cierre actividad presencial */}
-      {actividadCierreId && (
+      {/* Modal cierre actividad presencial — con GPS */}
+      {actividadCierre?.tipo === 'presencial' && (
         <GpsCierreModal
           loading={gpsCerrando}
           onConfirm={handleGpsCierre}
-          onCancel={() => setActividadCierreId(null)}
+          onCancel={() => setActividadCierre(null)}
+        />
+      )}
+
+      {/* Modal cierre actividad virtual — sin GPS */}
+      {actividadCierre?.tipo === 'virtual' && (
+        <VirtualCierreModal
+          loading={gpsCerrando}
+          onConfirm={handleVirtualCierre}
+          onCancel={() => setActividadCierre(null)}
         />
       )}
     </AppLayout>

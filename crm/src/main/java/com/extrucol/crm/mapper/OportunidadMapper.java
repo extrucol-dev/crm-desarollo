@@ -4,7 +4,6 @@ import com.extrucol.crm.dto.request.oportunidad.OportunidadCierreRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
-import com.extrucol.crm.dto.response.actividad.ActividadUbicacionResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadActividadesResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
@@ -59,7 +58,7 @@ public class OportunidadMapper {
         );
     }
 
-    public OportunidadActividadesResponseDTO entidadADTOActividades(Oportunidad oportunidad, List<ActividadUbicacionResponseDTO> actividades){
+    public OportunidadActividadesResponseDTO entidadADTOActividades(Oportunidad oportunidad, List<ActividadResponseDTO> actividades){
         if(oportunidad == null) return null;
 
         return new OportunidadActividadesResponseDTO(

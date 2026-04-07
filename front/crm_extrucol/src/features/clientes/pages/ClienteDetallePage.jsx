@@ -221,7 +221,7 @@ export default function ClienteDetallePage() {
                     {cliente.ciudad && (
                       <div className="flex items-center gap-2.5 text-[13px] text-[#4A4A4A]">
                         <IconLocation />
-                        <span>{cliente.ciudad.nombre}</span>
+                        <span>{cliente.ciudad}</span>
                       </div>
                     )}
                   </div>

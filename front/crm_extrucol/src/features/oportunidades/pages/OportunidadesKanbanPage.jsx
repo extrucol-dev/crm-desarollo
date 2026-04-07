@@ -49,7 +49,7 @@ export default function OportunidadesKanbanPage() {
         </button>
       </Topbar>
 
-      <div className="p-4 sm:p-5">
+      <div className="overflow-hidden p-4 md:p-5 w-screen md:w-auto">
         {/* Filtro tipo + contador */}
         <div className="flex items-center gap-2 mb-4">
           <div className="flex gap-1 flex-wrap">

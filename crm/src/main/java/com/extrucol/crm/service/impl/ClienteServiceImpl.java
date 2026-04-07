@@ -54,6 +54,8 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public List<ClienteResponseDTO> listarPorEjecutivo() {
+
+
         return  clienteRepository.findByUsuarioEmail(SecurityContextHolder.getContext().getAuthentication().getName()).stream().map(clienteMapper::entidadADTO).toList();
     }
 

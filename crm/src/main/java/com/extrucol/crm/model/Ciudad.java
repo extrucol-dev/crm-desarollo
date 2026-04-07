@@ -13,7 +13,12 @@ import lombok.Setter;
 @NoArgsConstructor @AllArgsConstructor
 public class Ciudad {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ciudad_seq")
+    @SequenceGenerator(
+            name = "ciudad_seq",
+            sequenceName = "CRM_CIUDAD_SEQ",
+            allocationSize = 1
+    )
     @Column(name = "id_ciudad")
     Long id;
 

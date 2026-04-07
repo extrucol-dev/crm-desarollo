@@ -16,7 +16,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor @AllArgsConstructor
 public class Oportunidad {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "oportunidad_seq")
+    @SequenceGenerator(
+            name = "oportunidad_seq",
+            sequenceName = "CRM_OPORTUNIDAD_SEQ",
+            allocationSize = 1
+    )
     @Column(name = "id_oportunidad")
     Long id;
 

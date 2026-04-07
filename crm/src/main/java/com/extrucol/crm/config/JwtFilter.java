@@ -1,5 +1,6 @@
 package com.extrucol.crm.config;
 
+import com.extrucol.crm.exception.UnauthorizedException;
 import com.extrucol.crm.model.Usuario;
 import com.extrucol.crm.repository.UbicacionRepository;
 import com.extrucol.crm.repository.UsuarioRepository;
@@ -50,7 +51,7 @@ public class JwtFilter extends GenericFilter {
 
             if (username != null) {
                 Usuario usuario = usuarioRepository.findByEmail(username)
-                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                        .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
 
                 String rol = usuario.getRol().name();
 

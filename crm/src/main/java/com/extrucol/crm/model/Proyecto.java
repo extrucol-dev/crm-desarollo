@@ -14,7 +14,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor @AllArgsConstructor
 public class Proyecto {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "proyecto_seq")
+    @SequenceGenerator(
+            name = "proyecto_seq",
+            sequenceName = "CRM_PROYECTO_SEQ",
+            allocationSize = 1
+    )
     @Column(name = "id_proyecto")
     Long id;
 

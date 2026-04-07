@@ -15,7 +15,7 @@ export default function ClientesListaPage() {
       <Topbar title="Mis Clientes">
         <button onClick={() => navigate('/clientes/nuevo')}
           className="px-3 sm:px-4 py-[7px] rounded-md text-[13px] font-semibold text-white bg-[#24388C] hover:bg-[#1B2C6B] transition-all whitespace-nowrap">
-          + Registrar
+          Registrar
         </button>
       </Topbar>
 
@@ -61,7 +61,7 @@ export default function ClientesListaPage() {
               action={!busqueda && !sector && !ciudad && (
                 <button onClick={() => navigate('/clientes/nuevo')}
                   className="px-5 py-2.5 rounded-md text-[13px] font-semibold text-white bg-[#24388C] hover:bg-[#1B2C6B] transition-all">
-                  + Registrar cliente
+                  Registrar cliente
                 </button>
               )}
             />

@@ -15,7 +15,12 @@ import java.math.BigDecimal;
 public class Ubicacion {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ubicacion_seq")
+    @SequenceGenerator(
+            name = "ubicacion_seq",
+            sequenceName = "CRM_UBICACION_SEQ",
+            allocationSize = 1
+    )
     @Column(name = "id_ubicacion")
     Long id;
 

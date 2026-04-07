@@ -14,7 +14,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor @AllArgsConstructor
 public class Cliente {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cliente_seq")
+    @SequenceGenerator(
+            name = "cliente_seq",
+            sequenceName = "CRM_CLIENTE_SEQ",
+            allocationSize = 1
+    )
     @Column(name = "id_cliente")
     Long id;
 

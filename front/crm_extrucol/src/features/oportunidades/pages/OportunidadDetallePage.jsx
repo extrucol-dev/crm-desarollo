@@ -17,15 +17,10 @@ const formatDate = (iso) => {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' })
 }
-const formatDateShort = (iso) => {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
-}
 const formatDateTime = (iso) => {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
-
 const COLORS = ['#24388C', '#7C3AED', '#1A8754', '#C2410C', '#0369A1']
 const avatarColor = (n = '') => COLORS[n.charCodeAt(0) % COLORS.length]
 const initials    = (n = '') => n.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
@@ -34,20 +29,19 @@ const ESTADO_VARIANT = { PROSPECTO: 'blue', CALIFICACION: 'orange', PROPUESTA: '
 const ESTADO_LABEL   = { PROSPECTO: 'Prospecto', CALIFICACION: 'Calificación', PROPUESTA: 'Propuesta', NEGOCIACION: 'Negociación', GANADA: 'Ganada', PERDIDA: 'Perdida' }
 const TIPO_LABEL     = { COTIZACION: 'Cotización', VENTA: 'Venta de producto', ACOMPANAMIENTO: 'Acompañamiento técnico', PROYECTO: 'Proyecto' }
 const ESTADO_SIGUIENTE_LABEL = { PROSPECTO: 'Calificación', CALIFICACION: 'Propuesta', PROPUESTA: 'Negociación', NEGOCIACION: 'Ganada' }
-
 const PIPELINE = ['PROSPECTO', 'CALIFICACION', 'PROPUESTA', 'NEGOCIACION', 'GANADA']
 const PIPELINE_LABEL = { PROSPECTO: 'Prospecto', CALIFICACION: 'Calificación', PROPUESTA: 'Propuesta', NEGOCIACION: 'Negociación', GANADA: 'Ganada' }
 
-// ── Pipeline Bar ──────────────────────────────────────────────
+// ── Pipeline bar ──────────────────────────────────────────────
 function PipelineBar({ estado }) {
-  const currentIdx = PIPELINE.indexOf(estado)
-  const perdida    = estado === 'PERDIDA'
+  const idx     = PIPELINE.indexOf(estado)
+  const perdida = estado === 'PERDIDA'
   return (
     <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm px-6 py-5 mb-5">
       <div className="flex items-center">
         {PIPELINE.map((e, i) => {
-          const done    = !perdida && currentIdx > i
-          const current = !perdida && currentIdx === i
+          const done    = !perdida && idx > i
+          const current = !perdida && idx === i
           return (
             <div key={e} className="flex items-center flex-1 min-w-0">
               <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
@@ -76,10 +70,140 @@ function PipelineBar({ estado }) {
   )
 }
 
-// ── Actividad item (CE-20) ────────────────────────────────────
-function ActividadItem({ actividad, oportunidadId, onCerrar }) {
-  const completada = !!actividad.resultado
+// ── Modal GPS — actividad presencial ─────────────────────────
+function GpsCierreModal({ onConfirm, onCancel, loading, apiError }) {
+  const [resultado, setResultado] = useState('')
+  const [gpsError, setGpsError]   = useState('')
+  const [locating, setLocating]   = useState(false)
+
+  const handleConfirm = () => {
+    if (!resultado.trim() || resultado.length < 5) {
+      setGpsError('El resultado debe tener al menos 5 caracteres.'); return
+    }
+    setLocating(true); setGpsError('')
+    if (!navigator.geolocation) {
+      setGpsError('Tu dispositivo no soporta geolocalización.')
+      setLocating(false); return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false)
+        onConfirm({ resultado, latitud: pos.coords.latitude, longitud: pos.coords.longitude })
+      },
+      () => {
+        setLocating(false)
+        setGpsError('No se pudo obtener la ubicación. Activa el GPS e intenta de nuevo.')
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
+
+  const errorMostrado = apiError || gpsError
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div className="px-6 py-5 border-b border-[#F0F0F0]">
+          <h2 className="text-[16px] font-bold text-[#1A1A1A]">Registrar resultado</h2>
+          <p className="text-[13px] text-[#6B6B6B] mt-0.5">Se capturará tu ubicación GPS automáticamente al confirmar.</p>
+        </div>
+        <div className="px-6 py-5">
+          <div className="flex items-center gap-2 bg-[#EEF1FA] rounded-lg px-3 py-2 mb-4 text-[12.5px] text-[#24388C]">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            Asegúrate de tener el GPS activo antes de confirmar
+          </div>
+          <label className="block text-[13px] font-semibold text-[#4A4A4A] mb-1.5">
+            Resultado <span className="text-[#C0392B]">*</span>
+          </label>
+          <textarea rows={3}
+            placeholder="Describe el resultado de la visita o reunión... (mínimo 5 caracteres)"
+            value={resultado}
+            onChange={e => { setResultado(e.target.value); setGpsError('') }}
+            className="w-full px-3 py-2.5 text-[13.5px] text-[#1A1A1A] bg-white border border-[#D5D5D5] rounded-md outline-none placeholder:text-[#ABABAB] resize-none focus:border-[#24388C] focus:ring-2 focus:ring-[#24388C]/15"
+          />
+          {errorMostrado && (
+            <div className="text-[12.5px] text-[#C0392B] bg-[#FDECEA] border border-[#f5c6c6] rounded-md px-3 py-2 mt-2">
+              {errorMostrado}
+            </div>
+          )}
+          <div className="flex gap-2.5 mt-5">
+            <button onClick={onCancel} disabled={loading || locating}
+              className="flex-1 py-2.5 rounded-md text-[13px] font-semibold text-[#4A4A4A] border border-[#D5D5D5] hover:bg-[#F7F7F7] transition-all disabled:opacity-50">
+              Cancelar
+            </button>
+            <button onClick={handleConfirm} disabled={loading || locating}
+              className="flex-1 py-2.5 rounded-md text-[13px] font-semibold text-white bg-[#24388C] hover:bg-[#1B2C6B] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+              {(loading || locating)
+                ? <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                   {locating ? 'Obteniendo GPS...' : 'Guardando...'}</>
+                : 'Confirmar resultado'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Modal Virtual — solo resultado ────────────────────────────
+function VirtualCierreModal({ onConfirm, onCancel, loading, apiError }) {
+  const [resultado, setResultado] = useState('')
+  const [error, setError]         = useState('')
+  const errorMostrado = apiError || error
+
+  const handleConfirm = () => {
+    if (!resultado.trim() || resultado.length < 5) {
+      setError('El resultado debe tener al menos 5 caracteres.'); return
+    }
+    onConfirm({ resultado })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div className="px-6 py-5 border-b border-[#F0F0F0]">
+          <h2 className="text-[16px] font-bold text-[#1A1A1A]">Registrar resultado</h2>
+          <p className="text-[13px] text-[#6B6B6B] mt-0.5">Actividad virtual — no se requiere ubicación GPS.</p>
+        </div>
+        <div className="px-6 py-5">
+          <label className="block text-[13px] font-semibold text-[#4A4A4A] mb-1.5">
+            Resultado <span className="text-[#C0392B]">*</span>
+          </label>
+          <textarea rows={4}
+            placeholder="Describe el resultado de la llamada, reunión virtual o cotización... (mínimo 5 caracteres)"
+            value={resultado}
+            onChange={e => { setResultado(e.target.value); setError('') }}
+            className="w-full px-3 py-2.5 text-[13.5px] text-[#1A1A1A] bg-white border border-[#D5D5D5] rounded-md outline-none placeholder:text-[#ABABAB] resize-none focus:border-[#24388C] focus:ring-2 focus:ring-[#24388C]/15"
+          />
+          {errorMostrado && (
+            <div className="text-[12.5px] text-[#C0392B] bg-[#FDECEA] border border-[#f5c6c6] rounded-md px-3 py-2 mt-2">
+              {errorMostrado}
+            </div>
+          )}
+          <div className="flex gap-2.5 mt-5">
+            <button onClick={onCancel} disabled={loading}
+              className="flex-1 py-2.5 rounded-md text-[13px] font-semibold text-[#4A4A4A] border border-[#D5D5D5] hover:bg-[#F7F7F7] transition-all disabled:opacity-50">
+              Cancelar
+            </button>
+            <button onClick={handleConfirm} disabled={loading}
+              className="flex-1 py-2.5 rounded-md text-[13px] font-semibold text-white bg-[#24388C] hover:bg-[#1B2C6B] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+              {loading
+                ? <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                : 'Confirmar resultado'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Actividad item ────────────────────────────────────────────
+function ActividadItem({ actividad, onCerrar }) {
   const navigate   = useNavigate()
+  const completada = !!actividad.resultado
 
   return (
     <div className="flex items-start gap-3 py-4 border-b border-[#F0F0F0] last:border-b-0">
@@ -95,26 +219,26 @@ function ActividadItem({ actividad, oportunidadId, onCerrar }) {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${completada ? 'bg-[#E8F5EE] text-[#1A8754]' : 'bg-[#EEF1FA] text-[#24388C]'}`}>
               {completada ? 'Completada' : 'Pendiente'}
             </span>
-            {/* Acciones */}
-            <button
-              onClick={() => navigate(`/actividades/${actividad.id}/editar`)}
-              className="p-1 rounded hover:bg-[#F0F0F0] text-[#ABABAB] hover:text-[#24388C] transition-colors"
-              title="Editar"
-            >
+
+            {/* Editar */}
+            <button onClick={() => navigate(`/actividades/${actividad.id}/editar`)}
+              className="p-1.5 rounded hover:bg-[#F0F0F0] text-[#ABABAB] hover:text-[#24388C] transition-colors"
+              title="Editar actividad">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
               </svg>
             </button>
-            {/* Cerrar actividad presencial pendiente con GPS */}
-            {!completada && !actividad.virtual && (
+
+            {/* Cerrar — solo si está pendiente */}
+            {!completada && (
               <button
-                onClick={() => onCerrar(actividad.id)}
-                className="p-1 rounded hover:bg-[#F0F0F0] text-[#ABABAB] hover:text-[#22C55E] transition-colors"
-                title="Registrar resultado con GPS"
+                onClick={() => onCerrar(actividad.id, actividad.virtual)}
+                className="p-1.5 rounded hover:bg-[#F0F0F0] text-[#ABABAB] hover:text-[#22C55E] transition-colors"
+                title={actividad.virtual ? 'Registrar resultado' : 'Registrar resultado con GPS'}
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -123,106 +247,15 @@ function ActividadItem({ actividad, oportunidadId, onCerrar }) {
             )}
           </div>
         </div>
+
         <div className="flex items-center gap-3 mt-2 text-[11.5px] text-[#ABABAB] flex-wrap">
-          {actividad.usuario?.nombre && (
-            <span className="flex items-center gap-1">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0" /></svg>
-              {actividad.usuario.nombre}
-            </span>
-          )}
-          {actividad.fecha_actividad && (
-            <span className="flex items-center gap-1">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25" /></svg>
-              {formatDateTime(actividad.fecha_actividad)}
-            </span>
-          )}
-          {actividad.virtual !== undefined && (
-            <span className={`px-1.5 py-0.5 rounded text-[10.5px] font-semibold ${actividad.virtual ? 'bg-[#F0F0F0] text-[#6B6B6B]' : 'bg-[#EEF1FA] text-[#24388C]'}`}>
-              {actividad.virtual ? 'Virtual' : 'Presencial'}
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Modal GPS para cerrar actividad presencial ────────────────
-function GpsCierreModal({ onConfirm, onCancel, loading }) {
-  const [resultado, setResultado] = useState('')
-  const [gpsError, setGpsError]   = useState('')
-  const [locating, setLocating]   = useState(false)
-
-  const handleConfirm = () => {
-    if (!resultado.trim() || resultado.length < 5) {
-      setGpsError('El resultado debe tener al menos 5 caracteres.')
-      return
-    }
-    setLocating(true)
-    setGpsError('')
-    // CE-19: capturar GPS del navegador
-    if (!navigator.geolocation) {
-      setGpsError('Tu dispositivo no soporta geolocalización.')
-      setLocating(false)
-      return
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocating(false)
-        onConfirm({ resultado, latitud: pos.coords.latitude, longitud: pos.coords.longitude })
-      },
-      () => {
-        setLocating(false)
-        setGpsError('No se pudo obtener la ubicación. Activa el GPS e intenta de nuevo.')
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    )
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-        <div className="px-6 py-5 border-b border-[#F0F0F0]">
-          <h2 className="text-[16px] font-bold text-[#1A1A1A]">Registrar resultado</h2>
-          <p className="text-[13px] text-[#6B6B6B] mt-0.5">
-            Se capturará tu ubicación GPS automáticamente al confirmar.
-          </p>
-        </div>
-        <div className="px-6 py-5">
-          <div className="flex items-center gap-2 bg-[#EEF1FA] rounded-lg px-3 py-2 mb-4 text-[12.5px] text-[#24388C]">
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-            </svg>
-            Asegúrate de tener el GPS activo antes de confirmar
-          </div>
-          <label className="block text-[13px] font-semibold text-[#4A4A4A] mb-1.5">
-            Resultado de la actividad <span className="text-[#C0392B]">*</span>
-          </label>
-          <textarea
-            rows={3}
-            placeholder="Describe el resultado de la visita o reunión... (mínimo 5 caracteres)"
-            value={resultado}
-            onChange={e => { setResultado(e.target.value); setGpsError('') }}
-            className="w-full px-3 py-2.5 text-[13.5px] text-[#1A1A1A] bg-white border border-[#D5D5D5] rounded-md outline-none placeholder:text-[#ABABAB] resize-none focus:border-[#24388C] focus:ring-2 focus:ring-[#24388C]/15"
-          />
-          {gpsError && (
-            <div className="text-[12.5px] text-[#C0392B] bg-[#FDECEA] border border-[#f5c6c6] rounded-md px-3 py-2 mt-3">
-              {gpsError}
-            </div>
-          )}
-          <div className="flex gap-2.5 mt-5">
-            <button onClick={onCancel}
-              className="flex-1 py-2.5 rounded-md text-[13px] font-semibold text-[#4A4A4A] border border-[#D5D5D5] hover:bg-[#F7F7F7] transition-all">
-              Cancelar
-            </button>
-            <button onClick={handleConfirm} disabled={loading || locating}
-              className="flex-1 py-2.5 rounded-md text-[13px] font-semibold text-white bg-[#24388C] hover:bg-[#1B2C6B] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-              {(loading || locating) ? (
-                <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
-                {locating ? 'Obteniendo GPS...' : 'Guardando...'}</>
-              ) : 'Confirmar resultado'}
-            </button>
-          </div>
+          {actividad.usuario?.nombre && <span>{actividad.usuario.nombre}</span>}
+          {actividad.fecha_actividad  && <span>{formatDateTime(actividad.fecha_actividad)}</span>}
+          <span className={`px-1.5 py-0.5 rounded text-[10.5px] font-semibold ${
+            actividad.virtual ? 'bg-[#F0F0F0] text-[#6B6B6B]' : 'bg-[#EEF1FA] text-[#24388C]'
+          }`}>
+            {actividad.virtual ? 'Virtual' : 'Presencial'}
+          </span>
         </div>
       </div>
     </div>
@@ -233,20 +266,22 @@ function GpsCierreModal({ onConfirm, onCancel, loading }) {
 export default function OportunidadDetallePage() {
   const { id } = useParams()
   const navigate = useNavigate()
+
   const [showCierreModal, setShowCierreModal]   = useState(false)
-  const [actividadCierreId, setActividadCierreId] = useState(null)
+  // actividadCierre: { id, virtual: boolean } | null
+  const [actividadCierre, setActividadCierre]   = useState(null)
   const [actividades, setActividades]           = useState([])
   const [loadingActs, setLoadingActs]           = useState(false)
-  const [gpsCerrando, setGpsCerrando]           = useState(false)
+  const [cierreActLoading, setCierreActLoading] = useState(false)
+  const [cierreActError, setCierreActError]     = useState('')
 
   const {
     oportunidad, loading, error,
     esCerrada, siguienteEstado,
     avanzando, cerrando, actionError,
-    avanzar, cerrar, cargar,
+    avanzar, cerrar,
   } = useOportunidadDetalle(id)
 
-  // CE-20: cargar historial de actividades
   const cargarActividades = useCallback(() => {
     if (!id) return
     setLoadingActs(true)
@@ -263,17 +298,39 @@ export default function OportunidadDetallePage() {
     if (ok) setShowCierreModal(false)
   }
 
-  // CE-19: cerrar actividad presencial con GPS
-  const handleGpsCierre = async ({ resultado, latitud, longitud }) => {
-    setGpsCerrando(true)
+  // Abre el modal correcto según virtual o presencial
+  const handleAbrirCierre = (actId, esVirtual) => {
+    setCierreActError('')
+    setActividadCierre({ id: actId, virtual: esVirtual })
+  }
+
+  // Cierre presencial — requiere GPS real del navegador
+  const handleCierrePresencial = async ({ resultado, latitud, longitud }) => {
+    setCierreActLoading(true); setCierreActError('')
     try {
-      await actividadesAPI.cerrar(actividadCierreId, { resultado, latitud, longitud })
-      setActividadCierreId(null)
+      await actividadesAPI.cerrarPresencial(actividadCierre.id, { resultado, latitud, longitud })
+      setActividadCierre(null)
       cargarActividades()
-    } catch {
-      // el modal muestra el error internamente si falla geolocation
+    } catch (err) {
+      const msg = err.response?.data?.message ?? err.response?.data
+      setCierreActError(typeof msg === 'string' ? msg : 'Error al guardar. Intenta de nuevo.')
     } finally {
-      setGpsCerrando(false)
+      setCierreActLoading(false)
+    }
+  }
+
+  // Cierre virtual — sin GPS (coordenadas 0,0 como workaround del DTO)
+  const handleCierreVirtual = async ({ resultado }) => {
+    setCierreActLoading(true); setCierreActError('')
+    try {
+      await actividadesAPI.cerrarVirtual(actividadCierre.id, { resultado })
+      setActividadCierre(null)
+      cargarActividades()
+    } catch (err) {
+      const msg = err.response?.data?.message ?? err.response?.data
+      setCierreActError(typeof msg === 'string' ? msg : 'Error al guardar. Intenta de nuevo.')
+    } finally {
+      setCierreActLoading(false)
     }
   }
 
@@ -305,10 +362,6 @@ export default function OportunidadDetallePage() {
               className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-white bg-[#1A1A1A] hover:bg-[#333] transition-all whitespace-nowrap">
               Cerrar
             </button>
-            <button onClick={() => navigate('/actividades/nueva', { state: { oportunidadId: id } })}
-              className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-white bg-[#F39610] hover:bg-[#C7770D] transition-all whitespace-nowrap">
-              + Actividad
-            </button>
             <button onClick={() => navigate('/proyectos/nuevo', { state: { oportunidadId: id } })}
               className="px-3 py-[7px] rounded-md text-[12.5px] font-semibold text-[#1A8754] border border-[#1A8754] hover:bg-[#E8F5EE] transition-all whitespace-nowrap">
               Convertir a proyecto
@@ -327,15 +380,10 @@ export default function OportunidadDetallePage() {
 
         {!loading && op && (
           <>
-            {/* Header */}
             <div className="mb-4">
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-[18px] sm:text-[20px] font-extrabold text-[#1A1A1A] tracking-tight leading-snug">
-                  {op.nombre}
-                </h1>
-                <Badge variant={ESTADO_VARIANT[op.estado] ?? 'gray'}>
-                  {ESTADO_LABEL[op.estado] ?? op.estado}
-                </Badge>
+                <h1 className="text-[18px] sm:text-[20px] font-extrabold text-[#1A1A1A] tracking-tight leading-snug">{op.nombre}</h1>
+                <Badge variant={ESTADO_VARIANT[op.estado] ?? 'gray'}>{ESTADO_LABEL[op.estado] ?? op.estado}</Badge>
               </div>
               {op.cliente && (
                 <div className="text-[13px] text-[#6B6B6B] mt-1">
@@ -390,7 +438,7 @@ export default function OportunidadDetallePage() {
                   </div>
                 </div>
 
-                {/* Historial de actividades CE-20 */}
+                {/* Actividades */}
                 <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm overflow-hidden">
                   <div className="px-5 py-4 border-b border-[#F0F0F0] flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
@@ -408,7 +456,7 @@ export default function OportunidadDetallePage() {
                       <button
                         onClick={() => navigate('/actividades/nueva', { state: { oportunidadId: id } })}
                         className="px-3 py-1.5 rounded-md text-[12px] font-semibold text-white bg-[#24388C] hover:bg-[#1B2C6B] transition-all">
-                        + Registrar
+                        Registrar
                       </button>
                     )}
                   </div>
@@ -422,16 +470,11 @@ export default function OportunidadDetallePage() {
                           </svg>
                         </div>
                         <p className="text-[13px] font-semibold text-[#4A4A4A] mb-1">Sin actividades registradas</p>
-                        <p className="text-[12px] text-[#ABABAB]">Usa "+ Registrar" para agregar la primera actividad</p>
+                        <p className="text-[12px] text-[#ABABAB]">Usa "Registrar" para agregar la primera actividad</p>
                       </div>
                     )}
                     {!loadingActs && actividades.map(a => (
-                      <ActividadItem
-                        key={a.id}
-                        actividad={a}
-                        oportunidadId={id}
-                        onCerrar={(actId) => setActividadCierreId(actId)}
-                      />
+                      <ActividadItem key={a.id} actividad={a} onCerrar={handleAbrirCierre} />
                     ))}
                   </div>
                 </div>
@@ -439,7 +482,6 @@ export default function OportunidadDetallePage() {
 
               {/* ── Derecha ── */}
               <div className="flex flex-col gap-4">
-                {/* Cliente */}
                 {op.cliente && (
                   <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm overflow-hidden">
                     <div className="px-5 py-4 border-b border-[#F0F0F0] flex items-center gap-2.5">
@@ -483,7 +525,6 @@ export default function OportunidadDetallePage() {
                   </div>
                 )}
 
-                {/* Ejecutivo */}
                 {op.usuario && (
                   <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm overflow-hidden">
                     <div className="px-5 py-4 border-b border-[#F0F0F0]">
@@ -515,12 +556,23 @@ export default function OportunidadDetallePage() {
         <CierreModal loading={cerrando} onConfirm={handleCerrarOportunidad} onCancel={() => setShowCierreModal(false)} />
       )}
 
-      {/* Modal GPS cierre actividad presencial */}
-      {actividadCierreId && (
+      {/* Modal cierre actividad presencial — GPS obligatorio */}
+      {actividadCierre && !actividadCierre.virtual && (
         <GpsCierreModal
-          loading={gpsCerrando}
-          onConfirm={handleGpsCierre}
-          onCancel={() => setActividadCierreId(null)}
+          loading={cierreActLoading}
+          apiError={cierreActError}
+          onConfirm={handleCierrePresencial}
+          onCancel={() => { setActividadCierre(null); setCierreActError('') }}
+        />
+      )}
+
+      {/* Modal cierre actividad virtual — solo resultado */}
+      {actividadCierre && actividadCierre.virtual && (
+        <VirtualCierreModal
+          loading={cierreActLoading}
+          apiError={cierreActError}
+          onConfirm={handleCierreVirtual}
+          onCancel={() => { setActividadCierre(null); setCierreActError('') }}
         />
       )}
     </AppLayout>

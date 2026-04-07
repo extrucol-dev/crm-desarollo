@@ -19,9 +19,23 @@ export const actividadesAPI = {
     oportunidad:     Number(data.oportunidad),
   }).then(r => r.data),
 
-  // Cerrar con GPS (PUT /api/actividades/{id}/cierre)
-  cerrar: (id, { resultado, latitud, longitud }) =>
-    api.put(`/api/actividades/${id}/cierre`, { resultado, latitud, longitud }).then(r => r.data),
+  // Cierre presencial — requiere GPS real del navegador
+  // ActividadCierreRequestDTO: { resultado, latitud, longitud }
+  cerrarPresencial: (id, { resultado, latitud, longitud }) =>
+    api.put(`/api/actividades/${id}/cierre`, {
+      resultado,
+      latitud,
+      longitud,
+    }).then(r => r.data),
+
+  // Cierre virtual — el DTO exige latitud y longitud aunque no aplique
+  // Se envían coordenadas neutras (0, 0) como workaround
+  cerrarVirtual: (id, { resultado }) =>
+    api.put(`/api/actividades/${id}/cierre`, {
+      resultado,
+      latitud:  0,
+      longitud: 0,
+    }).then(r => r.data),
 
   buscar: (id) => api.get(`/api/actividades/${id}`).then(r => r.data),
 }

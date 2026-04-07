@@ -301,7 +301,7 @@ export default function ClienteDetallePage() {
                           onClick={() => navigate('/oportunidades/nueva', { state: { clienteId: cliente.id } })}
                           className="px-4 py-2 rounded-md text-[12.5px] font-semibold text-white bg-[#24388C] hover:bg-[#1B2C6B] transition-all"
                         >
-                          + Nueva oportunidad
+                          Nueva oportunidad
                         </button>
                       </div>
                     ) : (
@@ -317,7 +317,7 @@ export default function ClienteDetallePage() {
                           onClick={() => navigate('/oportunidades/nueva', { state: { clienteId: cliente.id } })}
                           className="w-full py-2.5 rounded-xl text-[13px] font-semibold text-[#24388C] border-2 border-dashed border-[#D5D5D5] hover:border-[#24388C] hover:bg-[#EEF1FA] transition-all"
                         >
-                          + Nueva oportunidad
+                          Nueva oportunidad
                         </button>
                       </>
                     )}

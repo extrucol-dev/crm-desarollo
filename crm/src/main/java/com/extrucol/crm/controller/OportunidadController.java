@@ -4,6 +4,7 @@ import com.extrucol.crm.dto.request.oportunidad.OportunidadCierreRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadActividadesResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadDetalleResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.service.OportunidadService;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +56,12 @@ public class OportunidadController {
     }
 
     @GetMapping("/{id}/actividades")
-    public ResponseEntity<OportunidadActividadesResponseDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<OportunidadActividadesResponseDTO> buscarPorIdUsuarioActual(@PathVariable Long id) {
+        return ResponseEntity.ok(oportunidadService.buscarPorIdUsuarioActual(id));
+    }
+
+    @GetMapping("/{id}/detalles")
+    public ResponseEntity<OportunidadDetalleResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(oportunidadService.buscarPorId(id));
     }
 

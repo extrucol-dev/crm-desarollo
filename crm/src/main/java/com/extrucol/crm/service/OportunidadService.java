@@ -4,6 +4,7 @@ import com.extrucol.crm.dto.request.oportunidad.OportunidadCierreRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadActividadesResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadDetalleResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 
 import java.util.List;
@@ -15,7 +16,8 @@ public interface OportunidadService {
 
     List<OportunidadResponseDTO> listarPorUsuarioActual();
 
-    OportunidadActividadesResponseDTO buscarPorId(Long id);
+    OportunidadActividadesResponseDTO buscarPorIdUsuarioActual(Long id);
+    OportunidadDetalleResponseDTO buscarPorId(Long id);
 
     OportunidadResponseDTO actualizar(Long id, OportunidadRequestDTO dto);
 

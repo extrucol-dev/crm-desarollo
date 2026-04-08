@@ -5,6 +5,7 @@ import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadActividadesResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadDetalleResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.ActividadMapper;
@@ -59,6 +60,7 @@ public class OportunidadServiceImpl implements OportunidadService {
                 .toList();
     }
 
+
     @Override
     public List<OportunidadResponseDTO> listarTodas() {
         return oportunidadRepository
@@ -68,7 +70,25 @@ public class OportunidadServiceImpl implements OportunidadService {
                 .toList();
     }
     @Override
-    public OportunidadActividadesResponseDTO buscarPorId(Long id) {
+    public OportunidadDetalleResponseDTO buscarPorId(Long id) {
+        List<ActividadResponseDTO> actividades;
+        Oportunidad oportunidad = oportunidadRepository
+                .findById(id)
+                .orElseThrow(
+                        () -> new BusinessRuleException("Oportunidad no encontrada"));
+
+        actividades = actividadRepository
+                .findByOportunidadId(
+                        oportunidad.getId())
+                .stream().
+                map(actividadMapper::entidadADTO)
+                .toList();
+
+        return oportunidadMapper.entidadADTODetalles(oportunidad,actividades);
+    }
+
+    @Override
+    public OportunidadActividadesResponseDTO buscarPorIdUsuarioActual(Long id) {
         List<ActividadResponseDTO> actividades;
         Oportunidad oportunidad = oportunidadRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Oportunidad no encontrada"));
 

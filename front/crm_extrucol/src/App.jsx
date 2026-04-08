@@ -40,6 +40,7 @@ import ProyectoEditarPage  from './features/proyectos/pages/ProyectoEditarPage'
 import PipelineDirectorPage           from './features/director/pages/PipelineDirectorPage'
 import OportunidadDetalleDirectorPage from './features/director/pages/OportunidadDetalleDirectorPage'
 import ActividadesDirectorPage        from './features/director/pages/ActividadesDirectorPage'
+import ActividadDetalleDirectorPage   from './features/director/pages/ActividadDetalleDirectorPage'
 
 // Dashboard por rol — CE-10: redirige según el rol del token
 function DashboardRouter() {
@@ -99,6 +100,7 @@ export default function App() {
       <Route path="/director/pipeline"               element={<ProtectedRoute roles={['DIRECTOR']}><PipelineDirectorPage /></ProtectedRoute>} />
       <Route path="/director/oportunidades/:id"      element={<ProtectedRoute roles={['DIRECTOR']}><OportunidadDetalleDirectorPage /></ProtectedRoute>} />
       <Route path="/director/actividades"            element={<ProtectedRoute roles={['DIRECTOR']}><ActividadesDirectorPage esDirector={true} /></ProtectedRoute>} />
+      <Route path="/director/actividades/:id"        element={<ProtectedRoute roles={['DIRECTOR']}><ActividadDetalleDirectorPage /></ProtectedRoute>} />
 
       {/* ── Admin — Usuarios ── */}
       <Route path="/usuarios"            element={<ProtectedRoute roles={['ADMIN']}><UsuariosListaPage /></ProtectedRoute>} />

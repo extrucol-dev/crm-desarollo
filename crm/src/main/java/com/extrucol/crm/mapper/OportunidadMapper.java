@@ -5,6 +5,7 @@ import com.extrucol.crm.dto.request.oportunidad.OportunidadEstadoRequestDTO;
 import com.extrucol.crm.dto.request.oportunidad.OportunidadRequestDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadActividadesResponseDTO;
+import com.extrucol.crm.dto.response.oportunidad.OportunidadDetalleResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
 import com.extrucol.crm.model.Actividad;
@@ -77,6 +78,25 @@ public class OportunidadMapper {
         );
     }
 
+    public OportunidadDetalleResponseDTO entidadADTODetalles(Oportunidad oportunidad, List<ActividadResponseDTO> actividades){
+        if(oportunidad == null) return null;
+
+        return new OportunidadDetalleResponseDTO(
+                oportunidad.getId(),
+                oportunidad.getNombre(),
+                oportunidad.getDescripcion(),
+                oportunidad.getTipo(),
+                oportunidad.getEstado(),
+                oportunidad.getValor_estimado(),
+                oportunidad.getFecha_cierre(),
+                oportunidad.getMotivo_cierre(),
+                clienteMapper.entidadADTO(oportunidad.getCliente()),
+                usuarioMapper.entidadADTO(oportunidad.getUsuario()),
+                actividades
+
+
+        );
+    }
 
 
     public Oportunidad crearDTOAEntidad(OportunidadRequestDTO dto, Cliente cliente, Usuario usuario) {

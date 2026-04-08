@@ -8,7 +8,9 @@ import { useClienteForm } from '../hooks/useClienteForm'
 export default function ClienteEditarPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { form, errors, loading, fetching, apiError, setField, submit } = useClienteForm({
+
+  // ciudades viene del hook — se carga desde GET /api/ciudades
+  const { form, errors, loading, fetching, apiError, ciudades, setField, submit } = useClienteForm({
     id,
     onSuccess: () => navigate(`/clientes/${id}`),
   })
@@ -35,8 +37,12 @@ export default function ClienteEditarPage() {
         </div>
       ) : (
         <FormCard title="Editar cliente">
-          <ClienteForm form={form} errors={errors} loading={loading} apiError={apiError}
-            setField={setField} onSubmit={submit} onCancel={() => navigate(`/clientes/${id}`)} />
+          <ClienteForm
+            form={form} errors={errors} loading={loading}
+            apiError={apiError} ciudades={ciudades}
+            setField={setField} onSubmit={submit}
+            onCancel={() => navigate(`/clientes/${id}`)}
+          />
         </FormCard>
       )}
     </AppLayout>

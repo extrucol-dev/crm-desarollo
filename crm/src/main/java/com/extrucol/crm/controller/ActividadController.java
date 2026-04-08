@@ -3,6 +3,7 @@ package com.extrucol.crm.controller;
 import com.extrucol.crm.dto.request.actividad.ActividadCierreRequestDTO;
 import com.extrucol.crm.dto.request.actividad.ActividadRequestDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
+import com.extrucol.crm.dto.response.actividad.ActividadSimpleResposeDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadUbicacionResponseDTO;
 import com.extrucol.crm.service.ActividadService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -36,7 +36,7 @@ public class ActividadController {
 
 
     @PutMapping("/{id}/cierre")
-    public ResponseEntity<ActividadUbicacionResponseDTO> cerrar(@Validated @RequestBody ActividadCierreRequestDTO dto, @PathVariable Long id) {
+    public ResponseEntity<ActividadSimpleResposeDTO> cerrar(@Validated @RequestBody ActividadCierreRequestDTO dto, @PathVariable Long id) {
 
         return ResponseEntity.ok(actividadService.cerrarActividad(id, dto));
     }
@@ -68,7 +68,7 @@ public class ActividadController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ActividadResponseDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<ActividadUbicacionResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(actividadService.buscarPorId(id));
     }
 

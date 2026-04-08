@@ -1,8 +1,11 @@
-import { FormField, Input, Select, Textarea, FormActions, ApiErrorAlert } from '../../../shared/components/FormField'
+import { FormField, Input, Select, FormActions, ApiErrorAlert } from '../../../shared/components/FormField'
 
 const SECTORES = ['Construcción', 'Industrial', 'Metal-mecánico', 'Logística', 'Textil', 'Agropecuario', 'Servicios', 'Otro']
 
 export default function ClienteForm({ form, errors, loading, apiError, ciudades, setField, onSubmit, onCancel }) {
+  // ciudades puede llegar undefined mientras el hook carga — usar [] como fallback
+  const listaCiudades = ciudades ?? []
+
   return (
     <form onSubmit={onSubmit} noValidate>
       <ApiErrorAlert message={apiError} />
@@ -24,11 +27,13 @@ export default function ClienteForm({ form, errors, loading, apiError, ciudades,
           </Select>
         </FormField>
 
-        {/* CE-26: ciudad ahora es select desde GET /api/ciudades */}
+        {/* Ciudad — select desde GET /api/ciudades */}
         <FormField label="Ciudad" required error={errors.ciudad}>
           <Select value={form.ciudad} onChange={setField('ciudad')} error={errors.ciudad}>
-            <option value="">Seleccionar ciudad</option>
-            {ciudades.map(c => (
+            <option value="">
+              {listaCiudades.length === 0 ? 'Cargando ciudades...' : 'Seleccionar ciudad'}
+            </option>
+            {listaCiudades.map(c => (
               <option key={c.id} value={c.id}>{c.nombre}</option>
             ))}
           </Select>

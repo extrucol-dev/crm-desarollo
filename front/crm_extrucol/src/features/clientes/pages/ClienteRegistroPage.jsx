@@ -7,7 +7,9 @@ import { useClienteForm } from '../hooks/useClienteForm'
 
 export default function ClienteRegistroPage() {
   const navigate = useNavigate()
-  const { form, errors, loading, apiError, setField, submit } = useClienteForm({
+
+  // ciudades viene del hook — se carga desde GET /api/ciudades
+  const { form, errors, loading, apiError, ciudades, setField, submit } = useClienteForm({
     onSuccess: () => navigate('/clientes'),
   })
 
@@ -23,8 +25,12 @@ export default function ClienteRegistroPage() {
         </>
       } />
       <FormCard title="Registrar nuevo cliente">
-        <ClienteForm form={form} errors={errors} loading={loading} apiError={apiError}
-          setField={setField} onSubmit={submit} onCancel={() => navigate('/clientes')} />
+        <ClienteForm
+          form={form} errors={errors} loading={loading}
+          apiError={apiError} ciudades={ciudades}
+          setField={setField} onSubmit={submit}
+          onCancel={() => navigate('/clientes')}
+        />
       </FormCard>
     </AppLayout>
   )

@@ -3,12 +3,14 @@ package com.extrucol.crm.service.impl;
 import com.extrucol.crm.dto.request.actividad.ActividadCierreRequestDTO;
 import com.extrucol.crm.dto.request.actividad.ActividadRequestDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
+import com.extrucol.crm.dto.response.actividad.ActividadSimpleResposeDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadUbicacionResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.ActividadMapper;
 import com.extrucol.crm.mapper.UbicacionMapper;
 import com.extrucol.crm.model.Actividad;
 import com.extrucol.crm.model.Oportunidad;
+import com.extrucol.crm.model.Ubicacion;
 import com.extrucol.crm.model.Usuario;
 import com.extrucol.crm.repository.ActividadRepository;
 import com.extrucol.crm.repository.OportunidadRepository;
@@ -34,7 +36,7 @@ public class ActividadServiceImpl implements ActividadService {
 
 
     private final ActividadMapper actividadMapper;
-    private final UbicacionMapper ubicacionMapper;
+
 
     @Override
     public ActividadResponseDTO crear(ActividadRequestDTO dto) {
@@ -99,9 +101,11 @@ public class ActividadServiceImpl implements ActividadService {
     }
 
     @Override
-    public ActividadResponseDTO buscarPorId(Long id) {
-        Actividad actividad = actividadRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Actividad no encontrado"));
-        return actividadMapper.entidadADTO(actividad);
+    public ActividadUbicacionResponseDTO buscarPorId(Long id) {
+        Actividad actividad = actividadRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Actividad no encontrada"));
+        Ubicacion ubicacion = ubicacionRepository.findByActividadId(actividad.getId()).orElseThrow(() -> new BusinessRuleException("Ubicacion no encontrada"));
+
+        return actividadMapper.entidadADTOUbicacion(actividad,ubicacion);
     }
 
     @Override
@@ -115,12 +119,12 @@ public class ActividadServiceImpl implements ActividadService {
 
     @Override
     @Transactional
-    public ActividadUbicacionResponseDTO cerrarActividad(Long id, ActividadCierreRequestDTO dto) {
+    public ActividadSimpleResposeDTO cerrarActividad(Long id, ActividadCierreRequestDTO dto) {
         Actividad actividad = actividadRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Actividad no encontrada"));
 
         actividadMapper.marcarResultadoDesdeDTO(actividad, dto);
         actividadRepository.save(actividad);
-        return actividadMapper.entidadADTOUbicacion(actividad, ubicacionRepository.save(ubicacionMapper.crearEntidad(dto, actividad)));
+        return actividadMapper.entidadADTOSimple(actividad);
     }
 
     @Override

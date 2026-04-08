@@ -15,7 +15,7 @@ public record ClienteRequestDTO(
         @Size(max = 100)
         String sector,
 
-        @NotBlank(message = "La ciudad es obligatoria")
+        @NotNull(message = "La ciudad es obligatoria")
         Long ciudad,
 
         @NotBlank(message = "El teléfono es obligatorio")

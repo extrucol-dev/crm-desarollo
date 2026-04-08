@@ -4,6 +4,7 @@ package com.extrucol.crm.mapper;
 import com.extrucol.crm.dto.request.actividad.ActividadCierreRequestDTO;
 import com.extrucol.crm.dto.request.actividad.ActividadRequestDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadResponseDTO;
+import com.extrucol.crm.dto.response.actividad.ActividadSimpleResposeDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadUbicacionResponseDTO;
 import com.extrucol.crm.model.*;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +25,16 @@ public class ActividadMapper {
         return new ActividadResponseDTO(actividad.getId(), actividad.getTipo(), actividad.getDescripcion(), actividad.getResultado(), actividad.getVirtual(), actividad.getFecha_actividad(), usuarioMapper.entidadADTO(actividad.getUsuario()), oportunidadMapper.entidadADTOSimple(actividad.getOportunidad()));
     }
 
+    public ActividadSimpleResposeDTO entidadADTOSimple(Actividad actividad) {
+        if (actividad == null) return null;
+
+        return new ActividadSimpleResposeDTO(actividad.getId(), actividad.getTipo(), actividad.getDescripcion(), actividad.getResultado(), actividad.getVirtual(), actividad.getFecha_actividad());
+    }
+
     public ActividadUbicacionResponseDTO entidadADTOUbicacion(Actividad actividad, Ubicacion ubicacion) {
         if (actividad == null) return null;
 
-        return new ActividadUbicacionResponseDTO(actividad.getId(), actividad.getTipo(), actividad.getDescripcion(), actividad.getResultado(), actividad.getVirtual(), actividad.getFecha_actividad(), ubicacionMapper.entidadADTO(ubicacion)
+        return new ActividadUbicacionResponseDTO(actividad.getId(), actividad.getTipo(), actividad.getDescripcion(), actividad.getResultado(), actividad.getVirtual(), actividad.getFecha_actividad(), ubicacionMapper.entidadADTO(ubicacion), usuarioMapper.entidadADTO(actividad.getUsuario()), oportunidadMapper.entidadADTOSimple(actividad.getOportunidad())
 
         );
     }

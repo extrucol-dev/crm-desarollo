@@ -1,7 +1,6 @@
 package com.extrucol.crm.auth;
 
 import com.extrucol.crm.config.JwtService;
-import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.exception.UnauthorizedException;
 import com.extrucol.crm.model.Usuario;
 import com.extrucol.crm.repository.UsuarioRepository;

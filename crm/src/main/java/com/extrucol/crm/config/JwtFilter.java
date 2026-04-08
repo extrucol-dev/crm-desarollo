@@ -47,7 +47,6 @@ public class JwtFilter extends GenericFilter {
             String token = header.substring(7);
 
             String username = jwtService.validateToken(token);
-            System.out.println("USERNAME DEL TOKEN: " + SecurityContextHolder.getContext().getAuthentication());
 
             if (username != null) {
                 Usuario usuario = usuarioRepository.findByEmail(username)
@@ -64,6 +63,7 @@ public class JwtFilter extends GenericFilter {
                                 null,
                                 authorities
                         );
+                System.out.println("AUTH" + auth);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }

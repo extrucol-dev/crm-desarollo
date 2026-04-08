@@ -5,6 +5,7 @@ import com.extrucol.crm.exception.UnauthorizedException;
 import com.extrucol.crm.model.Usuario;
 import com.extrucol.crm.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody LoginRequest request) {
-        System.out.println(usuarioRepository.existsByEmail(request.email()));
         Usuario usuario = usuarioRepository
                 .findByEmail(request.email())
                 .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
@@ -42,6 +42,7 @@ public class AuthController {
                         "nombre", usuario.getNombre()
                 )
         );
+        System.out.println("SECURITY CONT " + SecurityContextHolder.getContext().getAuthentication());
 
         return Map.of(
                 "token", token

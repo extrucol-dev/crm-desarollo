@@ -36,7 +36,6 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponseDTO> actualizarEstado(
             @Validated @RequestBody UsuarioEstadoRequestDTO dto,
             @PathVariable Long id){
-        System.out.println(id);
         return ResponseEntity.ok(usuarioService.actualizarEstado(id,dto));
     }
 

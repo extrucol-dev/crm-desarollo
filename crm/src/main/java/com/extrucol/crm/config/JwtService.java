@@ -17,6 +17,7 @@ public class JwtService {
     private final String SECRET = "topSecretMasterkey12345YaNoSeQueMasPonerAqui11111111111";
 
     private final long EXPIRATION = 1000 * 60 * 30; // 30 minutos
+    private final long EXPIRATION_WIN = 1000 * 60 * 60 * 24 * 7;
 
     private Key getKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes());

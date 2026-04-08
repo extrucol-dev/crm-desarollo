@@ -42,7 +42,6 @@ public class OportunidadServiceImpl implements OportunidadService {
 
         Cliente cliente = clienteRepository.findById(dto.cliente()).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
 
-        System.out.println();
 
         Usuario usuario = usuarioRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 

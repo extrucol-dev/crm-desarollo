@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +41,6 @@ public class ActividadController {
 
         return ResponseEntity.ok(actividadService.cerrarActividad(id, dto));
     }
-
     @GetMapping
     public ResponseEntity<List<ActividadResponseDTO>> listar(
             @RequestParam(required = false)
@@ -53,7 +53,6 @@ public class ActividadController {
 
         return ResponseEntity.ok(actividadService.listar(inicio, fin));
     }
-
     @GetMapping("/todas")
     public ResponseEntity<List<ActividadResponseDTO>> listarTodas(
             @RequestParam(required = false)

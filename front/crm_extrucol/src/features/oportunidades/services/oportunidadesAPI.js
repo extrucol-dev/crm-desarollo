@@ -2,7 +2,7 @@ import api from '../../../shared/services/api'
 
 export const oportunidadesAPI = {
   listar:  ()    => api.get('/api/oportunidades').then(r => r.data),
-  buscar:  (id)  => api.get(`/api/oportunidades/${id}/actividades`).then(r => r.data),
+  buscar:  (id)  => api.get(`/api/oportunidades/${id}/detalles`).then(r => r.data),
   actividades: (id) => api.get(`/api/oportunidades/${id}/actividades`).then(r => r.data),
 
   // CE-16: estado lo toma el backend del contexto; solo enviamos los campos del negocio

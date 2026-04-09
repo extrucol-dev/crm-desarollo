@@ -103,7 +103,7 @@ public class ActividadServiceImpl implements ActividadService {
     @Override
     public ActividadUbicacionResponseDTO buscarPorId(Long id) {
         Actividad actividad = actividadRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Actividad no encontrada"));
-        Ubicacion ubicacion = ubicacionRepository.findByActividadId(actividad.getId()).orElseThrow(() -> new BusinessRuleException("Ubicacion no encontrada"));
+        Ubicacion ubicacion = ubicacionRepository.findByActividadId(actividad.getId()).orElse(null);
 
         return actividadMapper.entidadADTOUbicacion(actividad,ubicacion);
     }

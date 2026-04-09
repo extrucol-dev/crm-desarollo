@@ -10,7 +10,7 @@ public record OportunidadCierreRequestDTO(
         @FutureOrPresent(message = "La fecha de cierre no puede ser pasada")
         LocalDate fecha_cierre,
 
-        @Size(max = 255, message = "El motivo de cierre no puede exceder 255 caracteres")
+        @Size(min = 10, max = 500, message = "El motivo de cierre no puede exceder 500 caracteres")
         String motivo_cierre,
 
         @NotBlank(message = "El estado es obligatorio")

@@ -12,22 +12,30 @@ const login = async ({ email, password }) => {
   }
   try {
     const payload = JSON.parse(atob(token.split('.')[1]))
-    const rol    = payload.rol ?? payload.role ?? 'EJECUTIVO'
-    const nombre = payload.nombre ?? payload.name ?? payload.sub ?? 'Usuario'
+    const rol    = payload.rol ?? payload.role
+    const nombre = payload.nombre ?? payload.name ?? payload.sub
     localStorage.setItem('rol', rol)
     localStorage.setItem('nombre', nombre)
     return { token, rol, nombre }
   } catch {
-    localStorage.setItem('rol', 'EJECUTIVO')
-    localStorage.setItem('nombre', 'Usuario')
-    return { token, rol: 'EJECUTIVO', nombre: 'Usuario' }
+    localStorage.clear()
+    throw new Error('Token inválido: no se pudo decodificar el payload.')
   }
 }
 
-const logout        = () => localStorage.clear()
+const logout = async () => {
+  try {
+    // Elimina la cookie del servidor
+    await api.post('/api/auth/logout')
+  } catch { /* ignorar */ }
+  finally {
+    localStorage.clear()
+  }
+}
 const getToken      = () => localStorage.getItem('token')
 const getRol        = () => localStorage.getItem('rol')
 const getNombre     = () => localStorage.getItem('nombre')
 const isAuthenticated = () => !!localStorage.getItem('token')
+
 
 export const authService = { login, logout, getToken, getRol, getNombre, isAuthenticated }

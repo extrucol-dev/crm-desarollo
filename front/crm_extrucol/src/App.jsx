@@ -1,8 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './shared/components/ProtectedRoute'
-
+import OAuth2CallbackPage from "./features/auth/pages/OAuth2CallbackPage.jsx";
 // Auth
 import LoginPage from './features/auth/pages/LoginPage'
+
 
 // Dashboard por rol — CE-10
 import DashboardEjecutivoPage from './features/dashboard/pages/DashboardEjecutivoPage'
@@ -62,6 +63,7 @@ export default function App() {
       {/* ── Públicas ── */}
       <Route path="/"      element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/oauth2/callback" element={<OAuth2CallbackPage />} />
 
       {/* ── Dashboard (CE-10) ── */}
       <Route path="/dashboard" element={

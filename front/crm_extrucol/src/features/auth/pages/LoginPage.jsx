@@ -10,7 +10,7 @@ export default function LoginPage() {
         <div className="absolute pointer-events-none" style={{ width: 300, height: 300, bottom: -80, left: -80, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)' }} />
         <div className="relative z-10">
           <h1 className="text-[32px] font-extrabold text-white mb-1" style={{ letterSpacing: '-0.04em' }}>
-            CRM <span style={{ color: '#F39610' }}>Extrucol</span>
+            Seguimiento Comercial <br /><span style={{ color: '#F39610' }}>Extrucol</span>
           </h1>
           <p className="text-[15px] mb-12" style={{ color: 'rgba(255,255,255,0.6)' }}>
             Gestión comercial inteligente
@@ -36,6 +36,7 @@ export default function LoginPage() {
       {/* Panel derecho */}
       <div className="flex items-center justify-center bg-white px-6 py-12 sm:px-12">
         <LoginForm />
+
       </div>
     </div>
   )

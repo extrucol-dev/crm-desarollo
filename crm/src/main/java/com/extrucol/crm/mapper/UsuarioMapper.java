@@ -30,7 +30,7 @@ public class UsuarioMapper {
         Usuario u = new Usuario();
         u.setNombre(dto.nombre());
         u.setEmail(dto.email());
-        u.setPassword(dto.password());
+        u.setPassword1(dto.password());
         u.setActivo(dto.activo());
         u.setRol(dto.rol());
         u.setFecha_creacion(LocalDateTime.now());
@@ -43,7 +43,7 @@ public class UsuarioMapper {
 
         u.setNombre(dto.nombre());
         u.setEmail(dto.email());
-        u.setPassword(dto.password());
+        u.setPassword1(dto.password());
         u.setActivo(dto.activo());
         u.setRol(dto.rol());
     }

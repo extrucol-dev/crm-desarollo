@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,37 +21,35 @@ import java.util.Map;
 public class AuthController {
 
     private final JwtService        jwtService;
-    private final UsuarioRepository usuarioRepository;
+    private final UserDetailsService userDetailsService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request,
                                    HttpServletResponse response) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.email());
 
-        Usuario usuario = usuarioRepository
-                .findByEmail(request.email())
-                .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
 
-        if (!usuario.getPassword().equals(request.password()))
+        if (!userDetails.getPassword().equals(request.password()))
             throw new UnauthorizedException("Credenciales inválidas");
 
-        if (!usuario.getActivo())
+        if (!userDetails.isEnabled())
             throw new UnauthorizedException("Usuario inactivo");
 
         Map<String, Object> claims = Map.of(
-                "rol",    usuario.getRol().name(),
-                "nombre", usuario.getNombre()
+                "rol",    userDetails.getAuthorities(),
+                "nombre", userDetails.getUsername()
         );
 
-        String accessToken  = jwtService.generateToken(usuario.getEmail(), claims);
-        String refreshToken = jwtService.generateRefreshToken(usuario.getEmail());
+        String accessToken  = jwtService.generateToken(userDetails, claims);
+        String refreshToken = jwtService.generateRefreshToken(userDetails.getUsername());
 
         // Refresh token en cookie HttpOnly — JS nunca lo ve
         setRefreshCookie(response, refreshToken);
 
         return ResponseEntity.ok(Map.of(
                 "token",  accessToken,
-                "rol",    usuario.getRol().name(),
-                "nombre", usuario.getNombre()
+                "rol",    userDetails.getAuthorities(),
+                "nombre", userDetails.getUsername()
         ));
     }
 
@@ -79,15 +79,14 @@ public class AuthController {
         if (!"refresh".equals(type))
             return ResponseEntity.status(401).body(Map.of("error", "Token inválido"));
 
-        Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new UnauthorizedException("Usuario no encontrado"));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
         Map<String, Object> claims = Map.of(
-                "rol",    usuario.getRol().name(),
-                "nombre", usuario.getNombre()
+                "rol",    userDetails.getAuthorities(),
+                "nombre", userDetails.getUsername()
         );
 
-        String newAccessToken  = jwtService.generateToken(email, claims);
+        String newAccessToken  = jwtService.generateToken(userDetails, claims);
         String newRefreshToken = jwtService.generateRefreshToken(email); // rotar
 
         setRefreshCookie(response, newRefreshToken);

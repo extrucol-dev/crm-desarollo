@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -20,7 +22,7 @@ import java.util.Map;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtService jwtService;
-    private final UsuarioRepository usuarioRepository;
+    private final UserDetailsService userDetailsService;
 
     // URL del frontend — ajusta según tu entorno
     private static final String FRONTEND_URL = "http://localhost:5173/oauth2/callback";
@@ -32,16 +34,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
 
-        Usuario usuario = usuarioRepository.findByEmail(oidcUser.getEmail())
-                .orElseThrow();
+        UserDetails userDetails = userDetailsService.loadUserByUsername(oidcUser.getEmail());
 
         Map<String, Object> claims = Map.of(
-                "rol",    usuario.getRol().name(),
-                "nombre", usuario.getNombre()
+                "rol",    userDetails.getAuthorities(),
+                "nombre", userDetails.getUsername()
         );
 
-        String accessToken  = jwtService.generateToken(usuario.getEmail(), claims);
-        String refreshToken = jwtService.generateRefreshToken(usuario.getEmail());
+        String accessToken  = jwtService.generateToken(userDetails, claims);
+        String refreshToken = jwtService.generateRefreshToken(userDetails.getUsername());
 
         // Cookie igual que en login
         Cookie cookie = new Cookie("refreshToken", refreshToken);

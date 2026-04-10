@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -24,10 +25,10 @@ public class JwtService {
     }
 
     // Access token — igual que antes
-    public String generateToken(String username, Map<String, Object> extraClaims) {
+    public String generateToken(UserDetails username, Map<String, Object> extraClaims) {
         return Jwts.builder()
-                .setSubject(username)
-                .addClaims(extraClaims)
+                .setSubject(username.getUsername())
+                .setClaims(extraClaims)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(getKey(), SignatureAlgorithm.HS256)

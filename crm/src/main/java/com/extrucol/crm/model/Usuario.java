@@ -37,8 +37,8 @@ public class Usuario  implements UserDetails {
     @Column(nullable = false)
     String email;
 
-    @Column(nullable = false)
-    String password;
+    @Column(nullable = false, name = "password")
+    String password1;
 
     @Column(nullable = false)
     RolUsuario rol;
@@ -55,7 +55,32 @@ public class Usuario  implements UserDetails {
     }
 
     @Override
+    public String getPassword() {
+        return password1 ;
+    }
+
+    @Override
     public String getUsername() {
         return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return activo;
     }
 }

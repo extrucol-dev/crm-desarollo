@@ -4,7 +4,6 @@ import com.extrucol.crm.dto.request.usuario.UsuarioEstadoRequestDTO;
 import com.extrucol.crm.dto.request.usuario.UsuarioRequestDTO;
 import com.extrucol.crm.dto.response.UsuarioResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
-import com.extrucol.crm.exception.UnauthorizedException;
 import com.extrucol.crm.mapper.UsuarioMapper;
 import com.extrucol.crm.model.Usuario;
 import com.extrucol.crm.repository.UsuarioRepository;

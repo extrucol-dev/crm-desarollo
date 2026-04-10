@@ -1,7 +1,6 @@
 package com.extrucol.crm.dto.response.cliente;
 
 import com.extrucol.crm.dto.response.CiudadResponseDTO;
-import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
 
 import java.time.LocalDateTime;

@@ -1,6 +1,5 @@
 package com.extrucol.crm.dto.response.actividad;
 
-import com.extrucol.crm.dto.response.UbicacionResponseDTO;
 import com.extrucol.crm.dto.response.UsuarioResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
 

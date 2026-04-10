@@ -7,7 +7,6 @@ import com.extrucol.crm.dto.response.actividad.ActividadSimpleResposeDTO;
 import com.extrucol.crm.dto.response.actividad.ActividadUbicacionResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.ActividadMapper;
-import com.extrucol.crm.mapper.UbicacionMapper;
 import com.extrucol.crm.model.Actividad;
 import com.extrucol.crm.model.Oportunidad;
 import com.extrucol.crm.model.Ubicacion;

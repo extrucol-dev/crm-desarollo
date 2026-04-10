@@ -3,7 +3,6 @@ package com.extrucol.crm.service;
 
 import com.extrucol.crm.dto.response.CiudadResponseDTO;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public interface CiudadService {

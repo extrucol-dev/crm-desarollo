@@ -3,7 +3,6 @@ package com.extrucol.crm.mapper;
 import com.extrucol.crm.dto.request.proyecto.ProyectoEstadoRequestDTO;
 import com.extrucol.crm.dto.request.proyecto.ProyectoRequestDTO;
 import com.extrucol.crm.dto.response.ProyectoResponseDTO;
-import com.extrucol.crm.model.Cliente;
 import com.extrucol.crm.model.Oportunidad;
 import com.extrucol.crm.model.Proyecto;
 import com.extrucol.crm.model.Usuario;

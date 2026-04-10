@@ -5,7 +5,7 @@ import OAuth2CallbackPage from "./features/auth/pages/OAuth2CallbackPage.jsx";
 import LoginPage from './features/auth/pages/LoginPage'
 
 
-// Dashboard por rol — CE-10
+// Dashboard por rol 
 import DashboardEjecutivoPage from './features/dashboard/pages/DashboardEjecutivoPage'
 import DashboardAdminPage     from './features/dashboard/pages/DashboardAdminPage'
 import DashboardDirectorPage  from './features/director/pages/DashboardDirectorPage'
@@ -31,19 +31,19 @@ import OportunidadEditarPage   from './features/oportunidades/pages/OportunidadE
 import ActividadCrearPage  from './features/actividades/pages/ActividadCrearPage'
 import ActividadEditarPage from './features/actividades/pages/ActividadEditarPage'
 
-// Proyectos — CE-38, CE-39, CE-41, CE-42
+// Proyectos 
 import ProyectosListaPage  from './features/proyectos/pages/ProyectosListaPage'
 import ProyectoDetallePage from './features/proyectos/pages/ProyectoDetallePage'
 import ProyectoCrearPage   from './features/proyectos/pages/ProyectoCrearPage'
 import ProyectoEditarPage  from './features/proyectos/pages/ProyectoEditarPage'
 
-// Director — CE-33, CE-34, CE-35, CE-36, CE-37
+// Director
 import PipelineDirectorPage           from './features/director/pages/PipelineDirectorPage'
 import OportunidadDetalleDirectorPage from './features/director/pages/OportunidadDetalleDirectorPage'
 import ActividadesDirectorPage        from './features/director/pages/ActividadesDirectorPage'
 import ActividadDetalleDirectorPage   from './features/director/pages/ActividadDetalleDirectorPage'
 
-// Dashboard por rol — CE-10: redirige según el rol del token
+// Dashboard por rol: redirige según el rol del token
 function DashboardRouter() {
   try {
     const token   = localStorage.getItem('token')
@@ -98,7 +98,7 @@ export default function App() {
       <Route path="/proyectos/:id"         element={<ProtectedRoute roles={['EJECUTIVO']}><ProyectoDetallePage /></ProtectedRoute>} />
       <Route path="/proyectos/:id/editar"  element={<ProtectedRoute roles={['EJECUTIVO']}><ProyectoEditarPage /></ProtectedRoute>} />
 
-      {/* ── Director — CE-33, CE-34, CE-35, CE-36, CE-37 ── */}
+      {/* ── Director ── */}
       <Route path="/director/pipeline"               element={<ProtectedRoute roles={['DIRECTOR']}><PipelineDirectorPage /></ProtectedRoute>} />
       <Route path="/director/oportunidades/:id"      element={<ProtectedRoute roles={['DIRECTOR']}><OportunidadDetalleDirectorPage /></ProtectedRoute>} />
       <Route path="/director/actividades"            element={<ProtectedRoute roles={['DIRECTOR']}><ActividadesDirectorPage esDirector={true} /></ProtectedRoute>} />

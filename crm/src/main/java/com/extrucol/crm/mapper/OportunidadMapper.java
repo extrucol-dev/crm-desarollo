@@ -8,7 +8,6 @@ import com.extrucol.crm.dto.response.oportunidad.OportunidadActividadesResponseD
 import com.extrucol.crm.dto.response.oportunidad.OportunidadDetalleResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
-import com.extrucol.crm.model.Actividad;
 import com.extrucol.crm.model.Cliente;
 import com.extrucol.crm.model.Oportunidad;
 import com.extrucol.crm.model.Usuario;

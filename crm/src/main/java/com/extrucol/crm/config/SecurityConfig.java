@@ -1,6 +1,6 @@
 package com.extrucol.crm.config;
 
-import com.extrucol.crm.security.OAuth2SuccessHandler;
+import com.extrucol.crm.auth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

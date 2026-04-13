@@ -1,4 +1,4 @@
-package com.extrucol.crm.security;
+package com.extrucol.crm.auth;
 
 import com.extrucol.crm.usuario.model.Usuario;
 import com.extrucol.crm.usuario.repository.UsuarioRepository;

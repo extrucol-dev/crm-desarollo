@@ -1,5 +1,7 @@
 package com.extrucol.crm.contacto.model;
 
+import com.extrucol.crm.contacto.model.catalogo.Email;
+import com.extrucol.crm.contacto.model.catalogo.Telefono;
 import com.extrucol.crm.usuario.model.Usuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,15 +31,17 @@ public class Cliente {
 
     @Column(nullable = false)
     String empresa;
-    
+
     @Column(nullable = false)
     String sector;
 
-    @Column(nullable = false)
-    String telefono;
+    @JoinColumn(name = "id_telefono", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    Telefono telefono;
 
-    @Column(nullable = false)
-    String email;
+    @JoinColumn(name = "id_email", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    Email email;
 
     @JoinColumn(name = "id_usuario", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,8 +51,8 @@ public class Cliente {
     LocalDateTime fecha_creacion;
 
     @PrePersist
-    void persistirFecha(){
-        fecha_creacion=  LocalDateTime.now();
+    void persistirFecha() {
+        fecha_creacion = LocalDateTime.now();
     }
 
 }

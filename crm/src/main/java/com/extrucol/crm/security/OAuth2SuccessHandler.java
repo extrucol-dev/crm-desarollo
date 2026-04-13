@@ -1,7 +1,7 @@
 package com.extrucol.crm.security;
 
-import com.extrucol.crm.model.Usuario;
-import com.extrucol.crm.repository.UsuarioRepository;
+import com.extrucol.crm.usuario.model.Usuario;
+import com.extrucol.crm.usuario.repository.UsuarioRepository;
 import com.extrucol.crm.config.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

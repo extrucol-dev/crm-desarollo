@@ -1,8 +1,8 @@
 package com.extrucol.crm.config;
 
 import com.extrucol.crm.exception.UnauthorizedException;
-import com.extrucol.crm.model.Usuario;
-import com.extrucol.crm.repository.UsuarioRepository;
+import com.extrucol.crm.usuario.model.Usuario;
+import com.extrucol.crm.usuario.repository.UsuarioRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.extrucol.crm.mapper;
 
-import com.extrucol.crm.dto.response.CiudadResponseDTO;
+import com.extrucol.crm.dto.response.catalogoResponse.CiudadResponseDTO;
 import com.extrucol.crm.model.catalogo.Ciudad;
 import org.springframework.stereotype.Component;
 

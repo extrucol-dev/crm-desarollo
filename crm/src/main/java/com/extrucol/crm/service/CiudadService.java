@@ -1,7 +1,7 @@
 package com.extrucol.crm.service;
 
 
-import com.extrucol.crm.dto.response.CiudadResponseDTO;
+import com.extrucol.crm.dto.response.catalogoResponse.CiudadResponseDTO;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.extrucol.crm.controller;
 
-import com.extrucol.crm.dto.response.CiudadResponseDTO;
+import com.extrucol.crm.dto.response.catalogoResponse.CiudadResponseDTO;
 import com.extrucol.crm.service.CiudadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

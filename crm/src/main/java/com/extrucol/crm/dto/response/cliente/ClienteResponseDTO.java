@@ -1,7 +1,5 @@
 package com.extrucol.crm.dto.response.cliente;
 
-import com.extrucol.crm.dto.response.CiudadResponseDTO;
-
 import java.time.LocalDateTime;
 
 public record ClienteResponseDTO(
@@ -9,7 +7,6 @@ public record ClienteResponseDTO(
         String nombre,
         String empresa,
         String sector,
-        CiudadResponseDTO ciudad,
         String telefono,
         String email,
         LocalDateTime fecha_creacion

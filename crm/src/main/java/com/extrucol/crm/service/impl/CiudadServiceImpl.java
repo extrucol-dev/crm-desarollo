@@ -1,6 +1,6 @@
 package com.extrucol.crm.service.impl;
 
-import com.extrucol.crm.dto.response.CiudadResponseDTO;
+import com.extrucol.crm.dto.response.catalogoResponse.CiudadResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.CiudadMapper;
 import com.extrucol.crm.model.catalogo.Ciudad;

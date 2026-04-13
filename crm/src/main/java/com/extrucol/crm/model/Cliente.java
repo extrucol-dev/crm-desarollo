@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "CRM_CLIENTE")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class Contacto {
+public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cliente_seq")
     @SequenceGenerator(
@@ -33,9 +33,7 @@ public class Contacto {
     @Column(nullable = false)
     String sector;
 
-    @JoinColumn(name = "id_ciudad", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
-    Ciudad ciudad;
+
 
     @Column(nullable = false)
     String telefono;

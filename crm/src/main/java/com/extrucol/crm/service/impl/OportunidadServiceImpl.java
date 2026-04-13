@@ -10,7 +10,7 @@ import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.ActividadMapper;
 import com.extrucol.crm.mapper.OportunidadMapper;
-import com.extrucol.crm.model.Contacto;
+import com.extrucol.crm.model.Cliente;
 import com.extrucol.crm.model.Oportunidad;
 import com.extrucol.crm.model.Usuario;
 import com.extrucol.crm.repository.ActividadRepository;
@@ -40,12 +40,12 @@ public class OportunidadServiceImpl implements OportunidadService {
     @Override
     public OportunidadResponseDTO crear(OportunidadRequestDTO dto) {
 
-        Contacto contacto = clienteRepository.findById(dto.cliente()).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
+        Cliente cliente = clienteRepository.findById(dto.cliente()).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
 
 
         Usuario usuario = usuarioRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 
-        return oportunidadMapper.entidadADTO(oportunidadRepository.save(oportunidadMapper.crearDTOAEntidad(dto, contacto, usuario)));
+        return oportunidadMapper.entidadADTO(oportunidadRepository.save(oportunidadMapper.crearDTOAEntidad(dto, cliente, usuario)));
     }
 
     @Override

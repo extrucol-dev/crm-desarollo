@@ -1,5 +1,6 @@
 package com.extrucol.crm.model;
 
+import com.extrucol.crm.model.catalogo.Ciudad;
 import com.extrucol.crm.model.catalogo.Documento;
 import com.extrucol.crm.model.catalogo.Modalidad;
 import com.extrucol.crm.model.catalogo.Municipio;
@@ -44,6 +45,10 @@ public class Empresa {
     @Column(nullable = false)
     String no_documento;
 
+    @JoinColumn(name = "id_ciudad", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    Ciudad ciudad;
+
     @JoinColumn(name = "id_modalidad", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     Modalidad modalidad;
@@ -51,23 +56,16 @@ public class Empresa {
     @Column(nullable = false)
     boolean activo;
 
-    @PrePersist
-    void persistirActivo() {
-        activo = true;
-    }
     @Column(nullable = false)
     boolean nuevo;
-
-    @PrePersist
-    void persistirNuevo() {
-        nuevo = true;
-    }
 
     @Column(nullable = false)
     LocalDateTime fecha_creacion;
 
     @PrePersist
     void persistirFecha() {
+        nuevo = true;
+        activo = true;
         fecha_creacion = LocalDateTime.now();
     }
 

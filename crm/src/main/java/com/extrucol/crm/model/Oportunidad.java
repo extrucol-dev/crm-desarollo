@@ -48,7 +48,7 @@ public class Oportunidad {
 
     @JoinColumn(name = "id_cliente", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    Contacto contacto;
+    Cliente cliente;
 
     @JoinColumn(name = "id_usuario", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)

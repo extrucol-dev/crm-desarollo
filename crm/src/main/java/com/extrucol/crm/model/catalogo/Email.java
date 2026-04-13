@@ -1,6 +1,6 @@
 package com.extrucol.crm.model.catalogo;
 
-import com.extrucol.crm.model.Contacto;
+import com.extrucol.crm.model.Cliente;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,5 +27,5 @@ public class Email {
 
     @JoinColumn(name = "id_cliente", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    Contacto contacto;
+    Cliente cliente;
 }

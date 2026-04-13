@@ -8,7 +8,7 @@ import com.extrucol.crm.dto.response.oportunidad.OportunidadActividadesResponseD
 import com.extrucol.crm.dto.response.oportunidad.OportunidadDetalleResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
-import com.extrucol.crm.model.Contacto;
+import com.extrucol.crm.model.Cliente;
 import com.extrucol.crm.model.Oportunidad;
 import com.extrucol.crm.model.Usuario;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class OportunidadMapper {
                 oportunidad.getValor_estimado(),
                 oportunidad.getFecha_cierre(),
                 oportunidad.getMotivo_cierre(),
-                clienteMapper.entidadADTO(oportunidad.getContacto()),
+                clienteMapper.entidadADTO(oportunidad.getCliente()),
                 usuarioMapper.entidadADTO(oportunidad.getUsuario())
 
         );
@@ -69,7 +69,7 @@ public class OportunidadMapper {
                 oportunidad.getValor_estimado(),
                 oportunidad.getFecha_cierre(),
                 oportunidad.getMotivo_cierre(),
-                clienteMapper.entidadADTO(oportunidad.getContacto()),
+                clienteMapper.entidadADTO(oportunidad.getCliente()),
                 actividades
 
 
@@ -88,7 +88,7 @@ public class OportunidadMapper {
                 oportunidad.getValor_estimado(),
                 oportunidad.getFecha_cierre(),
                 oportunidad.getMotivo_cierre(),
-                clienteMapper.entidadADTO(oportunidad.getContacto()),
+                clienteMapper.entidadADTO(oportunidad.getCliente()),
                 usuarioMapper.entidadADTO(oportunidad.getUsuario()),
                 actividades
 
@@ -97,7 +97,7 @@ public class OportunidadMapper {
     }
 
 
-    public Oportunidad crearDTOAEntidad(OportunidadRequestDTO dto, Contacto contacto, Usuario usuario) {
+    public Oportunidad crearDTOAEntidad(OportunidadRequestDTO dto, Cliente cliente, Usuario usuario) {
         if(dto == null) return null;
 
         Oportunidad oportunidad = new Oportunidad();
@@ -107,7 +107,7 @@ public class OportunidadMapper {
         oportunidad.setEstado("PROSPECTO");
         oportunidad.setValor_estimado(dto.valor_estimado());
         oportunidad.setFecha_cierre(dto.fecha_cierre());
-        oportunidad.setContacto(contacto);
+        oportunidad.setCliente(cliente);
         oportunidad.setUsuario(usuario);
 
         return oportunidad;

@@ -5,7 +5,7 @@ import com.extrucol.crm.dto.response.cliente.ClienteOportunidadesResponseDTO;
 import com.extrucol.crm.dto.response.cliente.ClienteResponseDTO;
 import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
 import com.extrucol.crm.model.catalogo.Ciudad;
-import com.extrucol.crm.model.Contacto;
+import com.extrucol.crm.model.Cliente;
 import com.extrucol.crm.model.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,42 +16,40 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClienteMapper {
 private final CiudadMapper ciudadMapper;
-    public ClienteResponseDTO entidadADTO(Contacto contacto) {
-        if (contacto == null) return null;
+    public ClienteResponseDTO entidadADTO(Cliente cliente) {
+        if (cliente == null) return null;
 
-        return new ClienteResponseDTO(contacto.getId(), contacto.getNombre(), contacto.getEmpresa(), contacto.getSector(), ciudadMapper.entidadADTO(contacto.getCiudad()) , contacto.getTelefono(), contacto.getEmail(), contacto.getFecha_creacion());
+        return new ClienteResponseDTO(cliente.getId(), cliente.getNombre(), cliente.getEmpresa(), cliente.getSector(), cliente.getTelefono(), cliente.getEmail(), cliente.getFecha_creacion());
     }
 
-    public ClienteOportunidadesResponseDTO entidadADTOOportunidades(Contacto contacto, List<OportunidadSimpleResponseDTO> oportunidades) {
-        if (contacto == null) return null;
+    public ClienteOportunidadesResponseDTO entidadADTOOportunidades(Cliente cliente, List<OportunidadSimpleResponseDTO> oportunidades) {
+        if (cliente == null) return null;
 
-        return new ClienteOportunidadesResponseDTO(contacto.getId(), contacto.getNombre(), contacto.getEmpresa(), contacto.getSector(), ciudadMapper.entidadADTO(contacto.getCiudad()) , contacto.getTelefono(), contacto.getEmail(), contacto.getFecha_creacion(), oportunidades);
+        return new ClienteOportunidadesResponseDTO(cliente.getId(), cliente.getNombre(), cliente.getEmpresa(), cliente.getSector(), cliente.getTelefono(), cliente.getEmail(), cliente.getFecha_creacion(), oportunidades);
     }
 
-    public Contacto DTOAEntidad(ClienteRequestDTO dto, Usuario usuario, Ciudad ciudad) {
+    public Cliente DTOAEntidad(ClienteRequestDTO dto, Usuario usuario, Ciudad ciudad) {
         if (dto == null) return null;
 
-        Contacto contacto = new Contacto();
-        contacto.setNombre(dto.nombre());
-        contacto.setEmpresa(dto.empresa());
-        contacto.setSector(dto.sector());
-        contacto.setCiudad(ciudad);
-        contacto.setTelefono(dto.telefono());
-        contacto.setEmail(dto.email());
-        contacto.setUsuario(usuario);
+        Cliente cliente = new Cliente();
+        cliente.setNombre(dto.nombre());
+        cliente.setEmpresa(dto.empresa());
+        cliente.setSector(dto.sector());
+        cliente.setTelefono(dto.telefono());
+        cliente.setEmail(dto.email());
+        cliente.setUsuario(usuario);
 
-        return contacto;
+        return cliente;
     }
 
-    public void actualizarEntidadDesdeDTO(Contacto contacto, ClienteRequestDTO dto, Ciudad ciudad) {
+    public void actualizarEntidadDesdeDTO(Cliente cliente, ClienteRequestDTO dto) {
         if (dto == null) return;
 
-        contacto.setNombre(dto.nombre());
-        contacto.setEmpresa(dto.empresa());
-        contacto.setSector(dto.sector());
-        contacto.setCiudad(ciudad);
-        contacto.setTelefono(dto.telefono());
-        contacto.setEmail(dto.email());
+        cliente.setNombre(dto.nombre());
+        cliente.setEmpresa(dto.empresa());
+        cliente.setSector(dto.sector());
+        cliente.setTelefono(dto.telefono());
+        cliente.setEmail(dto.email());
     }
 
 }

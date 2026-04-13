@@ -30,7 +30,7 @@ public class Ubicacion {
     @Column(nullable = false)
     BigDecimal longitud;
 
-    @JoinColumn(name = "id_actividad")
+    @JoinColumn(name = "id_actividad", nullable = false)
     @OneToOne(fetch = FetchType.LAZY)
     Actividad actividad;
 }

@@ -10,7 +10,6 @@ import com.extrucol.crm.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -49,7 +48,6 @@ public class ActividadMapper {
         actividad.setFecha_actividad(dto.fecha_actividad());
         actividad.setOportunidad(oportunidad);
         actividad.setUsuario(usuario);
-        actividad.setFecha_creacion(LocalDateTime.now());
 
         return actividad;
     }

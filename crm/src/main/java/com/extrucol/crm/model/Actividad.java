@@ -23,7 +23,6 @@ public class Actividad {
     @Column(name = "id_actividad")
     Long id;
 
-
     @Column(nullable = false)
     String tipo;
 
@@ -39,15 +38,20 @@ public class Actividad {
     @Column(nullable = false)
     LocalDateTime fecha_actividad;
 
-    @JoinColumn(name = "id_oportunidad")
+    @JoinColumn(name = "id_oportunidad", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     Oportunidad oportunidad;
 
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "id_usuario", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     Usuario usuario;
 
     @Column(nullable = false)
     LocalDateTime fecha_creacion;
+
+    @PrePersist
+    void persistirFecha(){
+        fecha_creacion=  LocalDateTime.now();
+    }
 
 }

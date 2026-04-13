@@ -1,4 +1,4 @@
-package com.extrucol.crm.model;
+package com.extrucol.crm.model.catalogo;
 
 
 import jakarta.persistence.*;

@@ -32,11 +32,11 @@ public class Proyecto {
     @Column(nullable = false)
     String estado;
 
-    @JoinColumn(name = "id_oportunidad")
+    @JoinColumn(name = "id_oportunidad", nullable = false)
     @OneToOne(fetch = FetchType.LAZY)
     Oportunidad oportunidad;
 
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "id_usuario", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     Usuario usuario;
 
@@ -45,4 +45,14 @@ public class Proyecto {
 
     @Column(nullable = false)
     LocalDateTime fecha_actualizacion;
+
+    @PrePersist
+    void persistirFecha(){
+        fecha_creacion=  LocalDateTime.now();
+    }
+
+    @PreUpdate
+    void actualizarFecha(){
+        fecha_actualizacion=  LocalDateTime.now();
+    }
 }

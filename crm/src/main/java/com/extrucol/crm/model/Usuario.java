@@ -57,4 +57,10 @@ public class Usuario  implements UserDetails {
     public String getUsername() {
         return email;
     }
+
+    @PrePersist
+    void persistirFecha(){
+        fecha_creacion=  LocalDateTime.now();
+    }
+
 }

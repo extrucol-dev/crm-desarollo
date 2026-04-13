@@ -24,7 +24,7 @@ public class Modalidad {
     Long id;
 
     @Column(nullable = false)
-    String nombre;
+    String tipo;
 
     @Column(nullable = false)
     String codigo;

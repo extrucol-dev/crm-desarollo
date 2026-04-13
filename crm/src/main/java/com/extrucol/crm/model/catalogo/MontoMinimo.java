@@ -10,10 +10,8 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "CRM_MONTO_MINIMO")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 public class MontoMinimo {
 
     @Id

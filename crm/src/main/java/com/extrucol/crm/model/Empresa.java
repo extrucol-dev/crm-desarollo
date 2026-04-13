@@ -1,12 +1,15 @@
 package com.extrucol.crm.model;
 
 import com.extrucol.crm.model.catalogo.Documento;
+import com.extrucol.crm.model.catalogo.Modalidad;
 import com.extrucol.crm.model.catalogo.Municipio;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "CRM_EMPRESA")
@@ -30,13 +33,43 @@ public class Empresa {
     @Column(nullable = false)
     String direccion;
 
-    @JoinColumn(name = "id_municipio")
+    @JoinColumn(name = "id_municipio", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     Municipio municipio;
 
-    @JoinColumn(name = "id_documento")
+    @JoinColumn(name = "id_documento", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    Documento documento;
+    Documento tipo_documento;
+
+    @Column(nullable = false)
+    String no_documento;
+
+    @JoinColumn(name = "id_modalidad", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    Modalidad modalidad;
+
+    @Column(nullable = false)
+    boolean activo;
+
+    @PrePersist
+    void persistirActivo() {
+        activo = true;
+    }
+    @Column(nullable = false)
+    boolean nuevo;
+
+    @PrePersist
+    void persistirNuevo() {
+        nuevo = true;
+    }
+
+    @Column(nullable = false)
+    LocalDateTime fecha_creacion;
+
+    @PrePersist
+    void persistirFecha() {
+        fecha_creacion = LocalDateTime.now();
+    }
 
 
 }

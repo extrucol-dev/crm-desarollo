@@ -9,7 +9,6 @@ import com.extrucol.crm.model.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -32,8 +31,6 @@ public class ProyectoMapper {
         proyecto.setEstado(dto.estado());
         proyecto.setUsuario(usuario);
         proyecto.setOportunidad(oportunidad);
-        proyecto.setFecha_actualizacion(LocalDateTime.now());
-        proyecto.setFecha_creacion(LocalDateTime.now());
         return proyecto;
     }
 
@@ -42,8 +39,6 @@ public class ProyectoMapper {
 
         proyecto.setNombre(dto.nombre());
         proyecto.setDescripcion(dto.descripcion());
-        proyecto.setEstado(dto.estado());
-        proyecto.setFecha_actualizacion(LocalDateTime.now());
     }
 
     public void actualizarEstadoDesdeDTO(Proyecto proyecto, ProyectoEstadoRequestDTO dto) {

@@ -6,7 +6,6 @@ import com.extrucol.crm.dto.response.UsuarioResponseDTO;
 import com.extrucol.crm.model.Usuario;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 
 @Component
 public class UsuarioMapper {
@@ -33,7 +32,6 @@ public class UsuarioMapper {
         u.setPassword(dto.password());
         u.setActivo(dto.activo());
         u.setRol(dto.rol());
-        u.setFecha_creacion(LocalDateTime.now());
 
         return u;
     }

@@ -3,7 +3,7 @@ package com.extrucol.crm.service.impl;
 import com.extrucol.crm.dto.response.CiudadResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.CiudadMapper;
-import com.extrucol.crm.model.Ciudad;
+import com.extrucol.crm.model.catalogo.Ciudad;
 import com.extrucol.crm.repository.CiudadRepository;
 import com.extrucol.crm.service.CiudadService;
 import lombok.RequiredArgsConstructor;

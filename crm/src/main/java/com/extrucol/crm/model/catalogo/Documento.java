@@ -24,7 +24,7 @@ public class Documento {
     Long id;
 
     @Column(nullable = false)
-    String nombre;
+    String tipo;
 
     @Column(nullable = false)
     String codigo;

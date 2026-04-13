@@ -46,11 +46,11 @@ public class Oportunidad {
     @Column
     String motivo_cierre;
 
-    @JoinColumn(name = "id_cliente")
+    @JoinColumn(name = "id_cliente", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    Cliente cliente;
+    Contacto contacto;
 
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "id_usuario", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     Usuario usuario;
 
@@ -60,4 +60,13 @@ public class Oportunidad {
     @Column(nullable = false)
     LocalDateTime fecha_actualizacion;
 
+    @PrePersist
+    void persistirFecha(){
+        fecha_creacion=  LocalDateTime.now();
+    }
+
+    @PreUpdate
+    void actualizarFecha(){
+        fecha_actualizacion=  LocalDateTime.now();
+    }
 }

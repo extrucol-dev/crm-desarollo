@@ -28,7 +28,7 @@ public class Municipio {
     @Column(nullable = false)
     String codigo;
 
-    @JoinColumn(name = "id_departamento")
+    @JoinColumn(name = "id_departamento", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     Departamento departamento;
 }

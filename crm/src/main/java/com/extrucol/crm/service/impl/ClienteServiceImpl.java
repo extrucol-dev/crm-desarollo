@@ -7,8 +7,8 @@ import com.extrucol.crm.dto.response.oportunidad.OportunidadSimpleResponseDTO;
 import com.extrucol.crm.exception.BusinessRuleException;
 import com.extrucol.crm.mapper.ClienteMapper;
 import com.extrucol.crm.mapper.OportunidadMapper;
-import com.extrucol.crm.model.Ciudad;
-import com.extrucol.crm.model.Cliente;
+import com.extrucol.crm.model.catalogo.Ciudad;
+import com.extrucol.crm.model.Contacto;
 import com.extrucol.crm.model.Usuario;
 import com.extrucol.crm.repository.CiudadRepository;
 import com.extrucol.crm.repository.ClienteRepository;
@@ -62,22 +62,22 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     public ClienteOportunidadesResponseDTO buscarPorId(Long id) {
         List<OportunidadSimpleResponseDTO> oportunidades;
-        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
+        Contacto contacto = clienteRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
 
-         oportunidades = oportunidadRepository.findByClienteId(cliente.getId()).stream().map(oportunidadMapper::entidadADTOSimple).toList();
+         oportunidades = oportunidadRepository.findByClienteId(contacto.getId()).stream().map(oportunidadMapper::entidadADTOSimple).toList();
 
-        return clienteMapper.entidadADTOOportunidades(cliente,oportunidades);
+        return clienteMapper.entidadADTOOportunidades(contacto,oportunidades);
     }
 
     @Override
     public ClienteResponseDTO actualizar(Long id, ClienteRequestDTO dto) {
-        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
+        Contacto contacto = clienteRepository.findById(id).orElseThrow(() -> new BusinessRuleException("Cliente no encontrado"));
         Ciudad ciudad = ciudadRepository.findById(dto.ciudad()).orElseThrow(() -> new BusinessRuleException("Usuario no encontrado"));
 
-        clienteMapper.actualizarEntidadDesdeDTO(cliente, dto,ciudad);
-        clienteRepository.save(cliente);
+        clienteMapper.actualizarEntidadDesdeDTO(contacto, dto,ciudad);
+        clienteRepository.save(contacto);
 
-        return clienteMapper.entidadADTO(cliente);
+        return clienteMapper.entidadADTO(contacto);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.extrucol.crm.oportunidad.model;
 
-import com.extrucol.crm.contacto.model.Cliente;
+import com.extrucol.crm.empresa.model.Empresa;
 import com.extrucol.crm.usuario.model.Usuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -44,17 +44,18 @@ public class Oportunidad {
 
     @Column
     LocalDate fecha_cierre;
-
-    @Column
+    @JoinColumn(name = "id_motivo_cierre")
+    @ManyToOne(fetch = FetchType.LAZY)
     String motivo_cierre;
 
-    @JoinColumn(name = "id_cliente", nullable = false)
+    @JoinColumn(name = "id_empresa", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    Cliente cliente;
+    Empresa empresa;
 
     @JoinColumn(name = "id_usuario", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     Usuario usuario;
+
 
     @Column(nullable = false)
     LocalDateTime fecha_creacion;

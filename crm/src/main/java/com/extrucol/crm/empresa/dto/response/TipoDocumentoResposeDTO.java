@@ -1,7 +1,7 @@
 package com.extrucol.crm.empresa.dto.response;
 
-public record CiudadResponseDTO(
+public record TipoDocumentoResposeDTO(
         Long id,
-        String nombre
+        String tipoDocumento
 ) {
 }

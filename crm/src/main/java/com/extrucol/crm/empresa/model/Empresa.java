@@ -1,9 +1,10 @@
 package com.extrucol.crm.empresa.model;
 
-import com.extrucol.crm.empresa.model.catalogo.Ciudad;
 import com.extrucol.crm.empresa.model.catalogo.Documento;
 import com.extrucol.crm.empresa.model.catalogo.Modalidad;
 import com.extrucol.crm.empresa.model.catalogo.Municipio;
+import com.extrucol.crm.empresa.model.catalogo.Sector;
+import com.extrucol.crm.contacto.model.Cliente;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,11 +12,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "CRM_EMPRESA")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Empresa {
 
     @Id
@@ -40,14 +45,14 @@ public class Empresa {
 
     @JoinColumn(name = "id_documento", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    Documento tipo_documento;
+    Documento tipoDocumento;
 
     @Column(nullable = false)
-    String no_documento;
+    String noDocumento;
 
-    @JoinColumn(name = "id_ciudad", nullable = false)
+    @JoinColumn(name = "id_sector", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
-    Ciudad ciudad;
+    Sector sector;
 
     @JoinColumn(name = "id_modalidad", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -62,12 +67,13 @@ public class Empresa {
     @Column(nullable = false)
     LocalDateTime fecha_creacion;
 
+    @OneToMany(mappedBy = "empresa", fetch = FetchType.LAZY)
+    List<Cliente> clientes = new ArrayList<>();
+
     @PrePersist
     void persistirFecha() {
         nuevo = true;
         activo = true;
         fecha_creacion = LocalDateTime.now();
     }
-
-
 }

@@ -1,29 +1,24 @@
 package com.extrucol.crm.contacto.dto.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 import java.util.List;
 
 public record ClienteRequestDTO(
         @NotBlank(message = "El nombre es obligatorio")
-        @Size(min = 3, max = 100)
+        @Size(min = 3, max = 100, message = "El nombre debe tener entre 3 y 100 caracteres")
         String nombre,
 
-        @NotBlank(message = "La empresa es obligatoria")
-        @Size(max = 100)
-        String empresa,
+        @NotNull(message = "La empresa es obligatoria")
+        Long empresa_id,
 
-        @NotBlank(message = "El sector es obligatorio")
-        @Size(max = 100)
-        String sector,
-
-        @NotNull(message = "La ciudad es obligatoria")
-        Long ciudad,
-
+        @NotEmpty(message = "Debe incluir al menos un teléfono")
+        @Valid
         List<TelefonoRequestDTO> telefonos,
 
+        @NotEmpty(message = "Debe incluir al menos un email")
+        @Valid
         List<EmailRequestDTO> emails
-
-
 ) {
 }

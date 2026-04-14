@@ -22,9 +22,7 @@ public record ClienteRequestDTO(
 
         List<TelefonoRequestDTO> telefonos,
 
-        @NotBlank(message = "El email es obligatorio")
-        @Email(message = "El email no es válido")
-        Long email
+        List<EmailRequestDTO> emails
 
 
 ) {

@@ -14,6 +14,8 @@ public record EmpresaRequestDTO(
 
         Long ciudad,
 
-        Long modalidad
+        Long modalidad,
+
+        Long sector
 ) {
 }

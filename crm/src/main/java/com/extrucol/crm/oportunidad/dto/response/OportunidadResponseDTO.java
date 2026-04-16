@@ -15,6 +15,7 @@ public record OportunidadResponseDTO(
         BigDecimal valor_estimado,
         LocalDate fecha_cierre,
         String motivo_cierre,
+        String detalle_cierre,
         ClienteResponseDTO cliente,
         UsuarioResponseDTO usuario
 ) {

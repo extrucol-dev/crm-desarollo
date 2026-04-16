@@ -1,19 +1,24 @@
 package com.extrucol.crm.oportunidad.dto.request;
 
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
 public record OportunidadCierreRequestDTO(
+
         @FutureOrPresent(message = "La fecha de cierre no puede ser pasada")
         LocalDate fecha_cierre,
 
-        @Size(min = 10, max = 500, message = "El motivo de cierre no puede exceder 500 caracteres")
-        String motivo_cierre,
+        @NotNull(message = "El motivo de cierre es obligatorio")
+        Long motivo_cierre_id,
 
-        @NotBlank(message = "El estado es obligatorio")
-        String estado
+        @Size(max = 1000, message = "El detalle no puede exceder 1000 caracteres")
+        String detalle_cierre,
+
+        @NotNull(message = "El estado es obligatorio")
+        Long estado_id
+
 ) {
 }

@@ -50,6 +50,13 @@ public class SecurityConfig {
                         // ── Ciudades — todos los roles autenticados ───────────
                         .requestMatchers("/api/ciudades/**").authenticated()
 
+                        // ── Catálogos de Oportunidad — DIRECTOR y ADMIN ───────
+                        .requestMatchers("/api/motivos-cierre/**").hasAnyRole("DIRECTOR", "ADMIN")
+                        .requestMatchers("/api/montos-minimos/**").hasAnyRole("DIRECTOR", "ADMIN")
+
+                        // ── Auditoría — solo DIRECTOR y ADMIN ─────────────────
+                        .requestMatchers("/api/auditorias/**").hasAnyRole("DIRECTOR", "ADMIN")
+
                         // ── Usuarios ─────────────────────────────
                         .requestMatchers("/api/usuarios/**").hasAnyRole("DIRECTOR", "ADMIN")
 

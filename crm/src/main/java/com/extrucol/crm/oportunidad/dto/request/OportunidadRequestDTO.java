@@ -18,9 +18,6 @@ public record OportunidadRequestDTO(
         @NotBlank(message = "El tipo es obligatorio")
         String tipo,
 
-        @NotBlank(message = "El estado es obligatorio")
-        String estado,
-
         @NotNull(message = "El valor estimado es obligatorio")
         @Positive(message = "El valor estimado debe ser positivo")
         BigDecimal valor_estimado,
@@ -28,9 +25,8 @@ public record OportunidadRequestDTO(
         @FutureOrPresent(message = "La fecha de cierre no puede ser pasada")
         LocalDate fecha_cierre,
 
-
-        @NotNull(message = "El cliente es obligatorio")
-        Long cliente
+        @NotNull(message = "La empresa es obligatoria")
+        Long empresa_id
 
 ) {
 }

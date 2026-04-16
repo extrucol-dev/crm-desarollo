@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /c/Users/PRACT.SISTEMAS/Desktop/crm-desarollo/crm/.env*)",
+      "Bash(xargs basename *)"
+    ]
+  }
+}

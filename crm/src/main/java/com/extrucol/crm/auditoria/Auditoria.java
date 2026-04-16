@@ -2,9 +2,17 @@ package com.extrucol.crm.auditoria;
 
 import com.extrucol.crm.usuario.model.Usuario;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "CRM_AUDITORIA")
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 public class Auditoria {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "auditoria_seq")

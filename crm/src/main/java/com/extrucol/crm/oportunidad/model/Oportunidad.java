@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 public class Oportunidad {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "oportunidad_seq")
     @SequenceGenerator(
@@ -36,17 +37,22 @@ public class Oportunidad {
     @Column(nullable = false)
     String tipo;
 
-    @Column(nullable = false)
-    String estado;
+    @JoinColumn(name = "id_estado_oportunidad", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    EstadoOportunidad estado;
 
     @Column(nullable = false)
     BigDecimal valor_estimado;
 
     @Column
     LocalDate fecha_cierre;
+
     @JoinColumn(name = "id_motivo_cierre")
     @ManyToOne(fetch = FetchType.LAZY)
-    String motivo_cierre;
+    MotivoCierre motivoCierre;
+
+    @Column(name = "detalle_cierre")
+    String detalleCierre;
 
     @JoinColumn(name = "id_empresa", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -56,7 +62,6 @@ public class Oportunidad {
     @ManyToOne(fetch = FetchType.LAZY)
     Usuario usuario;
 
-
     @Column(nullable = false)
     LocalDateTime fecha_creacion;
 
@@ -64,12 +69,13 @@ public class Oportunidad {
     LocalDateTime fecha_actualizacion;
 
     @PrePersist
-    void persistirFecha(){
-        fecha_creacion=  LocalDateTime.now();
+    void persistirFecha() {
+        fecha_creacion = LocalDateTime.now();
+        fecha_actualizacion = LocalDateTime.now();
     }
 
     @PreUpdate
-    void actualizarFecha(){
-        fecha_actualizacion=  LocalDateTime.now();
+    void actualizarFecha() {
+        fecha_actualizacion = LocalDateTime.now();
     }
 }

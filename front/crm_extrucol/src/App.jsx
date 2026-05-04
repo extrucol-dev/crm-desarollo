@@ -73,6 +73,10 @@ import ForecastingPage      from './features/analisis/pages/ForecastingPage'
 // Reportes
 import ReportesPage from './features/reportes/pages/ReportesPage'
 
+// Monitoreo
+import MonitoreoPage       from './features/monitoreo/pages/MonitoreoPage'
+import MapaActividadesPage from './features/monitoreo/pages/MapaActividadesPage'
+
 // Redirige al dashboard del rol activo.
 // Usa authService.getRol() que funciona en ambos modos (REST: del JWT, APEX: de USUARIO_ACTUAL).
 function DashboardRouter() {
@@ -177,7 +181,9 @@ export default function App() {
       <Route path="/coordinador/alertas"          element={<ProtectedRoute roles={['COORDINADOR']}><AlertasCenterPage /></ProtectedRoute>} />
       <Route path="/coordinador/notificaciones"   element={<ProtectedRoute roles={['COORDINADOR']}><LogNotificacionesPage /></ProtectedRoute>} />
       <Route path="/coordinador/equipo/:id"       element={<ProtectedRoute roles={['COORDINADOR']}><EjecutivoPerfilPage /></ProtectedRoute>} />
-      <Route path="/coordinador/estancadas"       element={<ProtectedRoute roles={['COORDINADOR']}><OportunidadesEstancadasPage /></ProtectedRoute>} />
+      <Route path="/coordinador/estancadas"        element={<ProtectedRoute roles={['COORDINADOR']}><OportunidadesEstancadasPage /></ProtectedRoute>} />
+      <Route path="/coordinador/monitoreo"         element={<ProtectedRoute roles={['COORDINADOR']}><MonitoreoPage /></ProtectedRoute>} />
+      <Route path="/coordinador/mapa-actividades"  element={<ProtectedRoute roles={['COORDINADOR']}><MapaActividadesPage /></ProtectedRoute>} />
 
       {/* ── Director — Equipo ── */}
       <Route path="/director/equipo"     element={<ProtectedRoute roles={['DIRECTOR']}><EquipoComercialPage /></ProtectedRoute>} />

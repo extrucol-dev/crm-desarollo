@@ -1,0 +1,50 @@
+-- ============================================================
+-- CRM EXTRUCOL - CRM_ACTIVIDADES_API SPEC
+-- ============================================================
+CREATE OR REPLACE PACKAGE CRM_ACTIVIDADES_API AS
+
+  PROCEDURE ACTIVIDADES_CREATE(
+    p_result OUT SYS_REFCURSOR,
+    p_x01 IN VARCHAR2,
+    p_x02 IN CLOB     DEFAULT NULL,
+    p_x03 IN NUMBER   DEFAULT 0,
+    p_x04 IN VARCHAR2,
+    p_x05 IN NUMBER   DEFAULT NULL
+  );
+
+  PROCEDURE ACTIVIDADES_GET(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  NUMBER
+  );
+
+  PROCEDURE ACTIVIDADES_UPDATE(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  NUMBER,
+    p_x02    IN  VARCHAR2,
+    p_x03    IN  CLOB     DEFAULT NULL,
+    p_x04    IN  NUMBER   DEFAULT NULL,
+    p_x05    IN  VARCHAR2 DEFAULT NULL
+  );
+
+  PROCEDURE ACTIVIDADES_CERRAR(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  NUMBER,
+    p_x02    IN  CLOB,
+    p_x03    IN  NUMBER   DEFAULT NULL,
+    p_x04    IN  NUMBER   DEFAULT NULL
+  );
+
+  PROCEDURE ACTIVIDADES_LIST_TODAS(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  VARCHAR2 DEFAULT NULL,
+    p_x02    IN  VARCHAR2 DEFAULT NULL
+  );
+
+  PROCEDURE ACTIVIDADES_LIST_MIS(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  VARCHAR2 DEFAULT NULL,
+    p_x02    IN  VARCHAR2 DEFAULT NULL
+  );
+
+END CRM_ACTIVIDADES_API;
+/

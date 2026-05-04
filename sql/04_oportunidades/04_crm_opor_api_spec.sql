@@ -1,0 +1,68 @@
+-- ============================================================
+-- CRM EXTRUCOL - CRM_OPOR_API SPEC
+-- Package para gestión de oportunidades
+-- ============================================================
+CREATE OR REPLACE PACKAGE CRM_OPOR_API AS
+
+  PROCEDURE OPORTUNIDADES_LIST(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  VARCHAR2 DEFAULT NULL
+  );
+
+  PROCEDURE OPORTUNIDADES_LIST_TODAS(
+    p_result OUT SYS_REFCURSOR
+  );
+
+  PROCEDURE OPORTUNIDADES_GET(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  NUMBER
+  );
+
+  PROCEDURE OPORTUNIDADES_ACTIVIDADES(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  NUMBER
+  );
+
+  PROCEDURE OPORTUNIDADES_CREATE(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  VARCHAR2,
+    p_x02    IN  CLOB     DEFAULT NULL,
+    p_x03    IN  VARCHAR2 DEFAULT NULL,
+    p_x04    IN  NUMBER,
+    p_x05    IN  VARCHAR2,
+    p_x06    IN  NUMBER   DEFAULT NULL
+  );
+
+  PROCEDURE OPORTUNIDADES_UPDATE(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  NUMBER,
+    p_x02    IN  VARCHAR2,
+    p_x03    IN  CLOB     DEFAULT NULL,
+    p_x04    IN  VARCHAR2 DEFAULT NULL,
+    p_x05    IN  VARCHAR2 DEFAULT NULL,
+    p_x06    IN  NUMBER   DEFAULT NULL,
+    p_x07    IN  VARCHAR2 DEFAULT NULL,
+    p_x08    IN  NUMBER   DEFAULT NULL
+  );
+
+  PROCEDURE OPORTUNIDADES_AVANZAR(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  NUMBER,
+    p_x02    IN  VARCHAR2
+  );
+
+  PROCEDURE OPORTUNIDADES_CERRAR(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  NUMBER,
+    p_x02    IN  VARCHAR2,
+    p_x03    IN  VARCHAR2,
+    p_x04    IN  VARCHAR2
+  );
+
+  PROCEDURE OPORTUNIDADES_ESTANCADAS(
+    p_result OUT SYS_REFCURSOR,
+    p_x01    IN  NUMBER   DEFAULT NULL
+  );
+
+END CRM_OPOR_API;
+/

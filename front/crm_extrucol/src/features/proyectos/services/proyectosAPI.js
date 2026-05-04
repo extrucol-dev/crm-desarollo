@@ -1,6 +1,8 @@
+import { APEX_MODE, unwrapList, unwrapSingle } from '../../../shared/services/utils'
 import api from '../../../shared/services/api'
+import { callProcess } from '../../../shared/apex/apexClient'
 
-export const proyectosAPI = {
+const restOps = {
   // CE-39: mis proyectos (ejecutivo)
   listar:     ()         => api.get('/api/proyectos').then(r => r.data),
   // DIRECTOR: todos los proyectos
@@ -25,3 +27,30 @@ export const proyectosAPI = {
   actualizarEstado: (id, estado) =>
     api.put(`/api/proyectos/${id}/estado`, { estado }).then(r => r.data),
 }
+
+const apexOps = {
+  listar: () =>
+    callProcess('PROYECTOS_LIST').then(unwrapList),
+  listarTodos: () =>
+    callProcess('PROYECTOS_LIST_TODOS').then(unwrapList),
+  buscar: (id) =>
+    callProcess('PROYECTOS_GET', { x01: id }).then(unwrapSingle),
+  crear: (data) =>
+    callProcess('PROYECTOS_CREATE', {
+      x01: data.nombre,
+      x02: data.descripcion,
+      x03: Number(data.oportunidad),
+    }).then(unwrapSingle),
+  actualizar: (id, data) =>
+    callProcess('PROYECTOS_UPDATE', {
+      x01: id,
+      x02: data.nombre,
+      x03: data.descripcion,
+      x04: data.estado,
+      x05: Number(data.oportunidad),
+    }).then(unwrapSingle),
+  actualizarEstado: (id, estado) =>
+    callProcess('PROYECTOS_ESTADO', { x01: id, x02: estado }).then(unwrapSingle),
+}
+
+export const proyectosAPI = APEX_MODE ? apexOps : restOps

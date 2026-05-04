@@ -1,6 +1,8 @@
+import { APEX_MODE, unwrapList, unwrapSingle } from '../../../shared/services/utils'
 import api from '../../../shared/services/api'
+import { callProcess } from '../../../shared/apex/apexClient'
 
-export const actividadesAPI = {
+const restOps = {
   // CE-19: crear actividad — usuario lo toma el backend del JWT
   crear: (data) => api.post('/api/actividades', {
     tipo:            data.tipo,
@@ -39,3 +41,41 @@ export const actividadesAPI = {
 
   buscar: (id) => api.get(`/api/actividades/${id}`).then(r => r.data),
 }
+
+const apexOps = {
+  crear: (data) =>
+    callProcess('ACTIVIDADES_CREATE', {
+      x01: data.tipo,
+      x02: data.descripcion,
+      x03: data.virtual ? '1' : '0',
+      x04: data.fecha_actividad,
+      x05: Number(data.oportunidad),
+    }).then(unwrapSingle),
+  actualizar: (id, data) =>
+    callProcess('ACTIVIDADES_UPDATE', {
+      x01: id,
+      x02: data.tipo,
+      x03: data.descripcion,
+      x04: data.virtual ? '1' : '0',
+      x05: data.fecha_actividad,
+      x06: Number(data.oportunidad),
+    }).then(unwrapSingle),
+  cerrarPresencial: (id, { resultado, latitud, longitud }) =>
+    callProcess('ACTIVIDADES_CERRAR', {
+      x01: id,
+      x02: resultado,
+      x03: latitud,
+      x04: longitud,
+    }).then(unwrapSingle),
+  cerrarVirtual: (id, { resultado }) =>
+    callProcess('ACTIVIDADES_CERRAR', {
+      x01: id,
+      x02: resultado,
+      x03: 0,
+      x04: 0,
+    }).then(unwrapSingle),
+  buscar: (id) =>
+    callProcess('ACTIVIDADES_GET', { x01: id }).then(unwrapSingle),
+}
+
+export const actividadesAPI = APEX_MODE ? apexOps : restOps

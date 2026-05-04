@@ -1,19 +1,35 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { authService } from '../../features/auth/services/authService'
+import { APEX_MODE } from '../services/utils'
 
 const NAV_BY_ROL = {
   EJECUTIVO: [
-    { to: '/dashboard',     icon: 'home',    label: 'Dashboard' },
-    { to: '/clientes',      icon: 'users',   label: 'Mis Clientes' },
+    { to: '/dashboard',     icon: 'home',      label: 'Dashboard' },
+    { to: '/leads',         icon: 'funnel',    label: 'Leads' },
+    { to: '/clientes',      icon: 'users',     label: 'Mis Clientes' },
     { to: '/oportunidades', icon: 'briefcase', label: 'Oportunidades' },
     { to: '/actividades',   icon: 'clipboard', label: 'Actividades' },
-    { to: '/proyectos',     icon: 'folder',  label: 'Proyectos' },
+    { to: '/proyectos',     icon: 'folder',    label: 'Proyectos' },
+    { to: '/metas',         icon: 'target',    label: 'Mis Metas' },
   ],
   DIRECTOR: [
-    { to: '/dashboard',          icon: 'chart',     label: 'Dashboard' },
-    { to: '/director/pipeline',  icon: 'briefcase', label: 'Pipeline' },
-    { to: '/director/actividades', icon: 'clipboard', label: 'Actividades' },
+    { to: '/dashboard',             icon: 'chart',     label: 'Dashboard' },
+    { to: '/director/pipeline',     icon: 'briefcase', label: 'Pipeline' },
+    { to: '/director/actividades',  icon: 'clipboard', label: 'Actividades' },
+    { to: '/director/equipo',       icon: 'users',     label: 'Equipo' },
+    { to: '/director/analisis',     icon: 'chart',     label: 'Análisis' },
+    { to: '/director/forecast',     icon: 'trending',  label: 'Forecast' },
+    { to: '/director/reportes',     icon: 'document',  label: 'Reportes' },
+  ],
+  COORDINADOR: [
+    { to: '/dashboard',                   icon: 'home',      label: 'Dashboard' },
+    { to: '/coordinador/estancadas',      icon: 'warning',   label: 'Estancadas' },
+    { to: '/actividades',                 icon: 'clipboard', label: 'Actividades' },
+    { to: '/coordinador/monitoreo',       icon: 'map',       label: 'Monitoreo' },
+    { to: '/coordinador/cumplimiento',    icon: 'target',    label: 'Cumplimiento' },
+    { to: '/coordinador/alertas',         icon: 'bell',      label: 'Alertas' },
+    { to: '/coordinador/equipo/perfil',   icon: 'users',     label: 'Equipo' },
   ],
   ADMIN: [
     { to: '/dashboard',     icon: 'home',    label: 'Dashboard' },
@@ -22,9 +38,10 @@ const NAV_BY_ROL = {
 }
 
 const ROL_LABEL = {
-  EJECUTIVO: 'Ejecutivo Comercial',
-  DIRECTOR:  'Director Comercial',
-  ADMIN:     'Administrador',
+  EJECUTIVO:   'Ejecutivo Comercial',
+  DIRECTOR:    'Director Comercial',
+  COORDINADOR: 'Coordinador de Seguimiento',
+  ADMIN:       'Administrador',
 }
 
 const initials = (nombre = '') =>
@@ -43,6 +60,13 @@ const Icon = ({ name, className = 'w-4 h-4' }) => {
     logout:    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />,
     menu:      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />,
     close:     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />,
+    funnel:    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />,
+    target:    <><path strokeLinecap="round" strokeLinejoin="round" d="M12 9.75v6.75m0 0l-3-3m3 3l3-3m-8.25 6a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></>,
+    trending:  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />,
+    document:  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />,
+    warning:   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />,
+    map:       <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />,
+    bell:      <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />,
   }
   return (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -61,9 +85,9 @@ export default function AppLayout({ children }) {
   const rol        = authService.getRol()
   const navItems   = NAV_BY_ROL[rol] ?? NAV_BY_ROL.EJECUTIVO
 
-  const handleLogout = () => {
-    authService.logout()
-    navigate('/login', { replace: true })
+  const handleLogout = async () => {
+    await authService.logout()
+    if (!APEX_MODE) navigate('/login', { replace: true })
   }
 
   const SidebarContent = () => (

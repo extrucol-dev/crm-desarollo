@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:rest": "vite --mode rest",
+    "dev:apex": "vite --mode apex",
     "build": "vite build",
+    "build:rest": "vite build --mode rest",
+    "build:apex": "vite build --mode apex",
     "preview": "vite preview"
   },
   "dependencies": {

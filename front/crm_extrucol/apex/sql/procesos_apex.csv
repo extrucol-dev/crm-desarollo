@@ -1,17 +1,784 @@
--- =============================================================================
--- CRM EXTRUCOL — APEX Application Processes  (PARTE 2 de 2)
--- Procesos 22-50: Actividades, Proyectos, Usuarios, Dashboard,
---                 Metas, Alertas, Equipo, Monitoreo, Análisis, Reportes,
---                 Configuración
--- =============================================================================
+process_number;process_name;point;type;sequence;source
+1;USUARIO_ACTUAL;On Demand;PL/SQL Anonymous Block;10;DECLARE
+  l_cur SYS_REFCURSOR;
+BEGIN
+  OPEN l_cur FOR
+    SELECT u.id_usuario  AS id,
+           u.nombre,
+           UPPER(u.rol)  AS rol
+      FROM crm_usuario u
+     WHERE UPPER(u.email) = UPPER(v('APP_USER'))
+       AND u.activo = 1;
 
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+2;CIUDADES_LIST;On Demand;PL/SQL Anonymous Block;20;DECLARE
+  l_cur SYS_REFCURSOR;
+BEGIN
+  OPEN l_cur FOR
+    SELECT m.id_municipio AS id,
+           m.nombre,
+           d.nombre       AS departamento
+      FROM crm_municipio m
+      JOIN crm_departamento d ON d.id_departamento = m.id_departamento
+     ORDER BY d.nombre, m.nombre;
 
--- ─────────────────────────────────────────────────────────────────────────────
--- 22. ACTIVIDADES_LIST_MIS  (x01=inicio YYYY-MM-DD?, x02=fin?)
---     Actividades del ejecutivo de sesión, con filtro de fecha opcional.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ACTIVIDADES_LIST_MIS
-DECLARE
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+3;CLIENTES_LIST;On Demand;PL/SQL Anonymous Block;30;DECLARE
+  l_cur SYS_REFCURSOR;
+BEGIN
+  OPEN l_cur FOR
+    SELECT e.id_empresa                               AS id,
+           e.nombre                                   AS empresa,
+           c.nombre || ' ' || c.apellido              AS nombre,
+           m.nombre                                   AS ciudad,
+           m.id_municipio                             AS ciudad_id,
+           em.email,
+           t.numero                                   AS telefono,
+           e.activo,
+           e.fecha_creacion
+      FROM crm_empresa e
+      LEFT JOIN crm_contacto c  ON c.id_empresa = e.id_empresa
+                               AND c.es_principal = 1
+                               AND c.activo = 1
+      LEFT JOIN crm_email em    ON em.id_contacto = c.id_contacto
+                               AND ROWNUM = 1
+      LEFT JOIN crm_telefono t  ON t.id_contacto = c.id_contacto
+                               AND ROWNUM = 1
+      LEFT JOIN crm_municipio m ON m.id_municipio = e.id_municipio
+     WHERE e.activo = 1
+     ORDER BY e.nombre;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+4;CLIENTES_GET;On Demand;PL/SQL Anonymous Block;40;DECLARE
+  l_cur SYS_REFCURSOR;
+  l_id  NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+BEGIN
+  OPEN l_cur FOR
+    SELECT e.id_empresa                               AS id,
+           e.nombre                                   AS empresa,
+           c.nombre || ' ' || c.apellido              AS nombre,
+           c.cargo,
+           m.nombre                                   AS ciudad,
+           m.id_municipio                             AS ciudad_id,
+           em.email,
+           t.numero                                   AS telefono,
+           e.activo,
+           e.fecha_creacion
+      FROM crm_empresa e
+      LEFT JOIN crm_contacto c  ON c.id_empresa = e.id_empresa AND c.es_principal = 1
+      LEFT JOIN crm_email em    ON em.id_contacto = c.id_contacto
+      LEFT JOIN crm_telefono t  ON t.id_contacto = c.id_contacto
+      LEFT JOIN crm_municipio m ON m.id_municipio = e.id_municipio
+     WHERE e.id_empresa = l_id;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+5;CLIENTES_CREATE;On Demand;PL/SQL Anonymous Block;50;DECLARE
+  l_empresa_id   NUMBER;
+  l_contacto_id  NUMBER;
+BEGIN
+  INSERT INTO crm_empresa (id_empresa, nombre, activo, nuevo, fecha_creacion, id_municipio)
+  VALUES (crm_empresa_seq.NEXTVAL,
+          APEX_APPLICATION.G_X02,
+          1, 1, SYSDATE,
+          TO_NUMBER(NULLIF(APEX_APPLICATION.G_X04, '')))
+  RETURNING id_empresa INTO l_empresa_id;
+
+  INSERT INTO crm_contacto (id_contacto, nombre, apellido, es_principal, activo, fecha_creacion, id_empresa)
+  VALUES (crm_contacto_seq.NEXTVAL,
+          APEX_APPLICATION.G_X01,
+          NULL, 1, 1, SYSDATE,
+          l_empresa_id)
+  RETURNING id_contacto INTO l_contacto_id;
+
+  IF APEX_APPLICATION.G_X05 IS NOT NULL THEN
+    INSERT INTO crm_email (id_email, email, id_contacto)
+    VALUES (crm_email_seq.NEXTVAL, APEX_APPLICATION.G_X05, l_contacto_id);
+  END IF;
+
+  IF APEX_APPLICATION.G_X06 IS NOT NULL THEN
+    INSERT INTO crm_telefono (id_telefono, numero, id_contacto)
+    VALUES (crm_telefono_seq.NEXTVAL, APEX_APPLICATION.G_X06, l_contacto_id);
+  END IF;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('id',      l_empresa_id);
+  APEX_JSON.WRITE('success', TRUE);
+  APEX_JSON.CLOSE_OBJECT;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    APEX_JSON.OPEN_OBJECT;
+    APEX_JSON.WRITE('success', FALSE);
+    APEX_JSON.WRITE('error',   SQLERRM);
+    APEX_JSON.CLOSE_OBJECT;
+END;
+/
+6;CLIENTES_UPDATE;On Demand;PL/SQL Anonymous Block;60;DECLARE
+  l_id          NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+  l_contacto_id NUMBER;
+BEGIN
+  UPDATE crm_empresa
+     SET nombre       = APEX_APPLICATION.G_X03,
+         id_municipio = TO_NUMBER(NULLIF(APEX_APPLICATION.G_X05, ''))
+   WHERE id_empresa = l_id;
+
+  SELECT id_contacto INTO l_contacto_id
+    FROM crm_contacto
+   WHERE id_empresa = l_id AND es_principal = 1 AND ROWNUM = 1;
+
+  UPDATE crm_contacto
+     SET nombre = APEX_APPLICATION.G_X02
+   WHERE id_contacto = l_contacto_id;
+
+  MERGE INTO crm_email em
+  USING (SELECT l_contacto_id AS id_contacto FROM DUAL) src
+     ON (em.id_contacto = src.id_contacto)
+   WHEN MATCHED THEN
+     UPDATE SET em.email = APEX_APPLICATION.G_X06
+   WHEN NOT MATCHED THEN
+     INSERT (id_email, email, id_contacto)
+     VALUES (crm_email_seq.NEXTVAL, APEX_APPLICATION.G_X06, l_contacto_id);
+
+  MERGE INTO crm_telefono t
+  USING (SELECT l_contacto_id AS id_contacto FROM DUAL) src
+     ON (t.id_contacto = src.id_contacto)
+   WHEN MATCHED THEN
+     UPDATE SET t.numero = APEX_APPLICATION.G_X07
+   WHEN NOT MATCHED THEN
+     INSERT (id_telefono, numero, id_contacto)
+     VALUES (crm_telefono_seq.NEXTVAL, APEX_APPLICATION.G_X07, l_contacto_id);
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('success', SQL%ROWCOUNT >= 0);
+  APEX_JSON.CLOSE_OBJECT;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    APEX_JSON.OPEN_OBJECT;
+    APEX_JSON.WRITE('success', FALSE);
+    APEX_JSON.WRITE('error',   SQLERRM);
+    APEX_JSON.CLOSE_OBJECT;
+END;
+/
+7;LEADS_LIST;On Demand;PL/SQL Anonymous Block;70;DECLARE
+  l_cur        SYS_REFCURSOR;
+  l_usuario_id NUMBER;
+BEGIN
+  SELECT id_usuario INTO l_usuario_id
+    FROM crm_usuario
+   WHERE UPPER(email) = UPPER(v('APP_USER')) AND activo = 1;
+
+  OPEN l_cur FOR
+    SELECT l.id_lead                  AS id,
+           l.titulo,
+           l.descripcion,
+           l.score,
+           l.nombre_empresa,
+           l.nombre_contacto,
+           l.telefono_contacto        AS telefono,
+           l.email_contacto           AS email,
+           l.fecha_creacion,
+           l.fecha_actualizacion,
+           el.nombre                  AS estado,
+           el.tipo                    AS estado_tipo,
+           el.color_hex               AS estado_color,
+           ol.nombre                  AS origen,
+           ol.color_hex               AS origen_color,
+           CASE WHEN l.id_oportunidad_generada IS NOT NULL THEN 1 ELSE 0 END AS convertido
+      FROM crm_lead l
+      JOIN crm_estado_lead el  ON el.id_estado_lead = l.id_estado_lead
+      JOIN crm_origen_lead ol  ON ol.id_origen_lead = l.id_origen_lead
+     WHERE l.id_usuario = l_usuario_id
+     ORDER BY l.fecha_actualizacion DESC;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+8;LEADS_GET;On Demand;PL/SQL Anonymous Block;80;DECLARE
+  l_cur SYS_REFCURSOR;
+  l_id  NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+BEGIN
+  OPEN l_cur FOR
+    SELECT l.id_lead                  AS id,
+           l.titulo,
+           l.descripcion,
+           l.score,
+           l.nombre_empresa,
+           l.nombre_contacto,
+           l.telefono_contacto        AS telefono,
+           l.email_contacto           AS email,
+           l.fecha_creacion,
+           l.fecha_actualizacion,
+           el.id_estado_lead          AS estado_id,
+           el.nombre                  AS estado,
+           el.tipo                    AS estado_tipo,
+           ol.id_origen_lead          AS origen_id,
+           ol.nombre                  AS origen,
+           l.id_oportunidad_generada,
+           l.motivo_descalificacion_obs
+      FROM crm_lead l
+      JOIN crm_estado_lead el ON el.id_estado_lead = l.id_estado_lead
+      JOIN crm_origen_lead ol ON ol.id_origen_lead = l.id_origen_lead
+     WHERE l.id_lead = l_id;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+9;LEADS_CREATE;On Demand;PL/SQL Anonymous Block;90;DECLARE
+  l_id          NUMBER;
+  l_usuario_id  NUMBER;
+  l_estado_id   NUMBER;
+BEGIN
+  SELECT id_usuario INTO l_usuario_id
+    FROM crm_usuario
+   WHERE UPPER(email) = UPPER(v('APP_USER')) AND activo = 1;
+
+  SELECT id_estado_lead INTO l_estado_id
+    FROM (SELECT id_estado_lead FROM crm_estado_lead ORDER BY orden ASC)
+   WHERE ROWNUM = 1;
+
+  INSERT INTO crm_lead (
+    id_lead, titulo, descripcion, score,
+    id_estado_lead, id_origen_lead,
+    nombre_empresa, nombre_contacto,
+    telefono_contacto, email_contacto,
+    fecha_creacion, fecha_actualizacion,
+    id_usuario
+  ) VALUES (
+    crm_lead_seq.NEXTVAL,
+    APEX_APPLICATION.G_X01,
+    APEX_APPLICATION.G_X08,
+    0,
+    l_estado_id,
+    TO_NUMBER(NULLIF(APEX_APPLICATION.G_X05, '')),
+    APEX_APPLICATION.G_X02,
+    NULL,
+    APEX_APPLICATION.G_X04,
+    APEX_APPLICATION.G_X03,
+    SYSDATE, SYSDATE,
+    l_usuario_id
+  ) RETURNING id_lead INTO l_id;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('id',      l_id);
+  APEX_JSON.WRITE('success', TRUE);
+  APEX_JSON.CLOSE_OBJECT;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    APEX_JSON.OPEN_OBJECT;
+    APEX_JSON.WRITE('success', FALSE);
+    APEX_JSON.WRITE('error',   SQLERRM);
+    APEX_JSON.CLOSE_OBJECT;
+END;
+/
+10;LEADS_UPDATE;On Demand;PL/SQL Anonymous Block;100;DECLARE
+  l_id NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+BEGIN
+  UPDATE crm_lead
+     SET titulo              = APEX_APPLICATION.G_X02,
+         nombre_empresa      = APEX_APPLICATION.G_X03,
+         email_contacto      = APEX_APPLICATION.G_X04,
+         telefono_contacto   = APEX_APPLICATION.G_X05,
+         id_origen_lead      = TO_NUMBER(NULLIF(APEX_APPLICATION.G_X06, '')),
+         descripcion         = APEX_APPLICATION.G_X08,
+         fecha_actualizacion = SYSDATE
+   WHERE id_lead = l_id;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('success', SQL%ROWCOUNT > 0);
+  APEX_JSON.CLOSE_OBJECT;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    APEX_JSON.OPEN_OBJECT;
+    APEX_JSON.WRITE('success', FALSE);
+    APEX_JSON.WRITE('error',   SQLERRM);
+    APEX_JSON.CLOSE_OBJECT;
+END;
+/
+11;LEADS_ESTADO;On Demand;PL/SQL Anonymous Block;110;DECLARE
+  l_id         NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+  l_estado_id  NUMBER;
+  l_usuario_id NUMBER;
+BEGIN
+  SELECT id_usuario INTO l_usuario_id
+    FROM crm_usuario
+   WHERE UPPER(email) = UPPER(v('APP_USER')) AND activo = 1;
+
+  SELECT id_estado_lead INTO l_estado_id
+    FROM crm_estado_lead
+   WHERE UPPER(nombre) = UPPER(APEX_APPLICATION.G_X02);
+
+  INSERT INTO crm_historial_estado_lead (
+    id_historial_lead, id_lead,
+    id_estado_anterior, id_estado_nuevo,
+    fecha_cambio, id_usuario
+  )
+  SELECT crm_hist_lead_seq.NEXTVAL,
+         l_id,
+         id_estado_lead,
+         l_estado_id,
+         SYSDATE,
+         l_usuario_id
+    FROM crm_lead WHERE id_lead = l_id;
+
+  UPDATE crm_lead
+     SET id_estado_lead      = l_estado_id,
+         fecha_actualizacion = SYSDATE
+   WHERE id_lead = l_id;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('success', SQL%ROWCOUNT > 0);
+  APEX_JSON.CLOSE_OBJECT;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    APEX_JSON.OPEN_OBJECT;
+    APEX_JSON.WRITE('success', FALSE);
+    APEX_JSON.WRITE('error',   SQLERRM);
+    APEX_JSON.CLOSE_OBJECT;
+END;
+/
+12;LEADS_CONVERTIR;On Demand;PL/SQL Anonymous Block;120;DECLARE
+  l_lead_id    NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+  l_opp_id     NUMBER;
+  l_usuario_id NUMBER;
+  l_estado_id  NUMBER;
+  l_empresa_id NUMBER;
+BEGIN
+  SELECT id_usuario INTO l_usuario_id
+    FROM crm_usuario
+   WHERE UPPER(email) = UPPER(v('APP_USER')) AND activo = 1;
+
+  SELECT id_estado INTO l_estado_id
+    FROM (SELECT id_estado FROM crm_estado_oportunidad WHERE tipo = 'ABIERTO' ORDER BY orden ASC)
+   WHERE ROWNUM = 1;
+
+  SELECT id_empresa INTO l_empresa_id
+    FROM crm_empresa
+   WHERE nombre = (SELECT nombre_empresa FROM crm_lead WHERE id_lead = l_lead_id)
+     AND ROWNUM = 1;
+
+  INSERT INTO crm_oportunidad (
+    id_oportunidad, titulo, id_estado_oportunidad,
+    valor_estimado, fecha_cierre_estimada,
+    fecha_creacion, fecha_actualizacion,
+    id_empresa, id_usuario, id_lead_origen
+  ) VALUES (
+    crm_oportunidad_seq.NEXTVAL,
+    APEX_APPLICATION.G_X02,
+    l_estado_id,
+    TO_NUMBER(NULLIF(REPLACE(APEX_APPLICATION.G_X03, ',', '.'), '')),
+    TO_DATE(NULLIF(APEX_APPLICATION.G_X04, ''), 'YYYY-MM-DD'),
+    SYSDATE, SYSDATE,
+    l_empresa_id,
+    l_usuario_id,
+    l_lead_id
+  ) RETURNING id_oportunidad INTO l_opp_id;
+
+  UPDATE crm_lead
+     SET id_oportunidad_generada = l_opp_id,
+         fecha_actualizacion     = SYSDATE
+   WHERE id_lead = l_lead_id;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('id_oportunidad', l_opp_id);
+  APEX_JSON.WRITE('success',        TRUE);
+  APEX_JSON.CLOSE_OBJECT;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    APEX_JSON.OPEN_OBJECT;
+    APEX_JSON.WRITE('success', FALSE);
+    APEX_JSON.WRITE('error',   SQLERRM);
+    APEX_JSON.CLOSE_OBJECT;
+END;
+/
+13;OPORTUNIDADES_LIST;On Demand;PL/SQL Anonymous Block;130;DECLARE
+  l_cur        SYS_REFCURSOR;
+  l_usuario_id NUMBER;
+BEGIN
+  SELECT id_usuario INTO l_usuario_id
+    FROM crm_usuario
+   WHERE UPPER(email) = UPPER(v('APP_USER')) AND activo = 1;
+
+  OPEN l_cur FOR
+    SELECT o.id_oportunidad               AS id,
+           o.titulo,
+           o.descripcion,
+           o.valor_estimado,
+           o.valor_final,
+           o.probabilidad_cierre,
+           o.fecha_cierre_estimada,
+           o.fecha_creacion,
+           o.fecha_actualizacion,
+           eo.id_estado                   AS estado_id,
+           eo.nombre                      AS estado,
+           eo.tipo                        AS estado_tipo,
+           eo.orden                       AS estado_orden,
+           eo.color_hex                   AS estado_color,
+           tp.nombre                      AS tipo,
+           s.nombre                       AS sector,
+           e.nombre                       AS empresa,
+           e.id_empresa                   AS empresa_id
+      FROM crm_oportunidad o
+      JOIN crm_estado_oportunidad eo ON eo.id_estado      = o.id_estado_oportunidad
+      LEFT JOIN crm_tipo_oportunidad tp ON tp.id_tipo_oportunidad = o.id_tipo_oportunidad
+      LEFT JOIN crm_sector s            ON s.id_sector    = o.id_sector
+      LEFT JOIN crm_empresa e           ON e.id_empresa   = o.id_empresa
+     WHERE o.id_usuario = l_usuario_id
+     ORDER BY eo.orden, o.fecha_actualizacion DESC;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+14;OPORTUNIDADES_LIST_TODAS;On Demand;PL/SQL Anonymous Block;140;DECLARE
+  l_cur SYS_REFCURSOR;
+BEGIN
+  OPEN l_cur FOR
+    SELECT o.id_oportunidad               AS id,
+           o.titulo,
+           o.valor_estimado,
+           o.probabilidad_cierre,
+           o.fecha_cierre_estimada,
+           o.fecha_actualizacion,
+           eo.nombre                      AS estado,
+           eo.tipo                        AS estado_tipo,
+           eo.orden                       AS estado_orden,
+           tp.nombre                      AS tipo,
+           s.nombre                       AS sector,
+           e.nombre                       AS empresa,
+           u.nombre                       AS ejecutivo,
+           u.id_usuario                   AS ejecutivo_id
+      FROM crm_oportunidad o
+      JOIN crm_estado_oportunidad eo ON eo.id_estado         = o.id_estado_oportunidad
+      LEFT JOIN crm_tipo_oportunidad tp ON tp.id_tipo_oportunidad = o.id_tipo_oportunidad
+      LEFT JOIN crm_sector s            ON s.id_sector        = o.id_sector
+      LEFT JOIN crm_empresa e           ON e.id_empresa       = o.id_empresa
+      JOIN crm_usuario u                ON u.id_usuario       = o.id_usuario
+     ORDER BY eo.orden, o.valor_estimado DESC;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+15;OPORTUNIDADES_GET;On Demand;PL/SQL Anonymous Block;150;DECLARE
+  l_cur SYS_REFCURSOR;
+  l_id  NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+BEGIN
+  OPEN l_cur FOR
+    SELECT o.id_oportunidad               AS id,
+           o.titulo,
+           o.descripcion,
+           o.valor_estimado,
+           o.valor_final,
+           o.probabilidad_cierre,
+           o.fecha_cierre_estimada,
+           o.fecha_creacion,
+           o.fecha_actualizacion,
+           o.descripcion_cierre,
+           eo.id_estado                   AS estado_id,
+           eo.nombre                      AS estado,
+           eo.tipo                        AS estado_tipo,
+           eo.orden                       AS estado_orden,
+           tp.id_tipo_oportunidad         AS tipo_id,
+           tp.nombre                      AS tipo,
+           s.id_sector                    AS sector_id,
+           s.nombre                       AS sector,
+           e.id_empresa                   AS empresa_id,
+           e.nombre                       AS empresa,
+           u.nombre                       AS ejecutivo,
+           mc.nombre                      AS motivo_cierre
+      FROM crm_oportunidad o
+      JOIN crm_estado_oportunidad eo ON eo.id_estado         = o.id_estado_oportunidad
+      LEFT JOIN crm_tipo_oportunidad tp ON tp.id_tipo_oportunidad = o.id_tipo_oportunidad
+      LEFT JOIN crm_sector s            ON s.id_sector        = o.id_sector
+      LEFT JOIN crm_empresa e           ON e.id_empresa       = o.id_empresa
+      JOIN crm_usuario u                ON u.id_usuario       = o.id_usuario
+      LEFT JOIN crm_motivo_cierre mc    ON mc.id_motivo_cierre = o.id_motivo_cierre
+     WHERE o.id_oportunidad = l_id;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+16;OPORTUNIDADES_ACTIVIDADES;On Demand;PL/SQL Anonymous Block;160;DECLARE
+  l_cur SYS_REFCURSOR;
+  l_id  NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+BEGIN
+  OPEN l_cur FOR
+    SELECT a.id_actividad  AS id,
+           a.tipo,
+           a.asunto,
+           a.descripcion,
+           a.resultado,
+           a.virtual,
+           a.fecha_actividad,
+           a.fecha_creacion,
+           u.nombre        AS ejecutivo,
+           ub.latitud,
+           ub.longitud
+      FROM crm_actividad a
+      JOIN crm_usuario u      ON u.id_usuario  = a.id_usuario
+      LEFT JOIN crm_ubicacion ub ON ub.id_actividad = a.id_actividad
+     WHERE a.id_oportunidad = l_id
+     ORDER BY a.fecha_actividad DESC;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+17;OPORTUNIDADES_CREATE;On Demand;PL/SQL Anonymous Block;170;DECLARE
+  l_id          NUMBER;
+  l_usuario_id  NUMBER;
+  l_estado_id   NUMBER;
+BEGIN
+  SELECT id_usuario INTO l_usuario_id
+    FROM crm_usuario
+   WHERE UPPER(email) = UPPER(v('APP_USER')) AND activo = 1;
+
+  SELECT id_estado INTO l_estado_id
+    FROM (SELECT id_estado FROM crm_estado_oportunidad WHERE tipo = 'ABIERTO' ORDER BY orden ASC)
+   WHERE ROWNUM = 1;
+
+  INSERT INTO crm_oportunidad (
+    id_oportunidad, titulo, descripcion,
+    id_tipo_oportunidad, id_estado_oportunidad,
+    valor_estimado, fecha_cierre_estimada,
+    fecha_creacion, fecha_actualizacion,
+    id_empresa, id_usuario
+  ) VALUES (
+    crm_oportunidad_seq.NEXTVAL,
+    APEX_APPLICATION.G_X01,
+    APEX_APPLICATION.G_X02,
+    TO_NUMBER(NULLIF(APEX_APPLICATION.G_X03, '')),
+    l_estado_id,
+    TO_NUMBER(NULLIF(REPLACE(APEX_APPLICATION.G_X04, ',', '.'), '')),
+    TO_DATE(NULLIF(APEX_APPLICATION.G_X05, ''), 'YYYY-MM-DD'),
+    SYSDATE, SYSDATE,
+    TO_NUMBER(NULLIF(APEX_APPLICATION.G_X06, '')),
+    l_usuario_id
+  ) RETURNING id_oportunidad INTO l_id;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('id',      l_id);
+  APEX_JSON.WRITE('success', TRUE);
+  APEX_JSON.CLOSE_OBJECT;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    APEX_JSON.OPEN_OBJECT;
+    APEX_JSON.WRITE('success', FALSE);
+    APEX_JSON.WRITE('error',   SQLERRM);
+    APEX_JSON.CLOSE_OBJECT;
+END;
+/
+18;OPORTUNIDADES_UPDATE;On Demand;PL/SQL Anonymous Block;180;DECLARE
+  l_id NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+BEGIN
+  UPDATE crm_oportunidad
+     SET titulo               = APEX_APPLICATION.G_X02,
+         descripcion          = APEX_APPLICATION.G_X03,
+         id_tipo_oportunidad  = TO_NUMBER(NULLIF(APEX_APPLICATION.G_X04, '')),
+         id_estado_oportunidad= TO_NUMBER(NULLIF(APEX_APPLICATION.G_X05, '')),
+         valor_estimado       = TO_NUMBER(NULLIF(REPLACE(APEX_APPLICATION.G_X06, ',', '.'), '')),
+         fecha_cierre_estimada= TO_DATE(NULLIF(APEX_APPLICATION.G_X07, ''), 'YYYY-MM-DD'),
+         id_empresa           = TO_NUMBER(NULLIF(APEX_APPLICATION.G_X08, '')),
+         fecha_actualizacion  = SYSDATE
+   WHERE id_oportunidad = l_id;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('success', SQL%ROWCOUNT > 0);
+  APEX_JSON.CLOSE_OBJECT;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    APEX_JSON.OPEN_OBJECT;
+    APEX_JSON.WRITE('success', FALSE);
+    APEX_JSON.WRITE('error',   SQLERRM);
+    APEX_JSON.CLOSE_OBJECT;
+END;
+/
+19;OPORTUNIDADES_AVANZAR;On Demand;PL/SQL Anonymous Block;190;DECLARE
+  l_id         NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+  l_estado_id  NUMBER;
+  l_usuario_id NUMBER;
+BEGIN
+  SELECT id_usuario INTO l_usuario_id
+    FROM crm_usuario
+   WHERE UPPER(email) = UPPER(v('APP_USER')) AND activo = 1;
+
+  SELECT id_estado INTO l_estado_id
+    FROM crm_estado_oportunidad
+   WHERE UPPER(nombre) = UPPER(APEX_APPLICATION.G_X02);
+
+  INSERT INTO crm_historial_estado (
+    id_historial, id_oportunidad,
+    id_estado_anterior, id_estado_nuevo,
+    fecha_cambio, id_usuario
+  )
+  SELECT crm_hist_opp_seq.NEXTVAL,
+         l_id,
+         id_estado_oportunidad,
+         l_estado_id,
+         SYSDATE,
+         l_usuario_id
+    FROM crm_oportunidad WHERE id_oportunidad = l_id;
+
+  UPDATE crm_oportunidad
+     SET id_estado_oportunidad = l_estado_id,
+         fecha_actualizacion   = SYSDATE
+   WHERE id_oportunidad = l_id;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('success', SQL%ROWCOUNT > 0);
+  APEX_JSON.CLOSE_OBJECT;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    APEX_JSON.OPEN_OBJECT;
+    APEX_JSON.WRITE('success', FALSE);
+    APEX_JSON.WRITE('error',   SQLERRM);
+    APEX_JSON.CLOSE_OBJECT;
+END;
+/
+20;OPORTUNIDADES_CERRAR;On Demand;PL/SQL Anonymous Block;200;DECLARE
+  l_id         NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
+  l_estado_id  NUMBER;
+  l_usuario_id NUMBER;
+BEGIN
+  SELECT id_usuario INTO l_usuario_id
+    FROM crm_usuario
+   WHERE UPPER(email) = UPPER(v('APP_USER')) AND activo = 1;
+
+  SELECT id_estado INTO l_estado_id
+    FROM crm_estado_oportunidad
+   WHERE UPPER(nombre) = UPPER(APEX_APPLICATION.G_X02);
+
+  INSERT INTO crm_historial_estado (
+    id_historial, id_oportunidad,
+    id_estado_anterior, id_estado_nuevo,
+    fecha_cambio, id_usuario
+  )
+  SELECT crm_hist_opp_seq.NEXTVAL, l_id,
+         id_estado_oportunidad, l_estado_id,
+         SYSDATE, l_usuario_id
+    FROM crm_oportunidad WHERE id_oportunidad = l_id;
+
+  UPDATE crm_oportunidad
+     SET id_estado_oportunidad = l_estado_id,
+         fecha_cierre_estimada = TO_DATE(NULLIF(APEX_APPLICATION.G_X03,''), 'YYYY-MM-DD'),
+         id_motivo_cierre      = TO_NUMBER(NULLIF(APEX_APPLICATION.G_X04, '')),
+         fecha_actualizacion   = SYSDATE
+   WHERE id_oportunidad = l_id;
+
+  UPDATE crm_empresa
+     SET nuevo = 0
+   WHERE id_empresa = (SELECT id_empresa FROM crm_oportunidad WHERE id_oportunidad = l_id)
+     AND UPPER(APEX_APPLICATION.G_X02) = 'GANADA';
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('success', TRUE);
+  APEX_JSON.CLOSE_OBJECT;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    APEX_JSON.OPEN_OBJECT;
+    APEX_JSON.WRITE('success', FALSE);
+    APEX_JSON.WRITE('error',   SQLERRM);
+    APEX_JSON.CLOSE_OBJECT;
+END;
+/
+21;OPORTUNIDADES_ESTANCADAS;On Demand;PL/SQL Anonymous Block;210;DECLARE
+  l_cur  SYS_REFCURSOR;
+  l_dias NUMBER := NVL(TO_NUMBER(NULLIF(APEX_APPLICATION.G_X01,'')), 7);
+BEGIN
+  OPEN l_cur FOR
+    SELECT 'OPP'                               AS tipo,
+           o.id_oportunidad                    AS id,
+           o.titulo,
+           e.nombre                            AS empresa,
+           eo.nombre                           AS estado,
+           u.nombre                            AS ejecutivo,
+           o.valor_estimado                    AS valor,
+           TRUNC(SYSDATE - NVL(
+             (SELECT MAX(a.fecha_actividad)
+                FROM crm_actividad a
+               WHERE a.id_oportunidad = o.id_oportunidad), o.fecha_creacion)) AS dias,
+           l_dias                              AS umbral
+      FROM crm_oportunidad o
+      JOIN crm_estado_oportunidad eo ON eo.id_estado   = o.id_estado_oportunidad
+      JOIN crm_usuario u             ON u.id_usuario   = o.id_usuario
+      LEFT JOIN crm_empresa e        ON e.id_empresa   = o.id_empresa
+     WHERE eo.tipo = 'ABIERTO'
+       AND TRUNC(SYSDATE - NVL(
+             (SELECT MAX(a.fecha_actividad)
+                FROM crm_actividad a
+               WHERE a.id_oportunidad = o.id_oportunidad), o.fecha_creacion)) >= l_dias
+    UNION ALL
+    SELECT 'LEAD'                              AS tipo,
+           l.id_lead                           AS id,
+           l.titulo,
+           l.nombre_empresa                   AS empresa,
+           el.nombre                           AS estado,
+           u.nombre                            AS ejecutivo,
+           NULL                                AS valor,
+           TRUNC(SYSDATE - NVL(
+             (SELECT MAX(a.fecha_actividad)
+                FROM crm_actividad a
+               WHERE a.id_lead = l.id_lead), l.fecha_creacion)) AS dias,
+           l_dias                              AS umbral
+      FROM crm_lead l
+      JOIN crm_estado_lead el ON el.id_estado_lead = l.id_estado_lead
+      JOIN crm_usuario u      ON u.id_usuario      = l.id_usuario
+     WHERE el.tipo = 'ABIERTO'
+       AND l.id_oportunidad_generada IS NULL
+       AND TRUNC(SYSDATE - NVL(
+             (SELECT MAX(a.fecha_actividad)
+                FROM crm_actividad a
+               WHERE a.id_lead = l.id_lead), l.fecha_creacion)) >= l_dias
+     ORDER BY dias DESC;
+
+  APEX_JSON.OPEN_OBJECT;
+  APEX_JSON.WRITE('data', l_cur);
+  APEX_JSON.CLOSE_OBJECT;
+END;
+/
+22;ACTIVIDADES_LIST_MIS;On Demand;PL/SQL Anonymous Block;220;DECLARE
   l_cur        SYS_REFCURSOR;
   l_usuario_id NUMBER;
   l_inicio     DATE := TO_DATE(NULLIF(APEX_APPLICATION.G_X01,''), 'YYYY-MM-DD');
@@ -50,14 +817,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 23. ACTIVIDADES_LIST_TODAS  (x01=inicio?, x02=fin?)
---     Director/coordinador: todas las actividades del equipo.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ACTIVIDADES_LIST_TODAS
-DECLARE
+23;ACTIVIDADES_LIST_TODAS;On Demand;PL/SQL Anonymous Block;230;DECLARE
   l_cur    SYS_REFCURSOR;
   l_inicio DATE := TO_DATE(NULLIF(APEX_APPLICATION.G_X01,''), 'YYYY-MM-DD');
   l_fin    DATE := TO_DATE(NULLIF(APEX_APPLICATION.G_X02,''), 'YYYY-MM-DD');
@@ -89,13 +849,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 24. ACTIVIDADES_GET  (x01 = id_actividad)
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ACTIVIDADES_GET
-DECLARE
+24;ACTIVIDADES_GET;On Demand;PL/SQL Anonymous Block;240;DECLARE
   l_cur SYS_REFCURSOR;
   l_id  NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
 BEGIN
@@ -126,15 +880,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 25. ACTIVIDADES_CREATE
---     x01=tipo, x02=asunto, x03=virtual(1/0), x04=fecha_actividad(YYYY-MM-DD),
---     x05=oportunidad_id, x06=lead_id (opcional)
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ACTIVIDADES_CREATE
-DECLARE
+25;ACTIVIDADES_CREATE;On Demand;PL/SQL Anonymous Block;250;DECLARE
   l_id         NUMBER;
   l_usuario_id NUMBER;
 BEGIN
@@ -172,15 +918,7 @@ EXCEPTION
     APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 26. ACTIVIDADES_UPDATE
---     x01=id, x02=tipo, x03=asunto, x04=virtual(1/0),
---     x05=fecha_actividad (YYYY-MM-DD), x06=oportunidad_id
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ACTIVIDADES_UPDATE
-DECLARE
+26;ACTIVIDADES_UPDATE;On Demand;PL/SQL Anonymous Block;260;DECLARE
   l_id NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
 BEGIN
   UPDATE crm_actividad
@@ -203,15 +941,7 @@ EXCEPTION
     APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 27. ACTIVIDADES_CERRAR
---     x01=id_actividad, x02=resultado, x03=latitud, x04=longitud
---     Guarda resultado y ubicación GPS del cierre.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ACTIVIDADES_CERRAR
-DECLARE
+27;ACTIVIDADES_CERRAR;On Demand;PL/SQL Anonymous Block;270;DECLARE
   l_id   NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
   l_lat  NUMBER;
   l_lon  NUMBER;
@@ -248,13 +978,7 @@ EXCEPTION
     APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 28. PROYECTOS_LIST  — del ejecutivo de sesión
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: PROYECTOS_LIST
-DECLARE
+28;PROYECTOS_LIST;On Demand;PL/SQL Anonymous Block;280;DECLARE
   l_cur        SYS_REFCURSOR;
   l_usuario_id NUMBER;
 BEGIN
@@ -285,13 +1009,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 29. PROYECTOS_LIST_TODOS  — director, todos los proyectos
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: PROYECTOS_LIST_TODOS
-DECLARE
+29;PROYECTOS_LIST_TODOS;On Demand;PL/SQL Anonymous Block;290;DECLARE
   l_cur SYS_REFCURSOR;
 BEGIN
   OPEN l_cur FOR
@@ -315,13 +1033,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 30. PROYECTOS_GET  (x01 = id_proyecto)
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: PROYECTOS_GET
-DECLARE
+30;PROYECTOS_GET;On Demand;PL/SQL Anonymous Block;300;DECLARE
   l_cur SYS_REFCURSOR;
   l_id  NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
 BEGIN
@@ -356,14 +1068,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 31. PROYECTOS_CREATE
---     x01=nombre, x02=descripcion, x03=oportunidad_id
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: PROYECTOS_CREATE
-DECLARE
+31;PROYECTOS_CREATE;On Demand;PL/SQL Anonymous Block;310;DECLARE
   l_id         NUMBER;
   l_usuario_id NUMBER;
 BEGIN
@@ -399,14 +1104,7 @@ EXCEPTION
     APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 32. PROYECTOS_UPDATE
---     x01=id, x02=nombre, x03=descripcion, x04=estado, x05=oportunidad_id
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: PROYECTOS_UPDATE
-DECLARE
+32;PROYECTOS_UPDATE;On Demand;PL/SQL Anonymous Block;320;DECLARE
   l_id NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
 BEGIN
   UPDATE crm_proyecto
@@ -429,13 +1127,7 @@ EXCEPTION
     APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 33. PROYECTOS_ESTADO  (x01=id_proyecto, x02=estado_nuevo)
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: PROYECTOS_ESTADO
-DECLARE
+33;PROYECTOS_ESTADO;On Demand;PL/SQL Anonymous Block;330;DECLARE
   l_id NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
 BEGIN
   UPDATE crm_proyecto
@@ -455,13 +1147,7 @@ EXCEPTION
     APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 34. USUARIOS_LIST
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: USUARIOS_LIST
-DECLARE
+34;USUARIOS_LIST;On Demand;PL/SQL Anonymous Block;340;DECLARE
   l_cur SYS_REFCURSOR;
 BEGIN
   OPEN l_cur FOR
@@ -482,13 +1168,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 35. USUARIOS_GET  (x01 = id_usuario)
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: USUARIOS_GET
-DECLARE
+35;USUARIOS_GET;On Demand;PL/SQL Anonymous Block;350;DECLARE
   l_cur SYS_REFCURSOR;
   l_id  NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
 BEGIN
@@ -511,16 +1191,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 36. USUARIOS_CREATE
---     x01=nombre, x02=email, x03=rol, x04=departamento_id
---     Nota: el password inicial se gestiona fuera de este proceso
---     (APEX crea el usuario de workspace por separado).
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: USUARIOS_CREATE
-DECLARE
+36;USUARIOS_CREATE;On Demand;PL/SQL Anonymous Block;360;DECLARE
   l_id NUMBER;
 BEGIN
   INSERT INTO crm_usuario (
@@ -534,7 +1205,7 @@ BEGIN
     UPPER(APEX_APPLICATION.G_X03),
     1, SYSDATE,
     TO_NUMBER(NULLIF(APEX_APPLICATION.G_X04,'')),
-    'APEX_MANAGED'   -- marcador: auth manejada por APEX workspace
+    'APEX_MANAGED'
   ) RETURNING id_usuario INTO l_id;
 
   APEX_JSON.OPEN_OBJECT;
@@ -551,14 +1222,7 @@ EXCEPTION
     APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 37. USUARIOS_UPDATE
---     x01=id, x02=nombre, x03=email, x04=rol, x05=departamento_id
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: USUARIOS_UPDATE
-DECLARE
+37;USUARIOS_UPDATE;On Demand;PL/SQL Anonymous Block;370;DECLARE
   l_id NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
 BEGIN
   UPDATE crm_usuario
@@ -580,13 +1244,7 @@ EXCEPTION
     APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 38. USUARIOS_ESTADO  (x01=id, x02=activo 1/0)
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: USUARIOS_ESTADO
-DECLARE
+38;USUARIOS_ESTADO;On Demand;PL/SQL Anonymous Block;380;DECLARE
   l_id NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
 BEGIN
   UPDATE crm_usuario
@@ -605,15 +1263,7 @@ EXCEPTION
     APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 39. DASHBOARD_EJECUTIVO FALTA
---     KPIs del ejecutivo logueado: ventas, oportunidades activas, leads,
---     actividades semana, metas del mes.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: DASHBOARD_EJECUTIVO
-DECLARE
+39;DASHBOARD_EJECUTIVO;On Demand;PL/SQL Anonymous Block;390;DECLARE
   l_cur        SYS_REFCURSOR;
   l_usuario_id NUMBER;
   l_mes        NUMBER := EXTRACT(MONTH FROM SYSDATE);
@@ -625,7 +1275,6 @@ BEGIN
 
   OPEN l_cur FOR
     SELECT
-      -- Ventas del mes (oportunidades ganadas)
       (SELECT NVL(SUM(o.valor_estimado), 0)
          FROM crm_oportunidad o
          JOIN crm_estado_oportunidad eo ON eo.id_estado = o.id_estado_oportunidad
@@ -634,24 +1283,20 @@ BEGIN
           AND EXTRACT(MONTH FROM o.fecha_actualizacion) = l_mes
           AND EXTRACT(YEAR  FROM o.fecha_actualizacion) = l_anio
       ) AS ventas_mes,
-      -- Oportunidades activas
       (SELECT COUNT(*) FROM crm_oportunidad o
          JOIN crm_estado_oportunidad eo ON eo.id_estado = o.id_estado_oportunidad
         WHERE o.id_usuario = l_usuario_id AND eo.tipo = 'ABIERTO'
       ) AS oportunidades_activas,
-      -- Leads activos
       (SELECT COUNT(*) FROM crm_lead l
          JOIN crm_estado_lead el ON el.id_estado_lead = l.id_estado_lead
         WHERE l.id_usuario = l_usuario_id AND el.tipo = 'ABIERTO'
           AND l.id_oportunidad_generada IS NULL
       ) AS leads_activos,
-      -- Actividades esta semana
       (SELECT COUNT(*) FROM crm_actividad a
         WHERE a.id_usuario    = l_usuario_id
           AND a.fecha_actividad >= TRUNC(SYSDATE, 'IW')
           AND a.fecha_actividad <  TRUNC(SYSDATE, 'IW') + 7
       ) AS actividades_semana,
-      -- Meta ventas mes (pct cumplimiento)
       (SELECT NVL(MAX(cm.pct_cumplimiento), 0)
          FROM crm_cumplimiento_meta cm
          JOIN crm_meta mt ON mt.id_meta = cm.id_meta
@@ -659,7 +1304,6 @@ BEGIN
           AND mt.metrica = 'VENTAS_MES'
           AND cm.mes = l_mes AND cm.anio = l_anio
       ) AS meta_ventas_pct,
-      -- Clientes nuevos mes
       (SELECT COUNT(DISTINCT o.id_empresa)
          FROM crm_oportunidad o
          JOIN crm_estado_oportunidad eo ON eo.id_estado = o.id_estado_oportunidad
@@ -677,14 +1321,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 40. DASHBOARD_COORDINADOR  FALTA
---     KPIs de supervisión: resumen del equipo bajo coordinación.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: DASHBOARD_COORDINADOR
-DECLARE
+40;DASHBOARD_COORDINADOR;On Demand;PL/SQL Anonymous Block;400;DECLARE
   l_cur SYS_REFCURSOR;
   l_mes  NUMBER := EXTRACT(MONTH FROM SYSDATE);
   l_anio NUMBER := EXTRACT(YEAR  FROM SYSDATE);
@@ -723,14 +1360,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 41. METAS_MIS_METAS  (x01=mes?, x02=anio?)
---     Metas del ejecutivo con su cumplimiento del período.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: METAS_MIS_METAS
-DECLARE
+41;METAS_MIS_METAS;On Demand;PL/SQL Anonymous Block;410;DECLARE
   l_cur        SYS_REFCURSOR;
   l_usuario_id NUMBER;
   l_mes        NUMBER := NVL(TO_NUMBER(NULLIF(APEX_APPLICATION.G_X01,'')), EXTRACT(MONTH FROM SYSDATE));
@@ -766,14 +1396,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 42. METAS_CUMPLIMIENTO  (x01=mes?, x02=anio?)
---     Resumen de cumplimiento por ejecutivo para el coordinador.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: METAS_CUMPLIMIENTO
-DECLARE
+42;METAS_CUMPLIMIENTO;On Demand;PL/SQL Anonymous Block;420;DECLARE
   l_cur  SYS_REFCURSOR;
   l_mes  NUMBER := NVL(TO_NUMBER(NULLIF(APEX_APPLICATION.G_X01,'')), EXTRACT(MONTH FROM SYSDATE));
   l_anio NUMBER := NVL(TO_NUMBER(NULLIF(APEX_APPLICATION.G_X02,'')), EXTRACT(YEAR  FROM SYSDATE));
@@ -798,14 +1421,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 43. ALERTAS_LIST
---     Notificaciones no leídas del usuario de sesión (+ críticas del sistema).
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ALERTAS_LIST
-DECLARE
+43;ALERTAS_LIST;On Demand;PL/SQL Anonymous Block;430;DECLARE
   l_cur        SYS_REFCURSOR;
   l_usuario_id NUMBER;
 BEGIN
@@ -834,13 +1450,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 44. ALERTAS_LOG  (x01=inicio YYYY-MM-DD, x02=fin YYYY-MM-DD)
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ALERTAS_LOG
-DECLARE
+44;ALERTAS_LOG;On Demand;PL/SQL Anonymous Block;440;DECLARE
   l_cur        SYS_REFCURSOR;
   l_usuario_id NUMBER;
   l_inicio     DATE := TO_DATE(NULLIF(APEX_APPLICATION.G_X01,''), 'YYYY-MM-DD');
@@ -872,13 +1482,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 45. ALERTAS_MARCAR_LEIDA  (x01 = id_notificacion)
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ALERTAS_MARCAR_LEIDA
-DECLARE
+45;ALERTAS_MARCAR_LEIDA;On Demand;PL/SQL Anonymous Block;450;DECLARE
   l_id NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
 BEGIN
   UPDATE crm_notificacion
@@ -898,14 +1502,7 @@ EXCEPTION
     APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 46. EQUIPO_LIST
---     Lista ejecutivos con métricas resumidas del mes actual.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: EQUIPO_LIST
-DECLARE
+46;EQUIPO_LIST;On Demand;PL/SQL Anonymous Block;460;DECLARE
   l_cur  SYS_REFCURSOR;
   l_mes  NUMBER := EXTRACT(MONTH FROM SYSDATE);
   l_anio NUMBER := EXTRACT(YEAR  FROM SYSDATE);
@@ -946,14 +1543,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 47. EQUIPO_GET_EJECUTIVO  (x01 = id_usuario)
---     Perfil completo del ejecutivo con últimas oportunidades y actividades.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: EQUIPO_GET_EJECUTIVO
-DECLARE
+47;EQUIPO_GET_EJECUTIVO;On Demand;PL/SQL Anonymous Block;470;DECLARE
   l_cur SYS_REFCURSOR;
   l_id  NUMBER := TO_NUMBER(APEX_APPLICATION.G_X01);
   l_mes  NUMBER := EXTRACT(MONTH FROM SYSDATE);
@@ -996,14 +1586,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 48. MONITOREO_EJECUTIVOS
---     Estado de cada ejecutivo: cumplimiento, alertas, actividad reciente.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: MONITOREO_EJECUTIVOS
-DECLARE
+48;MONITOREO_EJECUTIVOS;On Demand;PL/SQL Anonymous Block;480;DECLARE
   l_cur  SYS_REFCURSOR;
   l_mes  NUMBER := EXTRACT(MONTH FROM SYSDATE);
   l_anio NUMBER := EXTRACT(YEAR  FROM SYSDATE);
@@ -1038,7 +1621,6 @@ BEGIN
              WHERE a.id_usuario = u.id_usuario
                AND a.fecha_actividad >= TRUNC(SYSDATE) - 30
            ) AS act,
-           -- Oportunidades estancadas (>7 días sin actividad)
            (SELECT COUNT(*)
               FROM crm_oportunidad o
               JOIN crm_estado_oportunidad eo ON eo.id_estado = o.id_estado_oportunidad
@@ -1047,13 +1629,11 @@ BEGIN
                                 WHERE a.id_oportunidad = o.id_oportunidad
                                   AND a.fecha_actividad >= TRUNC(SYSDATE) - 7)
            ) AS estancados,
-           -- Días sin actividad de campo
            TRUNC(SYSDATE - NVL(
              (SELECT MAX(a.fecha_actividad)
                 FROM crm_actividad a
                WHERE a.id_usuario = u.id_usuario AND a.virtual = 0), SYSDATE - 99)
            ) AS sin_actividad,
-           -- Estado semáforo
            CASE
              WHEN NVL((SELECT ROUND(AVG(cm.pct_cumplimiento))
                          FROM crm_cumplimiento_meta cm
@@ -1075,14 +1655,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 49. MONITOREO_ACTIVIDADES_MAPA  (x01 = fecha YYYY-MM-DD, default HOY)
---     Actividades del día con coordenadas GPS para el mapa Leaflet.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: MONITOREO_ACTIVIDADES_MAPA
-DECLARE
+49;MONITOREO_ACTIVIDADES_MAPA;On Demand;PL/SQL Anonymous Block;490;DECLARE
   l_cur   SYS_REFCURSOR;
   l_fecha DATE := NVL(TO_DATE(NULLIF(APEX_APPLICATION.G_X01,''), 'YYYY-MM-DD'), TRUNC(SYSDATE));
 BEGIN
@@ -1110,7 +1683,7 @@ BEGIN
       LEFT JOIN crm_municipio m  ON m.id_municipio   = e.id_municipio
       LEFT JOIN crm_ubicacion ub ON ub.id_actividad  = a.id_actividad
      WHERE TRUNC(a.fecha_actividad) = l_fecha
-       AND a.virtual = 0               -- solo presenciales tienen GPS relevante
+       AND a.virtual = 0
      ORDER BY a.fecha_actividad;
 
   APEX_JSON.OPEN_OBJECT;
@@ -1118,14 +1691,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 50. ANALISIS_SECTORES  (x01 = periodo YYYY-MM, default mes actual)
---     Ingresos, pipeline y conversión por sector.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ANALISIS_SECTORES
-DECLARE
+50;ANALISIS_SECTORES;On Demand;PL/SQL Anonymous Block;500;DECLARE
   l_cur   SYS_REFCURSOR;
   l_mes   NUMBER;
   l_anio  NUMBER;
@@ -1143,7 +1709,7 @@ BEGIN
            NVL(SUM(CASE WHEN eo.tipo = 'GANADO'
                         AND EXTRACT(MONTH FROM o.fecha_actualizacion) = l_mes
                         AND EXTRACT(YEAR  FROM o.fecha_actualizacion) = l_anio
-                   THEN o.valor_estimado ELSE 0 END), 0)   AS ventas_mes,
+                   THEN o.valor_estimado ELSE 0 END), 0)    AS ventas_mes,
            COUNT(CASE WHEN eo.tipo = 'GANADO'
                       AND EXTRACT(MONTH FROM o.fecha_actualizacion) = l_mes
                       AND EXTRACT(YEAR  FROM o.fecha_actualizacion) = l_anio
@@ -1167,22 +1733,14 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 51. ANALISIS_FORECAST  (x01 = meses_proyeccion, default 6)
---     Proyección de cierre basada en pipeline actual y tasas históricas.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: ANALISIS_FORECAST
-DECLARE
+51;ANALISIS_FORECAST;On Demand;PL/SQL Anonymous Block;510;DECLARE
   l_cur    SYS_REFCURSOR;
   l_meses  NUMBER := NVL(TO_NUMBER(NULLIF(APEX_APPLICATION.G_X01,'')), 6);
 BEGIN
   OPEN l_cur FOR
     SELECT
       TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE,'MM'), lvl-1), 'YYYY-MM') AS mes,
-      -- Pipeline que cierra en ese mes según fecha_cierre_estimada
-      NVL((SELECT SUM(o.valor_estimado * NVL(o.probabilidad_cierre,50) / 100)
+      NVL((SELECT SUM(o.valor_estimado)
              FROM crm_oportunidad o
              JOIN crm_estado_oportunidad eo ON eo.id_estado = o.id_estado_oportunidad
             WHERE eo.tipo = 'ABIERTO'
@@ -1191,7 +1749,6 @@ BEGIN
               AND EXTRACT(YEAR FROM o.fecha_cierre_estimada)
                   = EXTRACT(YEAR FROM ADD_MONTHS(TRUNC(SYSDATE,'MM'), lvl-1))
           ), 0) AS esperada,
-      -- Optimista: probabilidad_cierre * 1.2
       NVL((SELECT SUM(o.valor_estimado * LEAST(NVL(o.probabilidad_cierre,50)*1.2,100) / 100)
              FROM crm_oportunidad o
              JOIN crm_estado_oportunidad eo ON eo.id_estado = o.id_estado_oportunidad
@@ -1201,7 +1758,6 @@ BEGIN
               AND EXTRACT(YEAR FROM o.fecha_cierre_estimada)
                   = EXTRACT(YEAR FROM ADD_MONTHS(TRUNC(SYSDATE,'MM'), lvl-1))
           ), 0) AS optimista,
-      -- Pesimista: probabilidad_cierre * 0.6
       NVL((SELECT SUM(o.valor_estimado * NVL(o.probabilidad_cierre,50)*0.6 / 100)
              FROM crm_oportunidad o
              JOIN crm_estado_oportunidad eo ON eo.id_estado = o.id_estado_oportunidad
@@ -1211,7 +1767,6 @@ BEGIN
               AND EXTRACT(YEAR FROM o.fecha_cierre_estimada)
                   = EXTRACT(YEAR FROM ADD_MONTHS(TRUNC(SYSDATE,'MM'), lvl-1))
           ), 0) AS pesimista,
-      -- Real del mes (si ya pasó)
       CASE WHEN ADD_MONTHS(TRUNC(SYSDATE,'MM'), lvl-1) <= TRUNC(SYSDATE,'MM') THEN
         NVL((SELECT SUM(o.valor_estimado)
                FROM crm_oportunidad o
@@ -1231,15 +1786,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 52. REPORTES_LIST
---     Lista estática de reportes disponibles (no requiere tabla).
---     Extensible: reemplazar con tabla CRM_REPORTE si se necesita configuración.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: REPORTES_LIST
-DECLARE
+52;REPORTES_LIST;On Demand;PL/SQL Anonymous Block;520;DECLARE
   l_cur SYS_REFCURSOR;
 BEGIN
   OPEN l_cur FOR
@@ -1259,22 +1806,12 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 53. REPORTES_GENERAR  (x01=tipo, x02=inicio YYYY-MM-DD, x03=fin YYYY-MM-DD)
---     Genera los datos del reporte solicitado en el rango de fechas.
---     El frontend renderiza los datos; la descarga PDF es manejada por APEX.
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: REPORTES_GENERAR
-DECLARE
+53;REPORTES_GENERAR;On Demand;PL/SQL Anonymous Block;530;DECLARE
   l_cur    SYS_REFCURSOR;
   l_tipo   VARCHAR2(30) := UPPER(APEX_APPLICATION.G_X01);
   l_inicio DATE := TO_DATE(NULLIF(APEX_APPLICATION.G_X02,''), 'YYYY-MM-DD');
   l_fin    DATE := TO_DATE(NULLIF(APEX_APPLICATION.G_X03,''), 'YYYY-MM-DD');
 BEGIN
-  -- Cada tipo devuelve la consulta apropiada.
-  -- El frontend recibe el array y lo renderiza en tabla/gráfico.
   IF l_tipo = 'PIPELINE' THEN
     OPEN l_cur FOR
       SELECT o.titulo, eo.nombre AS estado, o.valor_estimado,
@@ -1312,7 +1849,6 @@ BEGIN
        ORDER BY l.fecha_creacion DESC;
 
   ELSE
-    -- Tipo no reconocido: devolver vacío con mensaje
     OPEN l_cur FOR SELECT 'tipo_no_soportado' AS error FROM DUAL WHERE 1=0;
   END IF;
 
@@ -1322,15 +1858,7 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 54. CONFIGURACION_GET
---     Variables de sistema: días de alerta, montos mínimos, etc.
---     Consumido por coordinadorAPI.variablesSistema().
--- ─────────────────────────────────────────────────────────────────────────────
--- Process Name: CONFIGURACION_GET
-DECLARE
+54;CONFIGURACION_GET;On Demand;PL/SQL Anonymous Block;540;DECLARE
   l_cur SYS_REFCURSOR;
 BEGIN
   OPEN l_cur FOR
@@ -1346,22 +1874,3 @@ BEGIN
   APEX_JSON.CLOSE_OBJECT;
 END;
 /
-
-
--- =============================================================================
--- FIN DEL SCRIPT
--- Total: 54 Application Processes (49 del plan + 5 adicionales detectados)
---
--- Procesos adicionales respecto al plan original:
---   ACTIVIDADES_LIST_MIS    (22) — misActividades() del ejecutivo
---   ACTIVIDADES_LIST_TODAS  (23) — actividades() del director
---   MONITOREO_EJECUTIVOS    (48) — MonitoreoPage tabla (≠ GPS)
---   REPORTES_GENERAR        (53) — generar datos del reporte
---   CONFIGURACION_GET       (54) — variablesSistema() coordinador
---
--- Secuencias requeridas (crear antes de ejecutar cualquier proceso CREATE):
---   crm_empresa_seq, crm_contacto_seq, crm_email_seq, crm_telefono_seq,
---   crm_lead_seq, crm_hist_lead_seq, crm_oportunidad_seq, crm_hist_opp_seq,
---   crm_actividad_seq, crm_ubicacion_seq, crm_proyecto_seq,
---   crm_usuario_seq
--- =============================================================================

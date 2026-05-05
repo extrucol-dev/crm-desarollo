@@ -55,6 +55,7 @@ export const callProcess = async (processName, extras = {}) => {
   const text = await res.text()
   try {
     return JSON.parse(text)
+
   } catch {
     throw new Error(`APEX process "${processName}" devolvió no-JSON: ${text.slice(0, 200)}`)
   }

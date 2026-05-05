@@ -11,7 +11,7 @@ const restOps = {
 
 const apexOps = {
   listar: () =>
-    callProcess('CLIENTES_LIST').then(unwrapList),
+    callProcess('CLIENTES_LIST').then(unwrapList).then(clientes => console.log(clientes) || clientes),
   buscar: (id) =>
     callProcess('CLIENTES_GET', { x01: id }).then(unwrapSingle),
   crear: (data) =>

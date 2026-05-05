@@ -16,12 +16,7 @@ const REPORTES_PREDEFINIDOS = [
   { title: 'Origen de leads', desc: 'Eficiencia por canal de captación', icon: 'globe', cat: 'Marketing', catColor: '#24388C' },
 ]
 
-const RECIENTES_MOCK = [
-  { title: 'Pipeline por ejecutivo · Abril 2026', ago: 'Hace 2 horas', size: '2.4 MB' },
-  { title: 'Análisis por sector · Q1 2026', ago: 'Ayer', size: '4.1 MB' },
-  { title: 'Forecasting trimestral · Q2 2026', ago: 'Hace 3 días', size: '1.8 MB' },
-  { title: 'Ventas por período · Marzo 2026', ago: 'Hace 1 semana', size: '3.2 MB' },
-]
+
 
 const ICONS = {
   chartBar: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>,
@@ -81,15 +76,16 @@ export default function ReportesPage() {
   const [filtroCat, setFiltroCat] = useState('Todos')
 
   useEffect(() => {
+    setLoading(true)
     Promise.all([
       reportesAPI.listar(),
       reportesAPI.recientes(),
     ]).then(([lista, rec]) => {
-      setReportes(Array.isArray(lista) && lista.length ? lista : REPORTES_PREDEFINIDOS)
-      setRecientes(Array.isArray(rec) && rec.length ? rec : RECIENTES_MOCK)
+      setReportes(Array.isArray(lista) && lista.length ? lista : [])
+      setRecientes(Array.isArray(rec) && rec.length ? rec : [])
     }).catch(() => {
-      setReportes(REPORTES_PREDEFINIDOS)
-      setRecientes(RECIENTES_MOCK)
+      setReportes([])
+      setRecientes([])
     }).finally(() => setLoading(false))
   }, [])
 

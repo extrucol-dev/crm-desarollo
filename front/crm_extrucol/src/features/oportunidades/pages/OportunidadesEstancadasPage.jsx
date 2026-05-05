@@ -27,14 +27,7 @@ const OPP_ESTADO = {
   negociacion:  { label: 'Negociación',  bg: '#E8F5EE', color: '#1A8754' },
 }
 
-const ESTANCADOS_DEFAULT = [
-  { id: 1, tipo: 'LEAD', titulo: 'HyM Contratistas Sas', empresa: 'HyM Contratistas', ref: 'L-0041', ejecutivo: 'Paola', ejecutivo_idx: 1, estado: 'contactado', dias: 6, umbral: 5, valor: null },
-  { id: 2, tipo: 'LEAD', titulo: 'Hidromecánica S.A.S', empresa: 'Hidromecánica',     ref: 'L-0038', ejecutivo: 'Alvaro', ejecutivo_idx: 2, estado: 'nuevo',      dias: 4, umbral: 5, valor: null },
-  { id: 3, tipo: 'LEAD', titulo: 'GMOS Ingenieros SAS', empresa: 'GMOS Ingenieros',   ref: 'L-0035', ejecutivo: 'Diana',  ejecutivo_idx: 0, estado: 'contactado', dias: 5, umbral: 5, valor: null },
-  { id: 4, tipo: 'OPP',  titulo: 'UT Balsa 3 - Fase II',      empresa: 'UT Balsa 3',      ref: 'C-1391', ejecutivo: 'Alvaro', ejecutivo_idx: 2, estado: 'propuesta',    dias: 14, umbral: 10, valor: 111_000_000 },
-  { id: 5, tipo: 'OPP',  titulo: 'Acueducto Turbaco',         empresa: 'CIVILE Hidráulicos', ref: 'C-1393', ejecutivo: 'Paola',  ejecutivo_idx: 1, estado: 'negociacion',  dias: 9,  umbral: 10, valor: 92_000_000  },
-  { id: 6, tipo: 'OPP',  titulo: 'ADOS Ingeniería - Proceso', empresa: 'ADOS Ingeniería',   ref: 'C-1385', ejecutivo: 'Diana',  ejecutivo_idx: 0, estado: 'propuesta',    dias: 11, umbral: 10, valor: 44_000_000  },
-]
+
 
 function EstadoBadge({ tipo, estado }) {
   const map = tipo === 'LEAD' ? LEAD_ESTADO : OPP_ESTADO
@@ -72,8 +65,8 @@ export default function OportunidadesEstancadasPage() {
 
   useEffect(() => {
     coordinadorAPI.estancadas()
-      .then(d => setItems(Array.isArray(d) && d.length ? d : ESTANCADOS_DEFAULT))
-      .catch(() => setItems(ESTANCADOS_DEFAULT))
+      .then(d => setItems(d ?? []))
+      .catch(() => setItems([]))
       .finally(() => setLoading(false))
   }, [])
 

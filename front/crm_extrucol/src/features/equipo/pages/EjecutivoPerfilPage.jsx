@@ -25,30 +25,6 @@ const OPP_BADGE = {
   PERDIDA:     { bg: '#FDECEA', color: '#C0392B' },
 }
 
-const PERFIL_DEFAULT = {
-  id: 1, nombre: 'Diana', departamento: 'Medellín', email: 'diana@extrucol.co',
-  telefono: '+57 310 555 1234', fecha_ingreso: '15 Ene 2024',
-  ventas: 698_000_000, meta: 600_000_000, meta_pct: 116, cumplimiento: 95, tendencia_pct: 20,
-  leads: [
-    { id: 1, titulo: 'Consulta tubería INGEOMEGA',   empresa: 'INGEOMEGA',         origen: 'WhatsApp', score: 100, estado: 'CALIFICADO' },
-    { id: 2, titulo: 'Proyecto RB de Colombia',      empresa: 'RB DE COLOMBIA SA', origen: 'Instagram', score: 80, estado: 'CONTACTADO' },
-    { id: 3, titulo: 'Cotización CMM Manizales',      empresa: 'CMM',               origen: 'Facebook',  score: 80, estado: 'CALIFICADO' },
-    { id: 4, titulo: 'Seguimiento MONTAJES JM',       empresa: 'MONTAJES JM',       origen: 'WhatsApp',  score: 60, estado: 'NUEVO' },
-  ],
-  oportunidades: [
-    { id: 1, titulo: 'Sistema acueducto INGEOMEGA',  empresa: 'INGEOMEGA',                  valor: 397_000_000, estado: 'NEGOCIACION', fecha_cierre: '20 Mar', probabilidad: 80 },
-    { id: 2, titulo: 'Obra civil MONTAJES JM',        empresa: 'MONTAJES JM',                valor: 15_000_000,  estado: 'NEGOCIACION', fecha_cierre: '18 Mar', probabilidad: 80 },
-    { id: 3, titulo: 'Construcción ADOS INGENIERIA',  empresa: 'ADOS INGENIERIA',            valor: 98_000_000,  estado: 'NEGOCIACION', fecha_cierre: '15 Mar', probabilidad: 80 },
-    { id: 4, titulo: 'Consorcio ING Santa Elena',     empresa: 'CONSORCIO ING SANTA ELENA', valor: 152_000_000, estado: 'PROPUESTA',   fecha_cierre: '10 Mar', probabilidad: 60 },
-  ],
-  actividades: [
-    { id: 1, tipo: 'Visita',   titulo: 'Visita técnica - INGEOMEGA',  descripcion: 'Revisión especificaciones técnicas', fecha: 'Hoy 10:30 AM',  completada: true },
-    { id: 2, tipo: 'Llamada',  titulo: 'Llamada seguimiento - ADOS',  descripcion: 'Negociación de términos',            fecha: 'Hoy 9:00 AM',   completada: true },
-    { id: 3, tipo: 'Reunión',  titulo: 'Reunión virtual - CMM',       descripcion: 'Presentación portafolio productos', fecha: 'Hoy 3:00 PM',   completada: false },
-    { id: 4, tipo: 'Email',    titulo: 'Email - CONSORCIO ING',       descripcion: 'Envío de propuesta técnica',        fecha: 'Ayer 8:15 AM',  completada: true },
-  ],
-}
-
 function BadgeEstado({ estado, map }) {
   const s = map[estado] ?? { bg: '#F0F0F0', color: '#4A4A4A' }
   return (
@@ -220,8 +196,8 @@ export default function EjecutivoPerfilPage() {
 
   useEffect(() => {
     equipoAPI.buscarEjecutivo(id)
-      .then(p => setPerfil(p ?? PERFIL_DEFAULT))
-      .catch(() => setPerfil(PERFIL_DEFAULT))
+      .then(p => setPerfil(p ?? null))
+      .catch(() => setPerfil(null))
       .finally(() => setLoading(false))
   }, [id])
 

@@ -26,7 +26,7 @@ const getHoy = () => {
   return { inicio: hoy, fin: hoy }
 }
 
-export default function ActividadesDirectorPage({ esDirector = true }) {
+export default function ActividadesDirectorPage({ esDirector = true, detallePath = null }) {
   const navigate  = useNavigate()
   const semana    = getSemana()
   const [actividades, setActividades]         = useState([])
@@ -79,7 +79,8 @@ export default function ActividadesDirectorPage({ esDirector = true }) {
   }, [filtradas])
 
   const irADetalle = (actId) => {
-    if (esDirector) navigate(`/director/actividades/${actId}`)
+    const base = detallePath ?? (esDirector ? '/director/actividades' : null)
+    if (base) navigate(`${base}/${actId}`)
   }
 
   return (
@@ -138,9 +139,9 @@ export default function ActividadesDirectorPage({ esDirector = true }) {
               {acts.map(a => (
                 <div
                   key={a.id}
-                  onClick={() => esDirector && irADetalle(a.id)}
+                  onClick={() => irADetalle(a.id)}
                   className={`bg-white rounded-xl border border-[#F0F0F0] shadow-sm px-5 py-4 ${
-                    esDirector ? 'cursor-pointer group' : ''
+                    (detallePath || esDirector) ? 'cursor-pointer group' : ''
                   }`}
                 >
 

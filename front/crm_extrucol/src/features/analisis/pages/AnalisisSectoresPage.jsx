@@ -4,49 +4,6 @@ import Topbar from '../../../shared/components/Topbar'
 import { LoadingSpinner, Badge } from '../../../shared/components/FormField'
 import { analisisAPI } from '../services/analisisAPI'
 
-const SECTORES_MOCK = [
-  {
-    nombre: 'Agua Potable',
-    desc: 'Acueductos municipales y redes de distribución',
-    color: '#24388C', bg: '#EEF1FA',
-    pipelineM: 698, pct: 40,
-    ganadas: 8, ventasAcum: 698,
-    oppActivas: 12, ticketProm: 58,
-    conversion: 42, tendencia: '+15',
-    topClientes: [
-      { name: 'INGEOMEGA', val: 397 },
-      { name: 'CONSORCIO ING SANTA ELENA', val: 152 },
-      { name: 'RB DE COLOMBIA SA', val: 26 },
-    ]
-  },
-  {
-    nombre: 'Construcción',
-    desc: 'Proyectos de infraestructura y construcción',
-    color: '#22C55E', bg: '#E8F5EE',
-    pipelineM: 398, pct: 23,
-    ganadas: 6, ventasAcum: 398,
-    oppActivas: 8, ticketProm: 50,
-    conversion: 38, tendencia: '+8',
-    topClientes: [
-      { name: 'CIVILE HIDRAULICOS', val: 111 },
-      { name: 'Promotora Imola Park', val: 92 },
-      { name: 'ADOS INGENIERIA', val: 98 },
-    ]
-  },
-  {
-    nombre: 'Agro / Riego',
-    desc: 'Sistemas de riego tecnificado y cultivos',
-    color: '#A855F7', bg: '#F3E8FF',
-    pipelineM: 14, pct: 1,
-    ganadas: 1, ventasAcum: 14,
-    oppActivas: 2, ticketProm: 14,
-    conversion: 30, tendencia: '+5',
-    topClientes: [
-      { name: 'PROYECTOS MULTIPLES', val: 14 },
-    ]
-  },
-]
-
 const formatCOP = (n) => {
   if (!n) return '$0'
   return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n * 1_000_000)
@@ -146,15 +103,10 @@ export default function AnalisisSectoresPage() {
   const [showComparar, setShowComparar] = useState(false)
 
   useEffect(() => {
+    setLoading(true)
     analisisAPI.sectores({ periodo })
-      .then(data => {
-        if (data) {
-          setSectores(Array.isArray(data) ? data : [data])
-        } else {
-          setSectores(SECTORES_MOCK)
-        }
-      })
-      .catch(() => setSectores(SECTORES_MOCK))
+      .then(data => setSectores(Array.isArray(data) && data.length ? data : []))
+      .catch(() => setSectores([]))
       .finally(() => setLoading(false))
   }, [periodo])
 
@@ -169,6 +121,26 @@ export default function AnalisisSectoresPage() {
 
   const mayorCrecimiento = useMemo(() =>
     [...sectores].sort((a, b) => parseInt(b.tendencia ?? 0) - parseInt(a.tendencia ?? 0))[0], [sectores])
+
+  const oportunidadesCount = useMemo(() => sectores.reduce((a, s) => a + (s.oppActivas ?? s.opp_activas ?? 0), 0), [sectores])
+
+  const topCliente = useMemo(() => {
+    const all = sectores.flatMap(s => (s.topClientes ?? []).map(c => ({ ...c, sector: s.nombre })))
+    return [...all].sort((a, b) => (b.val ?? 0) - (a.val ?? 0))[0]
+  }, [sectores])
+
+  const insights = useMemo(() => {
+    const list = []
+    if (lider) list.push({ color: lider.color ?? '#24388C', title: `${lider.nombre ?? 'Sector'} lidera`, note: `Pipeline de $${lider.pipelineM ?? lider.pipeline ?? 0}M · ${lider.oppActivas ?? lider.opp_activas ?? 0} oportunidades activas` })
+    if (mayorCrecimiento && mayorCrecimiento !== lider) list.push({ color: '#22C55E', title: 'Crecimiento detectado', note: `Sector ${mayorCrecimiento.nombre} con tendencia ${mayorCrecimiento.tendencia > 0 ? '+' : ''}${mayorCrecimiento.tendencia}%` })
+    if (topCliente) list.push({ color: '#F39610', title: 'Top cliente', note: `${topCliente.name} (${topCliente.sector})` })
+    if (sectores.length > 0) list.push({ color: '#6366F1', title: `${sectores.length} sectores activos`, note: `${oportunidadesCount} oportunidades en pipeline` })
+    return list
+  }, [sectores, lider, mayorCrecimiento, topCliente, oportunidadesCount])
+
+  const recomendaciones = useMemo(() => {
+    return sectores.map(s => ({ color: s.color ?? '#24388C', title: s.nombre ?? s.nombre_sector ?? 'Sin nombre', note: `${s.oppActivas ?? s.opp_activas ?? 0} opp. activas · $${s.pipelineM ?? s.pipeline ?? 0}M pipeline` }))
+  }, [sectores])
 
   return (
     <AppLayout>
@@ -338,24 +310,14 @@ export default function AnalisisSectoresPage() {
                   <div className="text-[12px] text-[#6B6B6B]">Análisis automático basado en datos</div>
                 </div>
                 <div className="p-5 flex flex-col gap-3">
-                  <div className="p-3 bg-[#EEF1FA] border-l-3 border-[#24388C] rounded" style={{ borderLeftWidth: 3 }}>
-                    <div className="font-bold text-[13px] text-[#24388C] mb-1">◆ Agua Potable lidera</div>
-                    <div className="text-[12.5px] text-[#4A4A4A] leading-relaxed">
-                      40% del pipeline con INGEOMEGA como cliente clave ($397M). Conversión del 42% supera el promedio del equipo.
+                  {insights.length > 0 ? insights.map((ins, i) => (
+                    <div key={i} className="p-3 bg-[#EEF1FA] border-l-3 border-[#24388C] rounded" style={{ borderLeftWidth: 3 }}>
+                      <div className="font-bold text-[13px] text-[#24388C] mb-1">◆ {ins.title}</div>
+                      <div className="text-[12.5px] text-[#4A4A4A] leading-relaxed">{ins.note}</div>
                     </div>
-                  </div>
-                  <div className="p-3 bg-[#E8F5EE] border-l-3 border-[#1A8754] rounded" style={{ borderLeftWidth: 3 }}>
-                    <div className="font-bold text-[13px] text-[#1A8754] mb-1">↗ Construcción en crecimiento</div>
-                    <div className="text-[12.5px] text-[#4A4A4A] leading-relaxed">
-                      Crecimiento del +8% YoY con 6 oportunidades. CIVILE HIDRAULICOS representa el mayor valor ($111M).
-                    </div>
-                  </div>
-                  <div className="p-3 bg-[#FFF4E0] border-l-3 border-[#F39610] rounded" style={{ borderLeftWidth: 3 }}>
-                    <div className="font-bold text-[13px] text-[#C7770D] mb-1">⚠ Diversificación necesaria</div>
-                    <div className="text-[12.5px] text-[#4A4A4A] leading-relaxed">
-                      Agro/Riego solo representa 1% del pipeline. Oportunidad de expandir cobertura en este sector.
-                    </div>
-                  </div>
+                  )) : (
+                    <div className="text-[12.5px] text-[#ABABAB]">Sin datos disponibles</div>
+                  )}
                 </div>
               </div>
 
@@ -365,12 +327,7 @@ export default function AnalisisSectoresPage() {
                   <div className="text-[12px] text-[#6B6B6B]">Acciones sugeridas por sector</div>
                 </div>
                 <div className="p-5 flex flex-col">
-                  {[
-                    { color: '#24388C', title: 'Fortalecer Agua Potable', note: 'INGEOMEGA y CONSORCIO SANTA ELENA son prioridad' },
-                    { color: '#22C55E', title: 'Expandir Construcción', note: 'CIVILE HIDRAULICOS y Promotora Imola son clave' },
-                    { color: '#A855F7', title: 'Desarrollar Agro/Riego', note: 'PROYECTOS MULTIPLES es cliente actual, expandir' },
-                    { color: '#F39610', title: 'Equilibrar portfolio', note: 'Reducir dependencia de un solo sector' },
-                  ].map((r, i) => (
+                  {recomendaciones.length > 0 ? recomendaciones.map((r, i) => (
                     <div key={i} className={`flex items-start gap-3 py-3 ${i < 3 ? 'border-b border-[#F0F0F0]' : ''}`}>
                       <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1" style={{ background: r.color }} />
                       <div>
@@ -378,7 +335,9 @@ export default function AnalisisSectoresPage() {
                         <div className="text-[12px] text-[#6B6B6B]">{r.note}</div>
                       </div>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-[12px] text-[#ABABAB]">Sin datos disponibles</div>
+                  )}
                 </div>
               </div>
             </div>

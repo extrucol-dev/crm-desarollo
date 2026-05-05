@@ -13,17 +13,19 @@ CREATE TABLE crm_usuario (
   id_usuario       NUMBER        NOT NULL,
   nombre           VARCHAR2(200) NOT NULL,
   email            VARCHAR2(200) NOT NULL,
+  apex_username    VARCHAR2(100),           -- username exacto en APEX Workspace (ej: RENE.VILLAZON)
   password         VARCHAR2(500) NOT NULL,  -- hash bcrypt en REST; 'APEX_MANAGED' en APEX mode
   rol              VARCHAR2(20)  NOT NULL,
   activo           NUMBER(1)     DEFAULT 1 NOT NULL,
   fecha_creacion   DATE          DEFAULT SYSDATE NOT NULL,
   ultimo_acceso    DATE,
   id_departamento  NUMBER,
-  CONSTRAINT crm_usuario_pk       PRIMARY KEY (id_usuario),
-  CONSTRAINT crm_usuario_uk_email UNIQUE (email),
-  CONSTRAINT crm_usuario_ck_rol   CHECK (rol IN ('EJECUTIVO','COORDINADOR','DIRECTOR','ADMINISTRADOR')),
-  CONSTRAINT crm_usuario_ck_activo CHECK (activo IN (0,1)),
-  CONSTRAINT crm_usuario_fk_depto FOREIGN KEY (id_departamento)
+  CONSTRAINT crm_usuario_pk          PRIMARY KEY (id_usuario),
+  CONSTRAINT crm_usuario_uk_email    UNIQUE (email),
+  CONSTRAINT crm_usuario_uk_apex_usr UNIQUE (apex_username),
+  CONSTRAINT crm_usuario_ck_rol      CHECK (rol IN ('EJECUTIVO','COORDINADOR','DIRECTOR','ADMINISTRADOR')),
+  CONSTRAINT crm_usuario_ck_activo   CHECK (activo IN (0,1)),
+  CONSTRAINT crm_usuario_fk_depto    FOREIGN KEY (id_departamento)
     REFERENCES crm_departamento (id_departamento)
 );
 

@@ -7,15 +7,6 @@ import { monitoreoAPI } from '../services/monitoreoAPI'
 
 const AVATAR_COLORS = ['#24388C', '#F39610', '#1A8754', '#6366F1', '#C0392B', '#0891B2']
 
-const EJECUTIVOS_DEFAULT = [
-  { id: 1, nombre: 'Juan Pérez',       iniciales: 'JP', color: 0, depto: 'Santander',       comp: 85, ventas: 385_000_000, opp: 12, leads: 8, act: 18, estancados: 2, sin_actividad: 1, estado: 'green' },
-  { id: 2, nombre: 'María García',     iniciales: 'MG', color: 2, depto: 'Antioquia',       comp: 92, ventas: 420_000_000, opp: 9,  leads: 5, act: 22, estancados: 0, sin_actividad: 0, estado: 'green' },
-  { id: 3, nombre: 'Carlos Rodríguez', iniciales: 'CR', color: 4, depto: 'Cundinamarca',    comp: 62, ventas: 180_000_000, opp: 6,  leads: 10, act: 11, estancados: 4, sin_actividad: 3, estado: 'yellow' },
-  { id: 4, nombre: 'Ana Martínez',     iniciales: 'AM', color: 3, depto: 'Valle del Cauca', comp: 78, ventas: 260_000_000, opp: 11, leads: 7, act: 16, estancados: 1, sin_actividad: 1, estado: 'green' },
-  { id: 5, nombre: 'Pedro Salazar',    iniciales: 'PS', color: 5, depto: 'Atlántico',       comp: 48, ventas: 95_000_000,  opp: 5,  leads: 4, act: 8,  estancados: 3, sin_actividad: 5, estado: 'red' },
-  { id: 6, nombre: 'Laura Jiménez',    iniciales: 'LJ', color: 1, depto: 'Santander',       comp: 80, ventas: 215_000_000, opp: 8,  leads: 6, act: 14, estancados: 1, sin_actividad: 0, estado: 'green' },
-]
-
 const ESTADO_CFG = {
   green:  { label: 'Al día',    bg: '#E8F5EE', color: '#1A8754', dot: '#1A8754' },
   yellow: { label: 'Atención',  bg: '#FFF8E5', color: '#B87E15', dot: '#F39610' },
@@ -46,8 +37,8 @@ export default function MonitoreoPage() {
 
   useEffect(() => {
     monitoreoAPI.ejecutivos()
-      .then(d => setEjecutivos(Array.isArray(d) && d.length ? d : EJECUTIVOS_DEFAULT))
-      .catch(() => setEjecutivos(EJECUTIVOS_DEFAULT))
+      .then(d => setEjecutivos(d ?? []))
+      .catch(() => setEjecutivos([]))
       .finally(() => setLoading(false))
   }, [])
 

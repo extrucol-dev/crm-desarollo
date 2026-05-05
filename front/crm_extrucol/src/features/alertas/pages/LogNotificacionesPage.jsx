@@ -11,17 +11,6 @@ const TIPO_ICON_CONFIG = {
   success: { iconBg: '#E8F5EE', iconColor: '#1A8754' },
 }
 
-const LOG_DEFAULT = [
-  { id: 1, tipo: 'error',   titulo: 'Alerta: Lead estancado 5 días',              subtitulo: 'HyM Contratistas Sas sin contactar. Asesor: Paola',          para: 'Paola', via: 'Email', tiempo: 'Hace 10 min' },
-  { id: 2, tipo: 'warning', titulo: 'Oportunidad sin actividad - CIVILE Hidráulicos', subtitulo: 'Cotización No. 1393 sin seguimiento hace 14 días',        para: 'Paola', via: 'Email', tiempo: 'Hace 1h' },
-  { id: 3, tipo: 'error',   titulo: 'Escalamiento: UT Balsa 3 sin avance',         subtitulo: 'Oportunidad de $187M sin actividad hace 6 días',             para: 'Alvaro', via: 'Email', tiempo: 'Hace 2h' },
-  { id: 4, tipo: 'warning', titulo: 'GMOS INGENIEROS SAS - Sin interés',           subtitulo: 'Lead cerrado. El cliente requiere tubería AC Clase 10, no aplica.', para: 'Diana', via: 'Email', tiempo: 'Hace 5h' },
-  { id: 5, tipo: 'info',    titulo: 'Oportunidad ganada - FIRELINE',               subtitulo: 'Lead cerrado. Cliente compró a través de COSERINCO.',          para: 'Paola', via: 'Email', tiempo: 'Ayer 14:00' },
-  { id: 6, tipo: 'info',    titulo: 'Seguimiento Cotización No. 584 - COL PROYECTOS', subtitulo: 'Se actualizó cotización con cambio de cantidad.',          para: 'Paola', via: 'Email', tiempo: 'Ayer 10:30' },
-  { id: 7, tipo: 'error',   titulo: 'Proceso ADOS Ingeniería sin adjudicar',       subtitulo: 'Seguimiento: el municipio aún no adjudica el proyecto.',       para: 'Diana', via: 'Email', tiempo: 'Ayer 09:00' },
-  { id: 8, tipo: 'warning', titulo: 'Lead EMSERPRE - Sin interés',                 subtitulo: 'Cliente requiere tubería HDPE corrugada, no aplicamos.',        para: 'Alexis', via: 'Email', tiempo: 'Hace 2 días' },
-]
-
 function NotifIcon({ tipo }) {
   const d = tipo === 'success'
     ? 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
@@ -45,8 +34,8 @@ export default function LogNotificacionesPage() {
 
   useEffect(() => {
     coordinadorAPI.logNotificaciones()
-      .then(n => setNotifs(n.length ? n : LOG_DEFAULT))
-      .catch(() => setNotifs(LOG_DEFAULT))
+      .then(n => setNotifs(n ?? []))
+      .catch(() => setNotifs([]))
       .finally(() => setLoading(false))
   }, [])
 

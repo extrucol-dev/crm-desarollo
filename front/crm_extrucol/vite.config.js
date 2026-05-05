@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
         }),
       },
     },
+    base: './',
     build: {
       // Nombres fijos SIN hash — requerido para APEX Static Files (referencia por nombre exacto)
       rollupOptions: {

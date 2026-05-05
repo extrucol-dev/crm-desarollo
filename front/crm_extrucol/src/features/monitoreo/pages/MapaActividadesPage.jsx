@@ -25,24 +25,7 @@ const CIUDAD_COORDS = {
 
 const AVATAR_COLORS = ['#24388C', '#F39610', '#1A8754', '#6366F1', '#C0392B', '#0891B2']
 
-const ACTIVIDADES_DEFAULT = [
-  { id: 1, tipo: 'visita',  titulo: 'INGEOMEGA - Visita técnica',              ejecutivo: 'Juan Pérez',       ejecutivo_idx: 0, ciudad: 'Bucaramanga',  hora: '09:00', estado: 'completada' },
-  { id: 2, tipo: 'llamada', titulo: 'Acueducto Metropolitano - Seguimiento',   ejecutivo: 'María García',     ejecutivo_idx: 2, ciudad: 'Medellín',      hora: '10:30', estado: 'completada' },
-  { id: 3, tipo: 'reunion', titulo: 'CIVILE Hidráulicos - Propuesta',          ejecutivo: 'Ana Martínez',     ejecutivo_idx: 3, ciudad: 'Cali',          hora: '14:00', estado: 'pendiente' },
-  { id: 4, tipo: 'visita',  titulo: 'EMPAS S.A. - Presentación de propuesta',  ejecutivo: 'Juan Pérez',       ejecutivo_idx: 0, ciudad: 'Bucaramanga',  hora: '16:00', estado: 'pendiente' },
-  { id: 5, tipo: 'llamada', titulo: 'Gas Natural Fenosa - Cotización',         ejecutivo: 'Laura Jiménez',    ejecutivo_idx: 1, ciudad: 'Barranquilla',  hora: '11:00', estado: 'completada' },
-  { id: 6, tipo: 'visita',  titulo: 'Palmares del Sur - Demo riego',           ejecutivo: 'Carlos Rodríguez', ejecutivo_idx: 4, ciudad: 'Bogotá',        hora: '15:30', estado: 'no_realizada' },
-  { id: 7, tipo: 'reunion', titulo: 'Constructora Andina - Licitación',        ejecutivo: 'María García',     ejecutivo_idx: 2, ciudad: 'Medellín',      hora: '08:00', estado: 'completada' },
-  { id: 8, tipo: 'visita',  titulo: 'Distriaguas Caribe - Seguimiento',        ejecutivo: 'Pedro Salazar',    ejecutivo_idx: 5, ciudad: 'Barranquilla',  hora: '13:00', estado: 'pendiente' },
-]
 
-const DEPARTAMENTOS_DEFAULT = [
-  { nombre: 'Santander',       ejecutivos: 2, actividades: 4, completadas: 2, color: '#24388C' },
-  { nombre: 'Antioquia',       ejecutivos: 1, actividades: 3, completadas: 3, color: '#1A8754' },
-  { nombre: 'Valle del Cauca', ejecutivos: 1, actividades: 2, completadas: 1, color: '#F39610' },
-  { nombre: 'Atlántico',       ejecutivos: 1, actividades: 2, completadas: 1, color: '#0891B2' },
-  { nombre: 'Cundinamarca',    ejecutivos: 1, actividades: 1, completadas: 0, color: '#C0392B' },
-]
 
 const TIPO_CFG = {
   visita:  { bg: '#EEF1FA', color: '#24388C', label: 'Visita' },
@@ -85,8 +68,8 @@ export default function MapaActividadesPage() {
       .finally(() => setLoading(false))
   }, [fecha])
 
-  const actividades   = data?.actividades ?? ACTIVIDADES_DEFAULT
-  const departamentos = data?.departamentos ?? DEPARTAMENTOS_DEFAULT
+  const actividades   = data?.actividades ?? []
+  const departamentos = data?.departamentos ?? []
 
   const filtradas = useMemo(() =>
     filtroTipo === 'todos' ? actividades : actividades.filter(a => a.tipo === filtroTipo),

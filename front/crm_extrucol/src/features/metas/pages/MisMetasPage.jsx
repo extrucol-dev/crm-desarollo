@@ -100,35 +100,6 @@ function HeroRing({ pct = 0 }) {
   )
 }
 
-const HISTORICO_DEFAULT = [
-  { mes: 'Noviembre 2025', pct: 94,  valor: '$ 328 M', meta: '$ 350 M', actual: false },
-  { mes: 'Diciembre 2025', pct: 78,  valor: '$ 275 M', meta: '$ 350 M', actual: false },
-  { mes: 'Enero 2026',     pct: 88,  valor: '$ 310 M', meta: '$ 350 M', actual: false },
-  { mes: 'Febrero 2026',   pct: 105, valor: '$ 368 M', meta: '$ 350 M', actual: false },
-  { mes: 'Marzo 2026',     pct: 112, valor: '$ 392 M', meta: '$ 350 M', actual: false },
-  { mes: 'Abril 2026',     pct: 81,  valor: '$ 285 M', meta: '$ 350 M', actual: true  },
-]
-
-const METAS_DEFAULT = [
-  {
-    tipo: 'ventas', color: '#1A8754',
-    titulo: 'Ventas del mes', descripcion: 'Oportunidades ganadas · Valor total cerrado',
-    actual: 285_000_000, meta: 350_000_000, pct: 81,
-    nota: 'Faltan $ 65 M en 12 días',
-  },
-  {
-    tipo: 'oportunidades', color: '#24388C',
-    titulo: 'Oportunidades abiertas', descripcion: 'Cantidad mínima activa en pipeline',
-    actual: 12, meta: 10, pct: 100, unidad: 'opp.',
-  },
-  {
-    tipo: 'actividades', color: '#F39610',
-    titulo: 'Actividades semanales', descripcion: 'Visitas, llamadas, reuniones registradas',
-    actual: 18, meta: 20, pct: 90, unidad: 'esta semana',
-    nota: 'Faltan 2 actividades en 3 días',
-  },
-]
-
 export default function MisMetasPage() {
   const [data,    setData]    = useState(null)
   const [loading, setLoading] = useState(true)
@@ -140,8 +111,8 @@ export default function MisMetasPage() {
   }, [])
 
   const resumen  = data?.resumen  ?? {}
-  const metas    = data?.metas    ?? METAS_DEFAULT
-  const historico = data?.historico ?? HISTORICO_DEFAULT
+  const metas    = data?.metas    ?? []
+  const historico = data?.historico ?? []
   const pctGlobal = resumen.pct_global ?? 90
   const nombre   = resumen.nombre ?? 'Ejecutivo'
 

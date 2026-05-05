@@ -33,8 +33,9 @@ import OportunidadEditarPage      from './features/oportunidades/pages/Oportunid
 import OportunidadesEstancadasPage from './features/oportunidades/pages/OportunidadesEstancadasPage'
 
 // Actividades
-import ActividadCrearPage  from './features/actividades/pages/ActividadCrearPage'
-import ActividadEditarPage from './features/actividades/pages/ActividadEditarPage'
+import ActividadCrearPage   from './features/actividades/pages/ActividadCrearPage'
+import ActividadEditarPage  from './features/actividades/pages/ActividadEditarPage'
+import ActividadDetallePage from './features/actividades/pages/ActividadDetallePage'
 
 // Leads
 import LeadsKanbanPage    from './features/leads/pages/LeadsKanbanPage'
@@ -76,6 +77,13 @@ import ReportesPage from './features/reportes/pages/ReportesPage'
 // Monitoreo
 import MonitoreoPage       from './features/monitoreo/pages/MonitoreoPage'
 import MapaActividadesPage from './features/monitoreo/pages/MapaActividadesPage'
+
+// Coordinador
+import VariablesSistemaPage from './features/coordinador/pages/VariablesSistemaPage'
+
+// Admin — Catálogos y Auditoría
+import AdminCatalogosPage  from './features/admin/pages/AdminCatalogosPage'
+import AdminAuditoriaPage  from './features/admin/pages/AdminAuditoriaPage'
 
 // Redirige al dashboard del rol activo.
 // Usa authService.getRol() que funciona en ambos modos (REST: del JWT, APEX: de USUARIO_ACTUAL).
@@ -154,10 +162,11 @@ export default function App() {
       {/* ── Actividades — Ejecutivo ── */}
       <Route path="/actividades" element={
         <ProtectedRoute roles={['EJECUTIVO']}>
-          <ActividadesDirectorPage esDirector={false} />
+          <ActividadesDirectorPage esDirector={false} detallePath="/actividades" />
         </ProtectedRoute>
       } />
       <Route path="/actividades/nueva"      element={<ProtectedRoute roles={['EJECUTIVO']}><ActividadCrearPage /></ProtectedRoute>} />
+      <Route path="/actividades/:id"        element={<ProtectedRoute roles={['EJECUTIVO','COORDINADOR']}><ActividadDetallePage /></ProtectedRoute>} />
       <Route path="/actividades/:id/editar" element={<ProtectedRoute roles={['EJECUTIVO']}><ActividadEditarPage /></ProtectedRoute>} />
 
       {/* ── Proyectos — Ejecutivo ── */}
@@ -169,7 +178,7 @@ export default function App() {
       {/* ── Director ── */}
       <Route path="/director/pipeline"          element={<ProtectedRoute roles={['DIRECTOR']}><PipelineDirectorPage /></ProtectedRoute>} />
       <Route path="/director/oportunidades/:id" element={<ProtectedRoute roles={['DIRECTOR']}><OportunidadDetalleDirectorPage /></ProtectedRoute>} />
-      <Route path="/director/actividades"       element={<ProtectedRoute roles={['DIRECTOR']}><ActividadesDirectorPage esDirector={true} /></ProtectedRoute>} />
+      <Route path="/director/actividades"       element={<ProtectedRoute roles={['DIRECTOR']}><ActividadesDirectorPage esDirector={true} detallePath="/director/actividades" /></ProtectedRoute>} />
       <Route path="/director/actividades/:id"   element={<ProtectedRoute roles={['DIRECTOR']}><ActividadDetalleDirectorPage /></ProtectedRoute>} />
 
       {/* ── Metas — Ejecutivo ── */}
@@ -184,6 +193,8 @@ export default function App() {
       <Route path="/coordinador/estancadas"        element={<ProtectedRoute roles={['COORDINADOR']}><OportunidadesEstancadasPage /></ProtectedRoute>} />
       <Route path="/coordinador/monitoreo"         element={<ProtectedRoute roles={['COORDINADOR']}><MonitoreoPage /></ProtectedRoute>} />
       <Route path="/coordinador/mapa-actividades"  element={<ProtectedRoute roles={['COORDINADOR']}><MapaActividadesPage /></ProtectedRoute>} />
+      <Route path="/coordinador/variables"         element={<ProtectedRoute roles={['COORDINADOR']}><VariablesSistemaPage /></ProtectedRoute>} />
+      <Route path="/coordinador/actividades"       element={<ProtectedRoute roles={['COORDINADOR']}><ActividadesDirectorPage esDirector={true} detallePath="/actividades" /></ProtectedRoute>} />
 
       {/* ── Director — Equipo ── */}
       <Route path="/director/equipo"     element={<ProtectedRoute roles={['DIRECTOR']}><EquipoComercialPage /></ProtectedRoute>} />
@@ -198,6 +209,10 @@ export default function App() {
       <Route path="/usuarios"            element={<ProtectedRoute roles={['ADMIN']}><UsuariosListaPage /></ProtectedRoute>} />
       <Route path="/usuarios/nuevo"      element={<ProtectedRoute roles={['ADMIN']}><UsuarioCrearPage /></ProtectedRoute>} />
       <Route path="/usuarios/:id/editar" element={<ProtectedRoute roles={['ADMIN']}><UsuarioEditarPage /></ProtectedRoute>} />
+
+      {/* ── Admin — Catálogos y Auditoría ── */}
+      <Route path="/admin/catalogos" element={<ProtectedRoute roles={['ADMIN']}><AdminCatalogosPage /></ProtectedRoute>} />
+      <Route path="/admin/auditoria" element={<ProtectedRoute roles={['ADMIN']}><AdminAuditoriaPage /></ProtectedRoute>} />
 
       {/* ── 404 ── */}
       <Route path="*" element={<Navigate to={APEX_MODE ? '/dashboard' : '/login'} replace />} />

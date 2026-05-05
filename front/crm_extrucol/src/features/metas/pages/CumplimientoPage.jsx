@@ -7,38 +7,7 @@ import { metasAPI } from '../services/metasAPI'
 
 const AVATAR_COLORS = ['#24388C', '#F39610', '#1A8754', '#6366F1', '#C0392B', '#0891B2']
 
-const EJECUTIVOS_DEFAULT = [
-  {
-    id: 1, nombre: 'María García', departamento: 'Antioquia', cumplimiento: 92,
-    metas: [
-      { label: 'Actividades / semana', actual: 22, meta: 20, pct: 110, color: '#1A8754' },
-      { label: 'Oportunidades activas', actual: 9,  meta: 10, pct: 90,  color: '#F39610' },
-      { label: 'Clientes nuevos',       actual: 7,  meta: 5,  pct: 140, color: '#1A8754' },
-      { label: 'Tasa conversión (%)',   actual: 22, meta: 15, pct: 147, color: '#1A8754' },
-      { label: 'Valor cerrado (M)',     actual: 680,meta: 500,pct: 136, color: '#1A8754' },
-    ],
-  },
-  {
-    id: 2, nombre: 'Juan Pérez', departamento: 'Santander', cumplimiento: 85,
-    metas: [
-      { label: 'Actividades / semana', actual: 18, meta: 20, pct: 90,  color: '#F39610' },
-      { label: 'Oportunidades activas', actual: 12, meta: 10, pct: 120, color: '#1A8754' },
-      { label: 'Clientes nuevos',       actual: 4,  meta: 5,  pct: 80,  color: '#F39610' },
-      { label: 'Tasa conversión (%)',   actual: 15, meta: 15, pct: 100, color: '#1A8754' },
-      { label: 'Valor cerrado (M)',     actual: 425,meta: 500,pct: 85,  color: '#F39610' },
-    ],
-  },
-  {
-    id: 3, nombre: 'Pedro Salazar', departamento: 'Atlántico', cumplimiento: 48,
-    metas: [
-      { label: 'Actividades / semana', actual: 8,  meta: 20, pct: 40, color: '#C0392B' },
-      { label: 'Oportunidades activas', actual: 5,  meta: 10, pct: 50, color: '#C0392B' },
-      { label: 'Clientes nuevos',       actual: 1,  meta: 5,  pct: 20, color: '#C0392B' },
-      { label: 'Tasa conversión (%)',   actual: 8,  meta: 15, pct: 53, color: '#C0392B' },
-      { label: 'Valor cerrado (M)',     actual: 85, meta: 500,pct: 17, color: '#C0392B' },
-    ],
-  },
-]
+
 
 function StatCard({ label, value, sub, color = '#24388C' }) {
   return (
@@ -123,7 +92,7 @@ export default function CumplimientoPage() {
   }, [])
 
   const stats     = data?.stats ?? {}
-  const ejecutivos = data?.ejecutivos ?? EJECUTIVOS_DEFAULT
+  const ejecutivos = data?.ejecutivos ?? []
 
   const alto  = stats.alto  ?? ejecutivos.filter(e => (e.cumplimiento ?? 0) >= 80).length
   const medio = stats.medio ?? ejecutivos.filter(e => { const c = e.cumplimiento ?? 0; return c >= 65 && c < 80 }).length

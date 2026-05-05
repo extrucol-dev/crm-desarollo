@@ -13,44 +13,7 @@ const TIPO_CONFIG = {
   success:  { bg: '#E8F5EE', border: '#b7e0c4', iconBg: '#1A8754', label: 'Resuelta',     textColor: '#1A8754' },
 }
 
-const ALERTAS_DEFAULT = [
-  {
-    id: 1, tipo: 'critical', titulo: 'Lead estancado — HyM Contratistas 4 días sin contacto',
-    descripcion: '"Cotización tubería para proyecto Turbaco" — Asignado a Paola. Último estado: Contactado.',
-    registro: 'LEAD-45852', empresa: 'HyM Contratistas Sas', ejec: 'Paola', ejecIdx: 0,
-    estado: 'Contactado', badgeEstado: 'CALIFICADO', valor: null, dias: 4, tiempo: 'Hace 10 min',
-  },
-  {
-    id: 2, tipo: 'critical', titulo: 'Oportunidad sin actividad — CIVILE Hidráulicos 14 días',
-    descripcion: '"Cotización No. 1393 tubería 110mm RDE 17" — Asignado a Paola. Estado: Propuesta.',
-    registro: 'OPP-45894', empresa: 'CIVILE HIDRAULICOS', ejec: 'Paola', ejecIdx: 1,
-    estado: 'Propuesta', badgeEstado: 'PROPUESTA', valor: '$ 111 M', dias: 14, tiempo: 'Hace 1h',
-  },
-  {
-    id: 3, tipo: 'warning', titulo: 'Oportunidad sin actividad — UT Balsa 3 sin avance 6 días',
-    descripcion: '"Cotización accesorio PE para Tocancipa" — Asignado a Alvaro. Estado: Prospección.',
-    registro: 'OPP-45825', empresa: 'UNION TEMPORAL BALSA 3', ejec: 'Alvaro', ejecIdx: 2,
-    estado: 'Prospección', badgeEstado: 'PROSPECTO', valor: '$ 187 M', dias: 6, tiempo: 'Hace 3h',
-  },
-  {
-    id: 4, tipo: 'warning', titulo: 'Proceso ADOS Ingeniería sin adjudicar — 3 meses',
-    descripcion: '"Oferta proceso Apartadó (licitación)" — Asignado a Diana. Estado: Negociación.',
-    registro: 'OPP-45757', empresa: 'ADOS INGENIERIA', ejec: 'Diana', ejecIdx: 3,
-    estado: 'Negociación', badgeEstado: 'NEGOCIACION', valor: '$ 98 M', dias: 45, tiempo: 'Ayer 14:00',
-  },
-  {
-    id: 5, tipo: 'info', titulo: 'Diana superó la meta del mes',
-    descripcion: 'Cumplimiento del 92% — 3er mes consecutivo superando objetivos.',
-    registro: null, empresa: null, ejec: 'Diana', ejecIdx: 3,
-    estado: null, valor: null, dias: null, tiempo: 'Ayer 17:00',
-  },
-  {
-    id: 6, tipo: 'info', titulo: 'Oportunidad ganada — FIRELINE',
-    descripcion: 'Lead cerrado. Cliente compró a través de COSERINCO. Paola.',
-    registro: 'LEAD-45833', empresa: 'FIRELINE', ejec: 'Paola', ejecIdx: 0,
-    estado: 'Trasladado', badgeEstado: 'GANADA', valor: '$ 44 M', dias: null, tiempo: 'Ayer 14:00',
-  },
-]
+
 
 function AlertaIcon({ tipo }) {
   const paths = {
@@ -152,8 +115,8 @@ export default function AlertasCenterPage() {
 
   useEffect(() => {
     coordinadorAPI.alertas()
-      .then(a => setAlertas(a.length ? a : ALERTAS_DEFAULT))
-      .catch(() => setAlertas(ALERTAS_DEFAULT))
+      .then(a => setAlertas(a ?? []))
+      .catch(() => setAlertas([]))
       .finally(() => setLoading(false))
   }, [])
 

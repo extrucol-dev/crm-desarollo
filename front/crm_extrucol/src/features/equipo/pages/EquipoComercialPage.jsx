@@ -12,14 +12,6 @@ const formatCOP = (n) => {
   return `$ ${(n / 1_000_000).toFixed(0)} M`
 }
 
-const EJECUTIVOS_DEFAULT = [
-  { id: 1, nombre: 'Diana',   departamento: 'Medellín',             ventas: 698_000_000, meta: 600_000_000, meta_pct: 116, oportunidades: 6, leads: 3, actividades: 18, cumplimiento: 95, tendencia_pct: 20  },
-  { id: 2, nombre: 'Paola',   departamento: 'Cartagena',            ventas: 419_000_000, meta: 400_000_000, meta_pct: 105, oportunidades: 7, leads: 4, actividades: 15, cumplimiento: 88, tendencia_pct: 12  },
-  { id: 3, nombre: 'Alvaro',  departamento: 'Tocancipa',            ventas: 187_000_000, meta: 200_000_000, meta_pct: 94,  oportunidades: 1, leads: 1, actividades: 8,  cumplimiento: 82, tendencia_pct: 5   },
-  { id: 4, nombre: 'Gonzalo', departamento: 'Bucaramanga',          ventas: 44_000_000,  meta: 80_000_000,  meta_pct: 55,  oportunidades: 1, leads: 2, actividades: 6,  cumplimiento: 60, tendencia_pct: -8  },
-  { id: 5, nombre: 'Alexis',  departamento: 'Santa Rosa de Cabal',  ventas: 28_000_000,  meta: 60_000_000,  meta_pct: 47,  oportunidades: 1, leads: 1, actividades: 4,  cumplimiento: 52, tendencia_pct: -15 },
-]
-
 function EjecutivoCard({ ej, idx, onVerPerfil }) {
   const metaColor = ej.meta_pct >= 100 ? '#1A8754' : ej.meta_pct >= 80 ? '#F39610' : '#C0392B'
   const compColor = (ej.cumplimiento ?? 0) >= 80 ? '#1A8754' : (ej.cumplimiento ?? 0) >= 60 ? '#F39610' : '#C0392B'
@@ -90,8 +82,8 @@ export default function EquipoComercialPage() {
 
   useEffect(() => {
     equipoAPI.listar()
-      .then(list => setEquipo(list.length ? list : EJECUTIVOS_DEFAULT))
-      .catch(() => setEquipo(EJECUTIVOS_DEFAULT))
+      .then(list => setEquipo(list ?? []))
+      .catch(() => setEquipo([]))
       .finally(() => setLoading(false))
   }, [])
 

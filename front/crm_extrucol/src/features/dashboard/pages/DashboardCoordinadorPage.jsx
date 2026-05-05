@@ -7,23 +7,6 @@ import { coordinadorAPI } from '../../coordinador/services/coordinadorAPI'
 
 const AVATAR_COLORS = ['#24388C', '#F39610', '#1A8754', '#6366F1', '#C0392B', '#0891B2']
 
-const FUNNEL_DEFAULT = [
-  { label: 'Leads Nuevos',           count: 40, pct: 100, color: '#24388C' },
-  { label: 'Contactados',            count: 28, pct: 70,  color: '#6366F1' },
-  { label: 'Interesados',            count: 18, pct: 45,  color: '#F39610' },
-  { label: 'Oportunidades activas',  count: 51, pct: 85,  color: '#1A8754' },
-  { label: 'Ganadas mes',            count: 9,  pct: 15,  color: '#22C55E' },
-]
-
-const VARIABLES_DEFAULT = [
-  { label: 'Monto mínimo cliente nuevo',         valor: '$ 50.000.000',  color: '#F39610' },
-  { label: 'Días alerta lead sin contactar',      valor: '3 días',        color: null },
-  { label: 'Días alerta oportunidad estancada',   valor: '7 días',        color: null },
-  { label: 'Días crítico sin actividad',          valor: '14 días',       color: '#C0392B' },
-  { label: 'Probabilidad mín. para forecast',     valor: '50%',           color: null },
-  { label: 'Meta actividades/semana',             valor: '20',            color: null },
-]
-
 const ALERT_STYLES = {
   critica:     { bg: '#FDECEA', border: '#f5c6c6', titleColor: '#C0392B' },
   advertencia: { bg: '#FFF8E5', border: '#F5E0B0', titleColor: '#B87E15' },
@@ -88,8 +71,8 @@ export default function DashboardCoordinadorPage() {
     : null
   const ejecutivosCumOk = equipo.filter(e => (e.compliance ?? e.cumplimiento ?? 0) >= 80).length
 
-  const funnel    = stats?.funnel    ?? FUNNEL_DEFAULT
-  const variables = stats?.variables ?? VARIABLES_DEFAULT
+  const funnel    = stats?.funnel    ?? []
+  const variables = stats?.variables ?? []
 
   return (
     <AppLayout>

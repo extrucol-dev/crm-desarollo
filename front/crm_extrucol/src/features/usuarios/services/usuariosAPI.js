@@ -22,7 +22,8 @@ const apexOps = {
       x01: data.nombre,
       x02: data.email,
       x03: data.rol,
-      x04: data.ciudad_id ?? data.ciudad,
+      x04: data.departamento_id ?? data.id_departamento ?? '',
+      x05: data.apex_username ?? '',
     }).then(unwrapSingle),
   actualizar: (id, data) =>
     callProcess('USUARIOS_UPDATE', {
@@ -30,7 +31,8 @@ const apexOps = {
       x02: data.nombre,
       x03: data.email,
       x04: data.rol,
-      x05: data.ciudad_id ?? data.ciudad,
+      x05: data.departamento_id ?? data.id_departamento ?? '',
+      x06: data.apex_username ?? '',
     }).then(unwrapSingle),
   actualizarEstado: (id, activo) =>
     callProcess('USUARIOS_ESTADO', { x01: id, x02: activo ? '1' : '0' }).then(unwrapSingle),

@@ -10,7 +10,7 @@ const restOps = {
 
 const apexOps = {
   listar:    ()                       => callProcess('REPORTES_LIST').then(unwrapList),
-  recientes: ()                       => callProcess('REPORTES_RECIENTES').then(unwrapList),
+  recientes: ()                       => callProcess('REPORTES_LIST').then(unwrapList),
   generar:   ({ tipo, inicio, fin })  => callProcess('REPORTES_GENERAR', { x01: tipo, x02: inicio ?? '', x03: fin ?? '' }).then(unwrapSingle),
 }
 

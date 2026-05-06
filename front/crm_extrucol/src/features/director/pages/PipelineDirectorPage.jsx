@@ -9,6 +9,30 @@ const ESTADO_VARIANT = { PROSPECTO: 'blue', CALIFICACION: 'orange', PROPUESTA: '
 const TIPOS = ['COTIZACION', 'VENTA', 'ACOMPANAMIENTO', 'PROYECTO']
 const TIPO_LABEL = { COTIZACION: 'Cotización', VENTA: 'Venta', ACOMPANAMIENTO: 'Acompañamiento', PROYECTO: 'Proyecto' }
 
+const DIST_ESTADOS = [
+  { estado: 'PROSPECTO',   color: '#3B82F6' },
+  { estado: 'CALIFICACION',color: '#F97316' },
+  { estado: 'PROPUESTA',   color: '#A855F7' },
+  { estado: 'NEGOCIACION', color: '#EAB308' },
+  { estado: 'GANADA',      color: '#22C55E' },
+]
+
+function KpiCard({ label, value, sub, color = '#1A1A1A' }) {
+  return (
+    <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm p-5">
+      <div className="text-[11px] font-semibold text-[#ABABAB] uppercase tracking-wider mb-2">{label}</div>
+      <div className="text-[24px] font-extrabold tracking-tight leading-none" style={{ color }}>{value}</div>
+      {sub && <div className="text-[12px] text-[#6B6B6B] mt-1">{sub}</div>}
+    </div>
+  )
+}
+
+const formatM = (n) => {
+  if (!n) return '$ 0'
+  const m = n / 1_000_000
+  return m >= 1 ? `$ ${Math.round(m).toLocaleString('es-CO')} M` : `$ ${Math.round(n / 1_000).toLocaleString('es-CO')} K`
+}
+
 const formatCOP = (n) => {
   if (!n) return '—'
   return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n)
@@ -47,6 +71,35 @@ export default function PipelineDirectorPage() {
   const hayFiltros = filtroEjecutivo || filtroTipo || filtroEstado
   const limpiar = () => { setFiltroEjecutivo(''); setFiltroTipo(''); setFiltroEstado('') }
 
+  const activas = useMemo(() => filtradas.filter(op => !['GANADA', 'PERDIDA'].includes(op.estado)), [filtradas])
+
+  const pipelinePonderado = useMemo(() =>
+    activas.reduce((s, op) => s + (op.valor_estimado ?? 0) * ((op.probabilidad ?? 50) / 100), 0)
+  , [activas])
+
+  const ticketPromedio = useMemo(() =>
+    activas.length ? activas.reduce((s, op) => s + (op.valor_estimado ?? 0), 0) / activas.length : 0
+  , [activas])
+
+  const distribucion = useMemo(() => {
+    const counts = {}
+    const totals = {}
+    DIST_ESTADOS.forEach(({ estado }) => { counts[estado] = 0; totals[estado] = 0 })
+    filtradas.forEach(op => {
+      if (counts[op.estado] !== undefined) {
+        counts[op.estado]++
+        totals[op.estado] += op.valor_estimado ?? 0
+      }
+    })
+    const maxCount = Math.max(1, ...Object.values(counts))
+    return DIST_ESTADOS.map(({ estado, color }) => ({
+      estado, color,
+      count: counts[estado],
+      total: totals[estado],
+      pct: Math.round((counts[estado] / maxCount) * 100),
+    }))
+  }, [filtradas])
+
   return (
     <AppLayout>
       <Topbar title="Pipeline del Equipo" />
@@ -80,7 +133,37 @@ export default function PipelineDirectorPage() {
         {loading && <LoadingSpinner label="Cargando pipeline..." />}
 
         {!loading && (
-          <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm overflow-hidden">
+          <>
+            {/* KPIs */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <KpiCard label="Oportunidades activas" value={activas.length} sub="En seguimiento" color="#24388C" />
+              <KpiCard label="Pipeline ponderado" value={formatM(pipelinePonderado)} sub="Por probabilidad" color="#1A8754" />
+              <KpiCard label="Ticket promedio" value={formatM(ticketPromedio)} sub="Oportunidades activas" color="#F39610" />
+              <KpiCard label="Total filtradas" value={filtradas.length} sub={hayFiltros ? 'Con filtros aplicados' : 'Todas'} />
+            </div>
+
+            {/* Distribución por estado */}
+            <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm overflow-hidden mb-4">
+              <div className="px-5 py-4 border-b border-[#F0F0F0]">
+                <div className="text-[14px] font-bold text-[#1A1A1A]">Distribución por estado</div>
+                <div className="text-[12px] text-[#6B6B6B]">Cantidad y valor por etapa del pipeline</div>
+              </div>
+              <div className="p-5 flex flex-col gap-3">
+                {distribucion.map(d => (
+                  <div key={d.estado} className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: d.color }} />
+                    <span className="text-[12px] font-semibold text-[#4A4A4A] w-28 shrink-0">{d.estado}</span>
+                    <div className="flex-1 h-2 bg-[#F0F0F0] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${d.pct}%`, background: d.color }} />
+                    </div>
+                    <span className="text-[12.5px] font-bold text-[#1A1A1A] w-5 text-right shrink-0">{d.count}</span>
+                    <span className="text-[12px] font-semibold text-[#F39610] w-20 text-right shrink-0">{formatM(d.total)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-[#F0F0F0] flex items-center gap-3">
               <span className="text-[14px] font-bold text-[#1A1A1A]">Oportunidades</span>
               <span className="text-[11.5px] font-semibold px-2.5 py-1 rounded-full bg-[#EEF1FA] text-[#24388C]">
@@ -118,6 +201,7 @@ export default function PipelineDirectorPage() {
               </div>
             )}
           </div>
+          </>
         )}
       </div>
     </AppLayout>

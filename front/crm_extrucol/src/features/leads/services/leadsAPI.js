@@ -21,26 +21,27 @@ const apexOps = {
   crear: (data) =>
     callProcess('LEADS_CREATE', {
       x01: data.nombre,
-      x02: data.empresa,
-      x03: data.email,
-      x04: data.telefono,
-      x05: data.origen,
-      x06: data.sector,
-      x07: data.ciudad_id,
-      x08: data.descripcion,
+      x02: data.descripcion,
+      x03: data.origen,
+      x04: data.estado,
+      x05: data.empresa,
+      x06: data.contacto ?? '',
+      x07: data.telefono ?? '',
+      x08: data.email ?? '',
+      x09: data.score ?? 0,
     }).then(unwrapSingle),
 
   actualizar: (id, data) =>
     callProcess('LEADS_UPDATE', {
       x01: id,
       x02: data.nombre,
-      x03: data.empresa,
-      x04: data.email,
-      x05: data.telefono,
-      x06: data.origen,
-      x07: data.sector,
-      x08: data.ciudad_id,
-      x09: data.descripcion,
+      x03: data.descripcion,
+      x04: data.estado,
+      x05: data.score,
+      x06: data.empresa,
+      x07: data.contacto ?? '',
+      x08: data.telefono ?? '',
+      x09: data.email ?? '',
     }).then(unwrapSingle),
 
   cambiarEstado: (id, estado) =>

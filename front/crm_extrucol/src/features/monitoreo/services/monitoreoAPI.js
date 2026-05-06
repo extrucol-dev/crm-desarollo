@@ -8,7 +8,7 @@ const restOps = {
 }
 
 const apexOps = {
-  ejecutivos:       () => callProcess('MONITOREO_EJECUTIVOS').then(unwrapList),
+  ejecutivos:       () => callProcess('MONITOREO_EJECUTIVOS_GPS').then(unwrapList),
   mapaActividades:  ({ fecha } = {}) => callProcess('MONITOREO_ACTIVIDADES_MAPA', { x01: fecha ?? '' }).then(unwrapSingle),
 }
 

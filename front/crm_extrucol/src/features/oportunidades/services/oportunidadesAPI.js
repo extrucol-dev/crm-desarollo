@@ -45,25 +45,30 @@ const apexOps = {
     callProcess('OPORTUNIDADES_GET', { x01: id }).then(unwrapSingle),
   actividades: (id) =>
     callProcess('OPORTUNIDADES_ACTIVIDADES', { x01: id }).then(unwrapList),
-  crear: (data) =>
+crear: (data) =>
     callProcess('OPORTUNIDADES_CREATE', {
       x01: data.nombre,
-      x02: data.descripcion,
+      x02: data.descripcion ?? '',
       x03: data.tipo,
       x04: data.valor_estimado,
       x05: data.fecha_cierre || '',
       x06: data.cliente,
+      x07: data.sector ?? '',
+      x08: data.probabilidad ?? 50,
     }).then(unwrapSingle),
+
   actualizar: (id, data) =>
     callProcess('OPORTUNIDADES_UPDATE', {
       x01: id,
       x02: data.nombre,
-      x03: data.descripcion,
+      x03: data.descripcion ?? '',
       x04: data.tipo,
-      x05: data.estado,
-      x06: data.valor_estimado,
-      x07: data.fecha_cierre || '',
-      x08: data.cliente,
+      x05: data.valor_estimado,
+      x06: data.fecha_cierre || '',
+      x07: data.cliente,
+      x08: data.sector ?? '',
+      x09: data.probabilidad ?? 50,
+      x10: data.estado,
     }).then(unwrapSingle),
   avanzarEstado: (id, estado) =>
     callProcess('OPORTUNIDADES_AVANZAR', { x01: id, x02: estado }).then(unwrapSingle),
@@ -71,8 +76,9 @@ const apexOps = {
     callProcess('OPORTUNIDADES_CERRAR', {
       x01: id,
       x02: payload.estado,
-      x03: payload.fecha_cierre || '',
-      x04: payload.motivo_cierre || '',
+      x03: payload.motivo ?? '',
+      x04: payload.descripcion_cierre ?? '',
+      x05: payload.fecha_cierre || '',
     }).then(unwrapSingle),
 }
 

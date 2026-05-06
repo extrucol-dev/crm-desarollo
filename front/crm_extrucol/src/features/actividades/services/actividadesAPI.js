@@ -46,19 +46,25 @@ const apexOps = {
   crear: (data) =>
     callProcess('ACTIVIDADES_CREATE', {
       x01: data.tipo,
-      x02: data.descripcion,
-      x03: data.virtual ? '1' : '0',
-      x04: data.fecha_actividad,
-      x05: Number(data.oportunidad),
+      x02: data.asunto ?? '',
+      x03: data.descripcion ?? '',
+      x04: data.virtual ? '1' : '0',
+      x05: typeof data.fecha_actividad === 'string' && data.fecha_actividad.includes('T')
+        ? data.fecha_actividad.slice(0, 10)
+        : data.fecha_actividad,
+      x06: Number(data.oportunidad),
+      x07: data.lead_id ? Number(data.lead_id) : '',
     }).then(unwrapSingle),
   actualizar: (id, data) =>
     callProcess('ACTIVIDADES_UPDATE', {
       x01: id,
       x02: data.tipo,
-      x03: data.descripcion,
-      x04: data.virtual ? '1' : '0',
-      x05: data.fecha_actividad,
-      x06: Number(data.oportunidad),
+      x03: data.asunto ?? '',
+      x04: data.descripcion ?? '',
+      x05: data.virtual ? '1' : '0',
+      x06: typeof data.fecha_actividad === 'string' && data.fecha_actividad.includes('T')
+        ? data.fecha_actividad.slice(0, 10)
+        : data.fecha_actividad,
     }).then(unwrapSingle),
   cerrarPresencial: (id, { resultado, latitud, longitud }) =>
     callProcess('ACTIVIDADES_CERRAR', {

@@ -78,9 +78,34 @@ export default function ProyectoDetallePage() {
               <div className="lg:col-span-2 flex flex-col gap-4">
                 <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm p-5">
                   <h2 className="text-[14px] font-bold text-[#1A1A1A] mb-4">Detalles del proyecto</h2>
+
+                  {/* Progress bar */}
+                  {(p.progreso != null || p.porcentaje != null) && (
+                    <div className="mb-5">
+                      <div className="flex items-center justify-between text-[12px] mb-1.5">
+                        <span className="font-semibold text-[#4A4A4A]">Progreso</span>
+                        <span className="font-bold text-[#1A1A1A]">{p.progreso ?? p.porcentaje}%</span>
+                      </div>
+                      <div className="h-2 bg-[#F0F0F0] rounded-full overflow-hidden">
+                        <div className="h-full rounded-full transition-all"
+                          style={{
+                            width: `${p.progreso ?? p.porcentaje}%`,
+                            background: (p.progreso ?? p.porcentaje) >= 100 ? '#1A8754' : '#24388C'
+                          }} />
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="Estado"        value={p.estado} />
-                    <Field label="Fecha de inicio" value={formatDate(p.fecha_creacion)} />
+                    <Field label="Estado" value={p.estado} />
+                    <Field label="Fecha de inicio" value={formatDate(p.fecha_inicio ?? p.fecha_creacion)} />
+                    {p.fecha_fin && <Field label="Fecha de fin" value={formatDate(p.fecha_fin)} />}
+                    {p.valor != null && (
+                      <div>
+                        <div className="text-[11px] font-semibold text-[#ABABAB] uppercase tracking-wider mb-1">Valor del proyecto</div>
+                        <div className="text-[15px] font-bold text-[#F39610]">{formatCOP(p.valor)}</div>
+                      </div>
+                    )}
                     <div className="sm:col-span-2">
                       <Field label="Descripción" value={p.descripcion} />
                     </div>

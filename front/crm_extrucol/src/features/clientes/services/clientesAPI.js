@@ -11,27 +11,29 @@ const restOps = {
 
 const apexOps = {
   listar: () =>
-    callProcess('CLIENTES_LIST').then(unwrapList).then(clientes => console.log(clientes) || clientes),
+    callProcess('CLIENTES_LIST').then(unwrapList),
   buscar: (id) =>
     callProcess('CLIENTES_GET', { x01: id }).then(unwrapSingle),
   crear: (data) =>
     callProcess('CLIENTES_CREATE', {
-      x01: data.nombre,
-      x02: data.empresa,
-      x03: data.sector,
-      x04: data.ciudad_id ?? data.ciudad,
-      x05: data.email,
-      x06: data.telefono,
+      x01: data.empresa,
+      x02: data.no_documento ?? '',
+      x03: data.ciudad_id ?? '',
+      x04: data.documento ?? '',
+      x05: data.modalidad ?? '',
+      x06: data.nombre,
+      x07: data.cargo ?? '',
+      x08: data.email ?? '',
+      x09: data.telefono ?? '',
     }).then(unwrapSingle),
   actualizar: (id, data) =>
     callProcess('CLIENTES_UPDATE', {
       x01: id,
-      x02: data.nombre,
-      x03: data.empresa,
-      x04: data.sector,
-      x05: data.ciudad_id ?? data.ciudad,
-      x06: data.email,
-      x07: data.telefono,
+      x02: data.empresa,
+      x03: data.no_documento ?? '',
+      x04: data.ciudad_id ?? '',
+      x05: data.documento ?? '',
+      x06: data.modalidad ?? '',
     }).then(unwrapSingle),
 }
 

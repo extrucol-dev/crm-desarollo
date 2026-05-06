@@ -70,10 +70,19 @@ export default function ForecastingPage() {
   const [loading, setLoading] = useState(true)
   const [showFiltros, setShowFiltros] = useState(false)
 
-  useEffect(() => {
+useEffect(() => {
+    setLoading(true)
     analisisAPI.forecast({ meses })
       .then(data => {
-        setMonthsData(data?.meses ?? [])
+        const raw = Array.isArray(data) ? data : data?.data ?? []
+        const mapped = raw.map(m => ({
+          ...m,
+          optimista: m.optimista ?? m.ponderado * 1.2,
+          esperada:  m.esperada  ?? m.ponderado,
+          pesimista: m.pesimista ?? m.ponderado * 0.6,
+          real: m.real ?? null,
+        }))
+        setMonthsData(mapped)
       })
       .catch(() => setMonthsData([]))
       .finally(() => setLoading(false))
@@ -82,29 +91,33 @@ export default function ForecastingPage() {
   const MAX_Y = 1800
   const SVG_W = 100
   const SVG_H = 100
-  const xStep = SVG_W / (monthsData.length - 1)
+  const xStep = monthsData.length > 1 ? SVG_W / (monthsData.length - 1) : SVG_W
 
   const buildPoly = (key) =>
     monthsData
-      .map((m, i) => m[key] !== null ? `${i * xStep},${SVG_H - (m[key] / MAX_Y * SVG_H)}` : null)
+      .map((m, i) => m[key] != null ? `${i * xStep},${SVG_H - (m[key] / MAX_Y * SVG_H)}` : null)
       .filter(Boolean)
       .join(' ')
 
   const realPts = buildPoly('real')
-  const optPts = buildPoly('optimista')
-  const espPts = buildPoly('esperada')
-  const pesPts = buildPoly('pesimista')
+  const optPts  = buildPoly('optimista')
+  const espPts  = buildPoly('esperada')
+  const pesPts  = buildPoly('pesimista')
 
-  const pivotIdx = monthsData.findIndex(m => m.real !== null && monthsData[monthsData.indexOf(m) + 1]?.real === null)
-  const pivotX = pivotIdx >= 0 ? pivotIdx * xStep : 0
-  const pivotY = pivotIdx >= 0 ? SVG_H - (monthsData[pivotIdx].real / MAX_Y * SVG_H) : 0
+  const lastRealIdx = monthsData.map(m => m.real != null).lastIndexOf(true)
+  const pivotX = lastRealIdx >= 0 ? lastRealIdx * xStep : 0
+  const pivotY = lastRealIdx >= 0 && monthsData[lastRealIdx]
+    ? SVG_H - (monthsData[lastRealIdx].real / MAX_Y * SVG_H)
+    : 0
 
-  const totalEsperado = monthsData.filter(m => m.esperada !== null).reduce((a, m) => a + (m.esperada ?? 0), 0)
-  const totalOpt = monthsData.filter(m => m.optimista !== null).reduce((a, m) => a + (m.optimista ?? 0), 0)
-  const totalPes = monthsData.filter(m => m.pesimista !== null).reduce((a, m) => a + (m.pesimista ?? 0), 0)
+  const allWithEsperada = monthsData.filter(m => m.esperada != null)
+  const totalEsperado = allWithEsperada.reduce((a, m) => a + (m.esperada ?? 0), 0)
+  const totalOpt     = monthsData.filter(m => m.optimista != null).reduce((a, m) => a + (m.optimista ?? 0), 0)
+  const totalPes     = monthsData.filter(m => m.pesimista != null).reduce((a, m) => a + (m.pesimista ?? 0), 0)
   const pipelinePonderado = totalEsperado
 
-  const confianzaPromedio = 0
+  const pctOpt = totalEsperado > 0 ? Math.round((totalOpt - totalEsperado) / totalEsperado * 100) : 0
+  const pctPes = totalEsperado > 0 ? Math.round((totalEsperado - totalPes) / totalEsperado * 100) : 0
 
   return (
     <AppLayout>
@@ -143,14 +156,14 @@ export default function ForecastingPage() {
                 label="Mejor escenario"
                 value={`$ ${totalOpt.toLocaleString()} M`}
                 color="#1A8754"
-                subtext={`+${Math.round((totalOpt - totalEsperado) / totalEsperado * 100)}% vs esperado`}
+                subtext={`+${pctOpt}% vs esperado`}
                 icon={{ bg: '#E8F5EE', color: '#1A8754', svg: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg> }}
               />
               <StatCard
                 label="Peor escenario"
                 value={`$ ${totalPes.toLocaleString()} M`}
                 color="#C0392B"
-                subtext={`-${Math.round((totalEsperado - totalPes) / totalEsperado * 100)}% vs esperado`}
+                subtext={`-${pctPes}% vs esperado`}
                 icon={{ bg: '#FDECEA', color: '#C0392B', svg: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6L9 12.75l4.694-4.5m5.036-1.053l4.306-1.22M2.25 18l-4.5-4.5m0 0l5.94 2.28m-5.94-2.28l2.28 5.94" /></svg> }}
               />
               <StatCard
@@ -222,31 +235,31 @@ export default function ForecastingPage() {
 
             
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-              <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm p-5">
-                <div className="text-[13px] font-bold text-[#ABABAB] mb-3">Distribución por probabilidad</div>
-                <div className="text-[12px] text-[#ABABAB]">Sin datos disponibles</div>
+            {/* Escenarios */}
+            <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm overflow-hidden mb-4">
+              <div className="px-5 py-4 border-b border-[#F0F0F0]">
+                <div className="text-[14px] font-bold text-[#1A1A1A]">Escenarios de cierre</div>
+                <div className="text-[12px] text-[#6B6B6B]">Proyección de ingresos para el horizonte seleccionado</div>
               </div>
-              <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm p-5">
-                <div className="text-[13px] font-bold text-[#ABABAB] mb-3">Factores de confianza</div>
-                <div className="text-[12px] text-[#ABABAB]">Sin datos disponibles</div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm p-5">
-              <div className="text-[14px] font-bold text-[#ABABAB] mb-3">Oportunidades clave del forecast</div>
-              <div className="text-[12px] text-[#ABABAB]">Sin datos disponibles</div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm p-5">
-                <div className="text-[13px] font-bold text-[#ABABAB] mb-3">Forecast Q2 por sector</div>
-                <div className="text-[12px] text-[#ABABAB]">Sin datos disponibles</div>
-              </div>
-
-              <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm p-5">
-                <div className="text-[13px] font-bold text-[#ABABAB] mb-3">Riesgos del forecast</div>
-                <div className="text-[12px] text-[#ABABAB]">Sin datos disponibles</div>
+              <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <ScenarioCard
+                  type="worst"
+                  label="Peor escenario"
+                  value={`$ ${totalPes.toLocaleString()} M`}
+                  sublabel={`-${pctPes}% vs esperado`}
+                />
+                <ScenarioCard
+                  type="expected"
+                  label="Escenario esperado"
+                  value={`$ ${totalEsperado.toLocaleString()} M`}
+                  sublabel="Pipeline ponderado por probabilidad"
+                />
+                <ScenarioCard
+                  type="best"
+                  label="Mejor escenario"
+                  value={`$ ${totalOpt.toLocaleString()} M`}
+                  sublabel={`+${pctOpt}% vs esperado`}
+                />
               </div>
             </div>
           </>

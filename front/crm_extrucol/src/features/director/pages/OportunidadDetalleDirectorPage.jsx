@@ -45,7 +45,7 @@ export default function OportunidadDetalleDirectorPage() {
   useEffect(() => {
     Promise.all([
       oportunidadesAPI.buscar(id),
-      oportunidadesAPI.actividades(id).then(d => d.actividades ?? []).catch(() => []),
+      oportunidadesAPI.actividades(id).catch(() => []),
     ]).then(([oportunidad, acts]) => {
       setOp(oportunidad); setActs(acts)
     }).catch(() => setError('No se pudo cargar la oportunidad.'))
@@ -127,9 +127,7 @@ export default function OportunidadDetalleDirectorPage() {
               {op.cliente && (
                 <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm p-5">
                   <h2 className="text-[14px] font-bold text-[#1A1A1A] mb-3">Cliente</h2>
-                  <div className="text-[14px] font-bold text-[#24388C] mb-1">{op.cliente.empresa || op.cliente.nombre}</div>
-                  <div className="text-[12.5px] text-[#6B6B6B]">{op.cliente.nombre}</div>
-                  {op.cliente.email && <div className="text-[12.5px] text-[#6B6B6B] mt-1">{op.cliente.email}</div>}
+                  <div className="text-[14px] font-bold text-[#24388C] mb-1">{op.cliente.nombre || op.cliente.empresa}</div>
                 </div>
               )}
               {op.usuario && (

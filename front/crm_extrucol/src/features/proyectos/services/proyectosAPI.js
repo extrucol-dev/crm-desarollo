@@ -38,16 +38,19 @@ const apexOps = {
   crear: (data) =>
     callProcess('PROYECTOS_CREATE', {
       x01: data.nombre,
-      x02: data.descripcion,
+      x02: data.descripcion ?? '',
       x03: Number(data.oportunidad),
+      x04: data.fecha_inicio ?? '',
+      x05: data.fecha_fin ?? '',
     }).then(unwrapSingle),
   actualizar: (id, data) =>
     callProcess('PROYECTOS_UPDATE', {
       x01: id,
       x02: data.nombre,
       x03: data.descripcion,
-      x04: data.estado,
-      x05: Number(data.oportunidad),
+      x04: data.porcentaje_completado ?? '',
+      x05: data.fecha_inicio ?? '',
+      x06: data.fecha_fin ?? '',
     }).then(unwrapSingle),
   actualizarEstado: (id, estado) =>
     callProcess('PROYECTOS_ESTADO', { x01: id, x02: estado }).then(unwrapSingle),

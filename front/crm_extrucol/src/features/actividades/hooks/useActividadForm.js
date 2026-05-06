@@ -38,7 +38,7 @@ export function useActividadForm({ id, oportunidadIdInicial, onSuccess }) {
         descripcion:     a.descripcion      ?? '',
         virtual:         a.virtual          ?? false,
         fecha_actividad: a.fecha_actividad?.slice(0, 16) ?? '',
-        oportunidad:     a.oportunidad?.id  ?? '',
+        oportunidad:     a.oportunidad      ?? '',
       }))
       .catch(() => setApiError('No se pudo cargar la actividad.'))
       .finally(() => setFetching(false))

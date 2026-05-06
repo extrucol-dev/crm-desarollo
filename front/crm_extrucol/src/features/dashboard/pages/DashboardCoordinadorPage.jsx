@@ -111,7 +111,7 @@ export default function DashboardCoordinadorPage() {
             </div>
 
             {/* ── Equipo + Alertas ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+            <div className="grid gap-4 mb-4" style={{ gridTemplateColumns: '1.2fr 1fr' }}>
 
               {/* Equipo */}
               <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-sm overflow-hidden">

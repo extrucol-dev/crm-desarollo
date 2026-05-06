@@ -81,10 +81,10 @@ export default function ReportesPage() {
       reportesAPI.listar(),
       reportesAPI.recientes(),
     ]).then(([lista, rec]) => {
-      setReportes(Array.isArray(lista) && lista.length ? lista : [])
+      setReportes(Array.isArray(lista) && lista.length ? lista : REPORTES_PREDEFINIDOS)
       setRecientes(Array.isArray(rec) && rec.length ? rec : [])
     }).catch(() => {
-      setReportes([])
+      setReportes(REPORTES_PREDEFINIDOS)
       setRecientes([])
     }).finally(() => setLoading(false))
   }, [])
